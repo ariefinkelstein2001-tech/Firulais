@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FIRULAIS — Craft Mix · Free of Lice</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,400;1,700&display=swap" rel="stylesheet">
+
+  <!--
+  ╔══════════════════════════════════════════════════════════╗
+  ║  IMÁGENES — creá la carpeta /images/ y subí estos archivos:
+  ║
+  ║  images/logo.png            → Logo circular badge
+  ║  images/hero.jpg            → Perro caminando entre letras FIRULAIS
+  ║  images/sprite-cachupin.png → 3 frames Cachupin (en una imagen)
+  ║  images/sprite-pepita.png   → 3 frames Pepita  (en una imagen)
+  ║  images/sprite-cholita.png  → 3 frames Cholita (en una imagen)
+  ║  images/mano-izq.png        → Mano izquierda sirviendo lata
+  ║  images/mano-der.png        → Mano derecha vertiendo lata
+  ║  images/lata-cachupin.png   → Lata Cachupin PNG fondo transparente
+  ║  images/lata-pepita.png     → Lata Pepita PNG fondo transparente
+  ║  images/lata-cholita.png    → Lata Cholita PNG fondo transparente
+  ║  images/foto1.jpg - foto6.jpg → Galería de fotos
+  ║
+  ║  Busca "★" en el código para ver dónde va cada imagen.
+  ╚══════════════════════════════════════════════════════════╝
+  -->
+
+  <style>
+    :root {
+      --red:    #CA1720;
+      --cream:  #F4E6E2;
+      --teal:   #007078;
+      --yellow: #FEE04A;
+      --dark:   #111111;
+      --white:  #ffffff;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Barlow Condensed', sans-serif;
+      background: var(--cream);
+      color: var(--dark);
+      overflow-x: hidden;
+    }
+
+    /* grain texture */
+    body::after {
+      content: ''; position: fixed; inset: 0;
+      pointer-events: none; z-index: 9000; opacity: .03;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ── PROGRESS BAR ── */
+    #progress {
+      position: fixed; top: 0; left: 0;
+      height: 4px; background: var(--yellow);
+      z-index: 9999; width: 0; transition: width .1s linear;
+    }
+
+    /* ══════════════════════════════
+       NAVBAR
+    ══════════════════════════════ */
+    nav {
+      position: fixed; top: 4px; left: 0; right: 0; z-index: 1000;
+      background: var(--dark);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; height: 62px;
+      border-bottom: 3px solid var(--yellow);
+      transition: border-color .3s;
+    }
+
+    .nav-logo { text-decoration: none; display: flex; align-items: center; }
+    .nav-logo img {
+      height: 46px; width: auto; display: block;
+    }
+    .nav-logo-fb {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px; letter-spacing: 5px; color: var(--yellow);
+      display: none;
+    }
+
+    .nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
+    .nav-links a {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700; font-size: 13px; letter-spacing: 3px;
+      text-transform: uppercase; color: var(--cream);
+      text-decoration: none; transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--yellow); }
+    .nav-cta {
+      background: var(--red) !important; color: var(--white) !important;
+      padding: 9px 22px; border: 2px solid var(--red);
+      transition: background .2s, color .2s, border-color .2s !important;
+    }
+    .nav-cta:hover {
+      background: var(--yellow) !important;
+      color: var(--dark) !important;
+      border-color: var(--yellow) !important;
+    }
+
+    /* ══════════════════════════════
+       HERO
+    ══════════════════════════════ */
+    #hero {
+      min-height: 100vh; padding-top: 66px;
+      background: var(--yellow);
+      display: flex; align-items: stretch;
+      position: relative; overflow: hidden;
+    }
+    #hero::before {
+      content: ''; position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(202,23,32,.1) 1.5px, transparent 1.5px);
+      background-size: 28px 28px; pointer-events: none;
+    }
+
+    /* Left column */
+    .hero-left {
+      flex: 0 0 55%; position: relative; z-index: 2;
+      padding: 80px 50px 80px 60px;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+
+    .hero-eyebrow {
+      font-weight: 700; font-size: 12px; letter-spacing: 7px;
+      text-transform: uppercase; color: var(--teal);
+      margin-bottom: 12px;
+      opacity: 0; transform: translateY(18px);
+      animation: fadeUp .55s ease forwards .15s;
+    }
+
+    /* FIRULAIS con bloque teal */
+    .hero-title-wrap {
+      position: relative; display: inline-block;
+      opacity: 0; transform: translateY(40px);
+      animation: fadeUp .7s ease forwards .35s;
+    }
+    .hero-title-wrap::before {
+      content: ''; position: absolute;
+      left: -4px; right: -4px;
+      top: 40%; height: 38%;
+      background: var(--teal); z-index: 0;
+    }
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(78px, 12vw, 158px);
+      line-height: 1; letter-spacing: 2px; color: var(--dark);
+      position: relative; z-index: 1;
+    }
+
+    .hero-sub {
+      font-size: clamp(14px, 1.8vw, 19px); font-weight: 700;
+      letter-spacing: 5px; text-transform: uppercase; color: var(--dark);
+      margin-top: 18px;
+      opacity: 0; transform: translateY(18px);
+      animation: fadeUp .55s ease forwards .65s;
+    }
+    .hero-italic {
+      font-style: italic; font-weight: 400;
+      font-size: clamp(14px, 1.5vw, 17px); color: var(--teal);
+      margin-top: 6px;
+      opacity: 0; transform: translateY(18px);
+      animation: fadeUp .55s ease forwards .82s;
+    }
+
+    /* ── TUBE + MANO + PERRO ANIMATION ── */
+    .hero-tube-row {
+      display: flex; align-items: center; height: 76px;
+      margin: 28px 0;
+      opacity: 0; transform: translateY(18px);
+      animation: fadeUp .55s ease forwards 1s;
+    }
+
+    /* Tube circle */
+    .tube-circle {
+      width: 76px; height: 76px; flex-shrink: 0;
+      background: var(--dark); border-radius: 50%;
+      position: relative; z-index: 2; overflow: hidden;
+    }
+    .tube-circle::after {
+      content: ''; position: absolute;
+      right: 6px; top: 50%; transform: translateY(-50%);
+      width: 14px; height: 14px;
+      background: var(--yellow); border-radius: 50%;
+    }
+
+    /* Hand sliding out */
+    .tube-hand-wrap {
+      width: 100px; height: 76px; flex-shrink: 0;
+      position: relative; overflow: hidden;
+    }
+    /* ★ Cuando tengas la imagen real: quitá .tube-hand-emoji y descomentá .tube-hand-img ★ */
+    /* .tube-hand-img {
+      position: absolute; left: -120%; top: 50%; transform: translateY(-50%);
+      height: 60px; width: auto;
+      animation: handSlide 1s cubic-bezier(.34,1.56,.64,1) forwards 1.5s;
+    } */
+    .tube-hand-emoji {
+      position: absolute; font-size: 38px;
+      left: -120%; top: 50%; transform: translateY(-50%);
+      animation: handSlide 1s cubic-bezier(.34,1.56,.64,1) forwards 1.5s;
+    }
+
+    /* Walking sprite dog */
+    .tube-dog-wrap {
+      flex: 1; height: 76px; overflow: hidden;
+      opacity: 0; animation: fadeIn .4s ease forwards 2.1s;
+    }
+    .tube-sprite {
+      /* ★ sprite-cachupin.png: los 3 frames uno al lado del otro ★ */
+      background-image: url('images/sprite-cachupin.png');
+      background-size: 300% auto;
+      background-repeat: no-repeat;
+      background-position: 0% 50%;
+      height: 76px;
+      width: 80px; /* ancho de 1 frame — ajustá si la imagen es distinta */
+      animation: sprite3 .5s steps(1) infinite 2.1s;
+    }
+
+    /* Buttons */
+    .hero-btns {
+      display: flex; gap: 16px; flex-wrap: wrap;
+      opacity: 0; transform: translateY(18px);
+      animation: fadeUp .55s ease forwards 1.15s;
+    }
+    .btn {
+      display: inline-block; font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px; letter-spacing: 3px; text-decoration: none;
+      padding: 14px 36px; border: 3px solid var(--dark);
+      box-shadow: 4px 4px 0 var(--dark);
+      transition: transform .12s, box-shadow .12s;
+    }
+    .btn:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--dark); }
+    .btn-red   { background: var(--red); color: var(--white); }
+    .btn-ghost { background: transparent; color: var(--dark); }
+    .btn-ghost:hover { background: var(--dark); color: var(--yellow); }
+
+    /* Right column — hero image */
+    .hero-right {
+      flex: 0 0 45%; position: relative; z-index: 2;
+      overflow: hidden;
+      background: var(--teal); /* fallback si no carga la imagen */
+      opacity: 0; transform: translateX(40px);
+      animation: slideLeft .8s ease forwards .5s;
+    }
+    .hero-right img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center;
+      display: block;
+    }
+
+    /* ══════════════════════════════
+       MARQUEE
+    ══════════════════════════════ */
+    .marquee-wrap {
+      overflow: hidden;
+      border-top: 4px solid var(--dark);
+      border-bottom: 4px solid var(--dark);
+    }
+    .marquee-inner {
+      display: flex; width: max-content;
+      animation: marquee 22s linear infinite;
+    }
+    .marquee-wrap.rev .marquee-inner {
+      animation-direction: reverse; animation-duration: 28s;
+    }
+    .marquee-wrap.bg-red  { background: var(--red);  padding: 13px 0; }
+    .marquee-wrap.bg-teal { background: var(--teal); padding: 13px 0; }
+    .marquee-chip {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 21px; letter-spacing: 4px;
+      white-space: nowrap; padding: 0 32px;
+    }
+    .bg-red  .marquee-chip { color: var(--yellow); }
+    .bg-teal .marquee-chip { color: var(--cream); }
+    .marquee-chip .sep { color: rgba(255,255,255,.4); margin: 0 12px; }
+
+    /* ══════════════════════════════
+       SABORES
+    ══════════════════════════════ */
+    #sabores { background: var(--cream); padding: 100px 60px; }
+
+    .section-tag {
+      font-weight: 700; font-size: 12px; letter-spacing: 6px;
+      text-transform: uppercase; color: var(--teal); margin-bottom: 6px;
+    }
+    .section-h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(54px, 8vw, 110px);
+      line-height: .9; color: var(--dark); margin-bottom: 56px;
+    }
+
+    .sabores-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    /* ── CARD ── */
+    .scard {
+      border: 3px solid var(--dark);
+      box-shadow: 6px 6px 0 var(--dark);
+      overflow: hidden;
+      opacity: 0; transform: translateY(36px);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .scard.visible { animation: fadeUp .55s ease forwards; }
+    .scard:nth-child(2).visible { animation-delay: .12s; }
+    .scard:nth-child(3).visible { animation-delay: .24s; }
+    .scard:hover {
+      transform: translate(-4px,-4px);
+      box-shadow: 10px 10px 0 var(--dark);
+    }
+
+    .scard-top {
+      position: relative; min-height: 320px; overflow: hidden;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 28px;
+    }
+    .scard-top.c1 { background: #FEE04A; }
+    .scard-top.c2 { background: #E8793A; }
+    .scard-top.c3 { background: var(--red); }
+
+    /* ── Dog sprite background ── */
+    .scard-dog-bg {
+      position: absolute;
+      right: -5px; top: 50%; transform: translateY(-58%);
+      width: 210px; height: 210px;
+      /* ★ background-image set inline per card ★ */
+      background-size: 300% auto;
+      background-repeat: no-repeat;
+      background-position: 0% 50%;
+      opacity: 0.16; pointer-events: none; z-index: 1;
+    }
+    .scard-dog-bg.anim { animation: sprite3 .5s steps(1) infinite; }
+
+    /* ── Hands ── */
+    .scard-hand {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 85px; z-index: 3;
+    }
+    .scard-hand img { width: 100%; height: auto; display: block; }
+    .scard-hand.left  { left: -24px; }
+    .scard-hand.right {
+      right: -24px;
+      transform: translateY(-50%) scaleX(-1);
+    }
+    /* placeholder emoji hand */
+    .hand-ph {
+      width: 85px; height: 85px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px;
+      background: rgba(0,0,0,.12); border-radius: 50%;
+    }
+
+    /* ── Spinning can ── */
+    .scard-can {
+      position: absolute; right: 90px; bottom: 30px;
+      width: 65px; z-index: 4;
+      opacity: 0; transform-origin: center bottom;
+    }
+    .scard-can img { width: 100%; height: auto; display: block; }
+    /* placeholder */
+    .can-ph {
+      width: 65px; height: 95px;
+      background: var(--dark); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Bebas Neue', sans-serif; font-size: 30px;
+      color: var(--yellow);
+    }
+    .c3 .can-ph { color: var(--red); background: var(--yellow); }
+    .scard-can.spin { animation: canArrive 1s cubic-bezier(.34,1.56,.64,1) forwards; }
+
+    /* ── Card text ── */
+    .scard-text { position: relative; z-index: 2; }
+
+    .scard-badge {
+      display: inline-block;
+      background: var(--dark); color: var(--yellow);
+      font-size: 11px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; padding: 5px 12px;
+      border-radius: 999px; margin-bottom: 10px;
+    }
+    .c3 .scard-badge { background: var(--yellow); color: var(--dark); }
+
+    .scard-freelice {
+      font-size: 11px; font-weight: 700; letter-spacing: 4px;
+      text-transform: uppercase; opacity: .4; margin-bottom: 2px;
+    }
+    .c3 .scard-freelice { color: var(--cream); }
+
+    .scard-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 62px; line-height: .85; color: var(--dark);
+    }
+    .c3 .scard-name { color: var(--white); }
+
+    .scard-nick {
+      font-size: 20px; font-weight: 700; font-style: italic;
+      color: var(--teal); margin-top: 2px;
+    }
+    .c3 .scard-nick { color: var(--yellow); }
+
+    .scard-bottom { background: var(--dark); padding: 20px 28px; }
+    .scard-desc {
+      font-size: 14px; font-weight: 600; letter-spacing: 1px;
+      text-transform: uppercase; color: rgba(255,255,255,.7); line-height: 1.5;
+    }
+    .scard-abv {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 26px; letter-spacing: 2px;
+      color: var(--yellow); margin-top: 8px;
+    }
+
+    /* ══════════════════════════════
+       GALERÍA
+    ══════════════════════════════ */
+    #galeria { background: var(--dark); padding: 100px 60px; }
+    #galeria .section-tag { color: var(--yellow); }
+    #galeria .section-h2  { color: var(--cream); }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-auto-rows: 220px; gap: 10px;
+    }
+    .gitem {
+      overflow: hidden; border: 2px solid rgba(255,255,255,.07);
+      opacity: 0; transform: translateY(16px);
+      transition: opacity .5s, transform .5s;
+    }
+    .gitem.visible { opacity: 1; transform: translateY(0); }
+    .gitem:nth-child(1) { grid-column: span 2; grid-row: span 2; }
+    .gitem:nth-child(5) { grid-column: span 2; }
+    .gitem img {
+      width: 100%; height: 100%; object-fit: cover;
+      display: block; transition: transform .5s;
+    }
+    .gitem:hover img { transform: scale(1.06); }
+    /* placeholder */
+    .gph {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 8px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 12px; letter-spacing: 3px; color: rgba(255,255,255,.25);
+    }
+    .gph .ico { font-size: 28px; opacity: .4; }
+
+    /* ══════════════════════════════
+       CTA
+    ══════════════════════════════ */
+    #comprar {
+      background: var(--red); padding: 120px 60px;
+      text-align: center; position: relative; overflow: hidden;
+      border-top: 4px solid var(--dark);
+    }
+    #comprar::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background-image: repeating-linear-gradient(
+        -45deg, transparent, transparent 18px,
+        rgba(0,0,0,.04) 18px, rgba(0,0,0,.04) 36px
+      );
+    }
+    .cta-paw { display: block; font-size: 52px; margin-bottom: 16px; animation: bounce 1.8s ease-in-out infinite; }
+    .cta-h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(50px, 9vw, 130px);
+      color: var(--yellow); line-height: .88;
+      position: relative; z-index: 1;
+    }
+    .cta-sub {
+      font-size: 19px; font-weight: 700; letter-spacing: 5px;
+      text-transform: uppercase; color: var(--cream);
+      margin: 20px 0 48px; position: relative; z-index: 1;
+    }
+    .btn-cta {
+      display: inline-block; font-family: 'Bebas Neue', sans-serif;
+      font-size: 26px; letter-spacing: 4px;
+      background: var(--yellow); color: var(--dark);
+      padding: 18px 60px; border: 4px solid var(--dark);
+      box-shadow: 6px 6px 0 var(--dark); text-decoration: none;
+      position: relative; z-index: 1;
+      animation: pulseShadow 2.2s ease-in-out infinite;
+      transition: transform .12s, box-shadow .12s;
+    }
+    .btn-cta:hover {
+      transform: translate(-3px,-3px); box-shadow: 9px 9px 0 var(--dark);
+      animation: none;
+    }
+
+    /* ══════════════════════════════
+       FOOTER
+    ══════════════════════════════ */
+    footer {
+      background: var(--dark); border-top: 4px solid var(--yellow);
+      padding: 40px 60px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 24px; flex-wrap: wrap;
+    }
+    .footer-logo-img { height: 64px; width: auto; display: block; }
+    .footer-logo-fb {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px; letter-spacing: 5px; color: var(--yellow);
+    }
+    .footer-sub {
+      font-size: 12px; font-weight: 600; letter-spacing: 4px;
+      text-transform: uppercase; color: rgba(255,255,255,.3); margin-top: 4px;
+    }
+    .footer-right { text-align: right; }
+    .footer-tagline {
+      font-size: 13px; font-style: italic; font-weight: 600;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: rgba(255,255,255,.3);
+    }
+    .footer-socials { display: flex; gap: 12px; margin-top: 14px; justify-content: flex-end; }
+    .footer-socials a {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 13px; letter-spacing: 2px;
+      color: var(--yellow); text-decoration: none;
+      border: 2px solid var(--yellow); padding: 6px 18px;
+      transition: background .2s, color .2s;
+    }
+    .footer-socials a:hover { background: var(--yellow); color: var(--dark); }
+    .footer-legal {
+      width: 100%; text-align: center;
+      font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+      color: rgba(255,255,255,.18);
+      margin-top: 12px; padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,.07);
+    }
+
+    /* ══════════════════════════════
+       KEYFRAMES
+    ══════════════════════════════ */
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+    @keyframes slideLeft {
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    @keyframes bounce {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-10px); }
+    }
+    @keyframes pulseShadow {
+      0%,100% { box-shadow: 6px 6px 0 var(--dark); }
+      50%      { box-shadow: 8px 8px 0 var(--dark), 0 0 28px rgba(254,224,74,.35); }
+    }
+    @keyframes handSlide {
+      to { left: 0; }
+    }
+    @keyframes sprite3 {
+      0%  { background-position: 0%   50%; }
+      33% { background-position: 50%  50%; }
+      67% { background-position: 100% 50%; }
+    }
+    @keyframes canArrive {
+      0%   { opacity: 0; transform: translateX(-160%) rotate(-360deg) scale(0.2); }
+      65%  { opacity: 1; transform: translateX(0) rotate(12deg) scale(1.08); }
+      80%  { transform: translateX(0) rotate(-5deg) scale(1); }
+      90%  { transform: translateX(0) rotate(3deg)  scale(1); }
+      100% { opacity: 1; transform: translateX(0) rotate(0deg)  scale(1); }
+    }
+
+    /* ══════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════ */
+    @media (max-width: 960px) {
+      #hero { flex-direction: column; }
+      .hero-left { flex: none; padding: 60px 24px 40px; }
+      .hero-right { flex: none; width: 100%; height: 55vw; transform: none; opacity: 1; }
+      .sabores-grid { grid-template-columns: 1fr; }
+      .gallery-grid { grid-template-columns: repeat(2,1fr); grid-auto-rows: 180px; }
+      .gitem:nth-child(1) { grid-column: span 1; grid-row: span 1; }
+      .gitem:nth-child(5) { grid-column: span 1; }
+      nav { padding: 0 20px; }
+      .nav-links li:not(:last-child) { display: none; }
+      #sabores, #galeria, #comprar, footer { padding-left: 24px; padding-right: 24px; }
+    }
+    @media (max-width: 520px) {
+      .gallery-grid { grid-template-columns: 1fr; }
+      .gitem:nth-child(5) { grid-column: span 1; }
+      footer { flex-direction: column; text-align: center; padding: 32px 24px; }
+      .footer-right { text-align: center; }
+      .footer-socials { justify-content: center; }
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="progress"></div>
+
+<!-- ══════════ NAVBAR ══════════ -->
+<nav id="nav">
+  <a href="#" class="nav-logo">
+    <!-- ★ images/logo.png → logo circular badge ★ -->
+    <img src="images/logo.png" alt="Firulais"
+         onerror="this.style.display='none'; document.querySelector('.nav-logo-fb').style.display='block'">
+    <span class="nav-logo-fb">FIRULAIS</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#sabores">Sabores</a></li>
+    <li><a href="#galeria">Fotos</a></li>
+    <!-- ★ Cambiá esta URL por tu tienda Shopify ★ -->
+    <li><a href="https://TU-TIENDA.myshopify.com" class="nav-cta" target="_blank">Comprar</a></li>
+  </ul>
+</nav>
+
+<!-- ══════════ HERO ══════════ -->
+<section id="hero">
+
+  <div class="hero-left">
+    <p class="hero-eyebrow">Free of Lice · Est. 2025 · Craft Mix</p>
+
+    <!-- FIRULAIS con bloque teal detrás -->
+    <div class="hero-title-wrap">
+      <h1 class="hero-title">FIRULAIS</h1>
+    </div>
+
+    <p class="hero-sub">Craft Mix · Cerveza Artesanal</p>
+    <p class="hero-italic">Perrisima. Desde el primer sorbo.</p>
+
+    <!-- ── TUBO + MANO + PERRO CAMINANDO ── -->
+    <div class="hero-tube-row">
+
+      <!-- Círculo/tubo -->
+      <div class="tube-circle"></div>
+
+      <!-- Mano saliendo del tubo -->
+      <div class="tube-hand-wrap">
+        <!--
+          ★ Cuando tengas images/mano-izq.png:
+          1. Borrá el div.tube-hand-emoji
+          2. Descomentá estas líneas:
+          <img src="images/mano-izq.png" alt=""
+               style="position:absolute; left:-120%; top:50%; transform:translateY(-50%);
+                      height:60px; width:auto;
+                      animation:handSlide 1s cubic-bezier(.34,1.56,.64,1) forwards 1.5s;">
+        ★ -->
+        <div class="tube-hand-emoji">🫳</div>
+      </div>
+
+      <!-- Sprite del perro caminando -->
+      <div class="tube-dog-wrap">
+        <!--
+          ★ images/sprite-cachupin.png
+          Esta imagen tiene los 3 frames del perro uno al lado del otro.
+          Ajustá el "width" de .tube-sprite si el frame no es cuadrado.
+        ★ -->
+        <div class="tube-sprite"></div>
+      </div>
+
+    </div>
+
+    <div class="hero-btns">
+      <a href="https://TU-TIENDA.myshopify.com" class="btn btn-red" target="_blank">Comprar Ahora</a>
+      <a href="#sabores" class="btn btn-ghost">Ver Sabores</a>
+    </div>
+  </div>
+
+  <!-- ★ images/hero.jpg → foto del perro caminando entre las letras FIRULAIS ★ -->
+  <div class="hero-right">
+    <img src="images/hero.jpg" alt="Firulais — Free of Lice">
+  </div>
+
+</section>
+
+<!-- ══════════ MARQUEE 1 ══════════ -->
+<div class="marquee-wrap bg-red">
+  <div class="marquee-inner">
+    <span class="marquee-chip">PERRISIMA <span class="sep">·</span></span>
+    <span class="marquee-chip">FREE OF LICE <span class="sep">·</span></span>
+    <span class="marquee-chip">CRAFT MIX <span class="sep">·</span></span>
+    <span class="marquee-chip">DESDE EL PRIMER SORBO <span class="sep">·</span></span>
+    <span class="marquee-chip">CALLEJERO POR NATURALEZA <span class="sep">·</span></span>
+    <span class="marquee-chip">GOOD BEER GOOD TIMES <span class="sep">·</span></span>
+    <span class="marquee-chip">🐾 <span class="sep">·</span></span>
+    <span class="marquee-chip">PERRISIMA <span class="sep">·</span></span>
+    <span class="marquee-chip">FREE OF LICE <span class="sep">·</span></span>
+    <span class="marquee-chip">CRAFT MIX <span class="sep">·</span></span>
+    <span class="marquee-chip">DESDE EL PRIMER SORBO <span class="sep">·</span></span>
+    <span class="marquee-chip">CALLEJERO POR NATURALEZA <span class="sep">·</span></span>
+    <span class="marquee-chip">GOOD BEER GOOD TIMES <span class="sep">·</span></span>
+    <span class="marquee-chip">🐾 <span class="sep">·</span></span>
+  </div>
+</div>
+
+<!-- ══════════ SABORES ══════════ -->
+<section id="sabores">
+  <p class="section-tag">Nuestros Sabores</p>
+  <h2 class="section-h2">LA FAMILIA</h2>
+
+  <div class="sabores-grid">
+
+    <!-- ─── CACHUPIN ─── -->
+    <div class="scard">
+      <div class="scard-top c1">
+
+        <!-- ★ images/sprite-cachupin.png → 3 frames del perro uno al lado del otro ★ -->
+        <div class="scard-dog-bg" style="background-image:url('images/sprite-cachupin.png')"></div>
+
+        <!-- ★ Mano izquierda — cuando tengas images/mano-izq.png:
+             Reemplazá <div class="hand-ph"> por <img src="images/mano-izq.png" alt=""> ★ -->
+        <div class="scard-hand left"><div class="hand-ph">🫴</div></div>
+
+        <!-- ★ Mano derecha — cuando tengas images/mano-der.png:
+             Reemplazá <div class="hand-ph"> por <img src="images/mano-der.png" alt=""> ★ -->
+        <div class="scard-hand right"><div class="hand-ph">🫳</div></div>
+
+        <!-- ★ Lata girando — cuando tengas images/lata-cachupin.png:
+             Reemplazá <div class="can-ph"> por <img src="images/lata-cachupin.png" alt=""> ★ -->
+        <div class="scard-can" id="can-cachupin">
+          <div class="can-ph">F</div>
+        </div>
+
+        <div class="scard-text">
+          <span class="scard-badge">Chelada</span>
+          <p class="scard-freelice">Free of Lice</p>
+          <h3 class="scard-name">FIRULAIS</h3>
+          <p class="scard-nick">Cachupin</p>
+        </div>
+      </div>
+      <div class="scard-bottom">
+        <p class="scard-desc">Cerveza con limón de pica natural y sal de mar</p>
+        <p class="scard-abv">473 ML &nbsp;·&nbsp; 4.5% ABV</p>
+      </div>
+    </div>
+
+    <!-- ─── PEPITA ─── -->
+    <div class="scard">
+      <div class="scard-top c2">
+
+        <!-- ★ images/sprite-pepita.png ★ -->
+        <div class="scard-dog-bg" style="background-image:url('images/sprite-pepita.png')"></div>
+
+        <div class="scard-hand left"><div class="hand-ph">🫴</div></div>
+        <div class="scard-hand right"><div class="hand-ph">🫳</div></div>
+
+        <!-- ★ images/lata-pepita.png ★ -->
+        <div class="scard-can" id="can-pepita">
+          <div class="can-ph">F</div>
+        </div>
+
+        <div class="scard-text">
+          <span class="scard-badge">Spicy &amp; Sweet</span>
+          <p class="scard-freelice">Free of Lice</p>
+          <h3 class="scard-name">FIRULAIS</h3>
+          <p class="scard-nick">Pepita</p>
+        </div>
+      </div>
+      <div class="scard-bottom">
+        <p class="scard-desc">Cerveza con mango y ají habanero natural</p>
+        <p class="scard-abv">473 ML &nbsp;·&nbsp; 4.5% ABV</p>
+      </div>
+    </div>
+
+    <!-- ─── CHOLITA ─── -->
+    <div class="scard">
+      <div class="scard-top c3">
+
+        <!-- ★ images/sprite-cholita.png ★ -->
+        <div class="scard-dog-bg" style="background-image:url('images/sprite-cholita.png')"></div>
+
+        <div class="scard-hand left"><div class="hand-ph">🫴</div></div>
+        <div class="scard-hand right"><div class="hand-ph">🫳</div></div>
+
+        <!-- ★ images/lata-cholita.png ★ -->
+        <div class="scard-can" id="can-cholita">
+          <div class="can-ph">F</div>
+        </div>
+
+        <div class="scard-text">
+          <span class="scard-badge">Michelada</span>
+          <p class="scard-freelice">Free of Lice</p>
+          <h3 class="scard-name">FIRULAIS</h3>
+          <p class="scard-nick">Cholita</p>
+        </div>
+      </div>
+      <div class="scard-bottom">
+        <p class="scard-desc">Cerveza con limón de pica, sal y jugo de tomate natural</p>
+        <p class="scard-abv">473 ML &nbsp;·&nbsp; 4.5% ABV</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════ MARQUEE 2 ══════════ -->
+<div class="marquee-wrap bg-teal rev">
+  <div class="marquee-inner">
+    <span class="marquee-chip">ES APARECER SIN AVISAR <span class="sep">·</span></span>
+    <span class="marquee-chip">QUEDARSE MÁS DE LO PLANEADO <span class="sep">·</span></span>
+    <span class="marquee-chip">PEDIR UNA RONDA MÁS <span class="sep">·</span></span>
+    <span class="marquee-chip">PORQUE EL MOMENTO LO VALE <span class="sep">·</span></span>
+    <span class="marquee-chip">🐾 <span class="sep">·</span></span>
+    <span class="marquee-chip">ES APARECER SIN AVISAR <span class="sep">·</span></span>
+    <span class="marquee-chip">QUEDARSE MÁS DE LO PLANEADO <span class="sep">·</span></span>
+    <span class="marquee-chip">PEDIR UNA RONDA MÁS <span class="sep">·</span></span>
+    <span class="marquee-chip">PORQUE EL MOMENTO LO VALE <span class="sep">·</span></span>
+    <span class="marquee-chip">🐾 <span class="sep">·</span></span>
+  </div>
+</div>
+
+<!-- ══════════ GALERÍA ══════════ -->
+<section id="galeria">
+  <p class="section-tag">Firulais en la Calle</p>
+  <h2 class="section-h2">EL AMBIENTE</h2>
+
+  <!--
+    ★ CÓMO PONER LAS FOTOS:
+    Reemplazá cada bloque <div class="gph"...>...</div> con:
+    <img src="images/foto1.jpg" alt="Firulais">
+    Subí tus fotos a la carpeta /images/ con esos nombres.
+  ★ -->
+  <div class="gallery-grid">
+    <div class="gitem"><div class="gph" style="background:#CA1720;"><span class="ico">🍺</span><span>foto1.jpg</span></div></div>
+    <div class="gitem"><div class="gph" style="background:#007078;"><span class="ico">📸</span><span>foto2.jpg</span></div></div>
+    <div class="gitem"><div class="gph" style="background:#FEE04A;color:#111;"><span class="ico">🐾</span><span>foto3.jpg</span></div></div>
+    <div class="gitem"><div class="gph" style="background:#E8793A;"><span class="ico">📸</span><span>foto4.jpg</span></div></div>
+    <div class="gitem"><div class="gph" style="background:#1a5c2a;"><span class="ico">📸</span><span>foto5.jpg</span></div></div>
+    <div class="gitem"><div class="gph" style="background:#2a1a3a;"><span class="ico">📸</span><span>foto6.jpg</span></div></div>
+  </div>
+</section>
+
+<!-- ══════════ CTA ══════════ -->
+<section id="comprar">
+  <span class="cta-paw">🐾</span>
+  <h2 class="cta-h2">¿LISTO PARA<br>EL PRIMER SORBO?</h2>
+  <p class="cta-sub">Pedí tu pack ahora · Envío a todo Chile</p>
+  <!-- ★ Cambiá esta URL ★ -->
+  <a href="https://TU-TIENDA.myshopify.com" class="btn-cta" target="_blank">COMPRAR AHORA</a>
+</section>
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer>
+  <div>
+    <!-- ★ images/logo.png → logo circular ★ -->
+    <img src="images/logo.png" alt="Firulais Craft Mix" class="footer-logo-img"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+    <div class="footer-logo-fb" style="display:none">FIRULAIS</div>
+    <div class="footer-sub">Craft Mix · Est. 2025 · Free of Lice</div>
+  </div>
+  <div class="footer-right">
+    <p class="footer-tagline">Callejero por naturaleza. Auténtico por convicción.</p>
+    <div class="footer-socials">
+      <!-- ★ Ponés tu URL de Instagram ★ -->
+      <a href="https://instagram.com/firulais" target="_blank">Instagram</a>
+    </div>
+  </div>
+  <p class="footer-legal">© 2025 Firulais Craft Mix · Todos los derechos reservados</p>
+</footer>
+
+<!-- ══════════ SCRIPTS ══════════ -->
+<script>
+  /* Scroll progress */
+  const prog = document.getElementById('progress');
+  window.addEventListener('scroll', () => {
+    prog.style.width = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100) + '%';
+  }, { passive: true });
+
+  /* Nav border color */
+  const navEl = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    navEl.style.borderBottomColor = window.scrollY > 80 ? 'var(--red)' : 'var(--yellow)';
+  }, { passive: true });
+
+  /* IntersectionObserver — cards + gallery */
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+
+      if (el.classList.contains('scard')) {
+        setTimeout(() => {
+          el.classList.add('visible');
+          /* activate sprite animation */
+          const dog = el.querySelector('.scard-dog-bg');
+          if (dog) dog.classList.add('anim');
+          /* trigger can spin after a short delay */
+          const can = el.querySelector('.scard-can');
+          if (can) setTimeout(() => can.classList.add('spin'), 350);
+        }, i * 100);
+      }
+
+      if (el.classList.contains('gitem')) {
+        setTimeout(() => el.classList.add('visible'), i * 80);
+      }
+
+      io.unobserve(el);
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.scard, .gitem').forEach(el => io.observe(el));
+
+  /* Smooth anchor scroll */
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const t = document.querySelector(a.getAttribute('href'));
+      if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); }
+    });
+  });
+</script>
+
+</body>
+</html>

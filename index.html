@@ -7,6 +7,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,400;1,700&display=swap" rel="stylesheet">
+  <!--
+    ★ FUENTE BOBBY JONES:
+    1. Creá la carpeta /fonts/ en GitHub
+    2. Subí BobbyJones.woff2 y/o BobbyJones.woff ahí
+    3. La página la carga automáticamente con el @font-face de abajo
+  -->
 
   <!--
   ╔══════════════════════════════════════════════════════════╗
@@ -36,6 +42,22 @@
       --yellow: #FEE04A;
       --dark:   #111111;
       --white:  #ffffff;
+    }
+
+    /* ── BOBBY JONES — subí el archivo a /fonts/ ── */
+    @font-face {
+      font-family: 'BobbyJones';
+      src: url('fonts/BobbyJones.woff2') format('woff2'),
+           url('fonts/BobbyJones.woff')  format('woff');
+      font-weight: normal; font-style: normal; font-display: swap;
+    }
+    /* Todas las tipografías display usan Bobby Jones con fallback a Bebas Neue */
+    .hero-title, .section-h2, .cta-h2,
+    .scard-name, .scard-abv,
+    .marquee-chip, .nav-logo-fb, .footer-logo-fb,
+    .btn, .btn-cta, .scard-badge,
+    .nav-logo, .footer-logo-text {
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
     }
 
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -248,7 +270,7 @@
     }
     .hero-right img {
       width: 100%; height: 100%;
-      object-fit: cover; object-position: center;
+      object-fit: cover; object-position: center bottom;
       display: block;
     }
 
@@ -339,15 +361,12 @@
 
     /* ── Hands ── */
     .scard-hand {
-      position: absolute; top: 50%; transform: translateY(-50%);
+      position: absolute; transform: translateY(-50%);
       width: 85px; z-index: 3;
     }
     .scard-hand img { width: 100%; height: auto; display: block; }
-    .scard-hand.left  { left: -24px; }
-    .scard-hand.right {
-      right: -24px;
-      transform: translateY(-50%) scaleX(-1);
-    }
+    .scard-hand.left  { left: -24px;  top: 22%; }
+    .scard-hand.right { right: -24px; top: 70%; transform: translateY(-50%) scaleX(-1); }
     /* placeholder emoji hand */
     .hand-ph {
       width: 85px; height: 85px;
@@ -358,8 +377,8 @@
 
     /* ── Spinning can ── */
     .scard-can {
-      position: absolute; right: 90px; bottom: 30px;
-      width: 65px; z-index: 4;
+      position: absolute; right: 85px; bottom: 28px;
+      width: 92px; z-index: 4;
       opacity: 0; transform-origin: center bottom;
     }
     .scard-can img { width: 100%; height: auto; display: block; }
@@ -572,6 +591,12 @@
       90%  { transform: translateX(0) rotate(3deg)  scale(1); }
       100% { opacity: 1; transform: translateX(0) rotate(0deg)  scale(1); }
     }
+    @keyframes canArriveMobile {
+      0%   { opacity: 0; transform: translateX(-50%) translateY(40px) rotate(-360deg) scale(0.2); }
+      65%  { opacity: 1; transform: translateX(-50%) translateY(0) rotate(10deg) scale(1.05); }
+      80%  { transform: translateX(-50%) translateY(0) rotate(-4deg) scale(1); }
+      100% { opacity: 1; transform: translateX(-50%) translateY(0) rotate(0deg) scale(1); }
+    }
 
     /* ══════════════════════════════
        RESPONSIVE
@@ -587,6 +612,20 @@
       nav { padding: 0 20px; }
       .nav-links li:not(:last-child) { display: none; }
       #sabores, #galeria, #comprar, footer { padding-left: 24px; padding-right: 24px; }
+    }
+    /* Móvil — arreglo de lata y manos en cards */
+    @media (max-width: 700px) {
+      .scard-top { min-height: 260px; }
+      .scard-can { width: 62px; right: auto; left: 50%; bottom: 24px; transform: translateX(-50%); }
+      .scard-can.spin {
+        animation: canArriveMobile 1s cubic-bezier(.34,1.56,.64,1) forwards;
+      }
+      .scard-hand { width: 62px; }
+      .scard-hand.left  { left: -16px; top: 20%; }
+      .scard-hand.right { right: -16px; top: 72%; }
+      .scard-dog-bg { width: 150px; height: 150px; }
+      .can-ph { width: 62px; height: 80px; font-size: 22px; }
+      .hand-ph { width: 62px; height: 62px; font-size: 22px; }
     }
     @media (max-width: 520px) {
       .gallery-grid { grid-template-columns: 1fr; }

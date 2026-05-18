@@ -90,14 +90,14 @@
       position: fixed; top: 4px; left: 0; right: 0; z-index: 1000;
       background: var(--dark);
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 40px; height: 62px;
+      padding: 0 40px; height: 90px;
       border-bottom: 3px solid var(--yellow);
       transition: border-color .3s;
     }
 
     .nav-logo { text-decoration: none; display: flex; align-items: center; }
     .nav-logo img {
-      height: 46px; width: auto; display: block;
+      height: 80px; width: auto; display: block;
     }
     .nav-logo-fb {
       font-family: 'Bebas Neue', sans-serif;
@@ -128,9 +128,9 @@
        HERO
     ══════════════════════════════ */
     #hero {
-      min-height: 100vh; padding-top: 66px;
+      min-height: 100vh; padding-top: 94px;
       background: var(--yellow);
-      display: flex; align-items: stretch;
+      display: flex; flex-direction: column; align-items: stretch;
       position: relative; overflow: hidden;
     }
     #hero::before {
@@ -141,8 +141,8 @@
 
     /* Left column */
     .hero-left {
-      flex: 0 0 55%; position: relative; z-index: 2;
-      padding: 80px 50px 80px 60px;
+      width: 100%; position: relative; z-index: 2;
+      padding: 60px 60px 40px 60px;
       display: flex; flex-direction: column; justify-content: center;
     }
 
@@ -260,17 +260,17 @@
     .btn-ghost { background: transparent; color: var(--dark); }
     .btn-ghost:hover { background: var(--dark); color: var(--yellow); }
 
-    /* Right column — hero image */
+    /* Right column — hero image below text */
     .hero-right {
-      flex: 0 0 45%; position: relative; z-index: 2;
-      overflow: hidden;
-      background: var(--teal); /* fallback si no carga la imagen */
-      opacity: 0; transform: translateX(40px);
-      animation: slideLeft .8s ease forwards .5s;
+      width: 100%; position: relative; z-index: 2;
+      overflow: hidden; min-height: 400px;
+      background: var(--yellow);
+      opacity: 0; transform: translateY(30px);
+      animation: fadeUp .8s ease forwards .6s;
     }
     .hero-right img {
       width: 100%; height: 100%;
-      object-fit: cover; object-position: center bottom;
+      object-fit: contain; object-position: center bottom;
       display: block;
     }
 

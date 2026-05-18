@@ -190,13 +190,13 @@
 
     /* ── WALKING DOG VIDEO ── */
     .hero-dog-row {
-      width: 100%; height: 160px;
+      width: 100%; height: 220px;
       overflow: hidden; position: relative;
       margin: 24px 0;
       opacity: 0; animation: fadeIn .5s ease forwards 1s;
     }
     .walking-dog {
-      height: 160px; width: auto;
+      height: 220px; width: auto;
       position: absolute;
       animation: dogWalk 5s linear infinite;
     }
@@ -300,9 +300,9 @@
     }
 
     .scard-top {
-      position: relative; min-height: 320px; overflow: hidden;
-      display: flex; flex-direction: column; justify-content: flex-end;
-      padding: 28px;
+      position: relative; min-height: 340px; overflow: hidden;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 28px 30px 28px 36px; gap: 8px;
     }
     .scard-top.c1 { background: #FEE04A; }
     .scard-top.c2 { background: #E8793A; }
@@ -311,13 +311,12 @@
     /* ── Dog sprite background ── */
     .scard-dog-bg {
       position: absolute;
-      right: -5px; top: 50%; transform: translateY(-58%);
-      width: 210px; height: 210px;
-      /* ★ background-image set inline per card ★ */
+      left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: 260px; height: 260px;
       background-size: 300% auto;
       background-repeat: no-repeat;
       background-position: 0% 50%;
-      opacity: 0.16; pointer-events: none; z-index: 1;
+      opacity: 0.12; pointer-events: none; z-index: 1;
     }
     .scard-dog-bg.anim { animation: sprite3 .5s steps(1) infinite; }
 
@@ -330,18 +329,23 @@
     .scard-hand.left  { left: -70px;  top: 22%; }
     .scard-hand.right { right: -70px; top: 70%; transform: translateY(-50%); }
 
-    /* ── Spinning can ── */
-    .scard-can {
-      position: absolute; right: 60px; bottom: 28px;
-      width: 200px; z-index: 4;
-      opacity: 0; transform-origin: center bottom;
+    /* ── Card text — left column ── */
+    .scard-text {
+      flex: 0 0 48%; position: relative; z-index: 2;
     }
-    .scard-can img { width: 100%; height: auto; display: block; }
 
+    /* ── Spinning can — right column ── */
+    .scard-can {
+      flex: 0 0 46%; max-width: 46%;
+      opacity: 0; z-index: 4;
+      transform-origin: center;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .scard-can img { width: 100%; height: auto; display: block; max-height: 300px; object-fit: contain; }
     .scard-can.spin { animation: canArrive 1s cubic-bezier(.34,1.56,.64,1) forwards; }
 
     /* ── Card text ── */
-    .scard-text { position: relative; z-index: 2; }
+    .scard-text { flex: 0 0 50%; position: relative; z-index: 2; }
 
     .scard-badge {
       display: inline-block;
@@ -562,20 +566,18 @@
     }
     /* Móvil — arreglo de lata y manos en cards */
     @media (max-width: 700px) {
-      .scard-top { min-height: 240px; }
-      .scard-hand { width: 90px; }
-      .scard-hand.left  { left: -28px; top: 22%; }
-      .scard-hand.right { right: -28px; top: 70%; }
-      .scard-can {
-        width: 100px;
-        right: 16px; bottom: 16px;
-        left: auto; transform: none;
-      }
-      .scard-can.spin { animation: canArrive 1s cubic-bezier(.34,1.56,.64,1) forwards; }
-      .scard-dog-bg { width: 150px; height: 150px; }
-      .hero-dog-row { height: 110px; margin: 8px 0; }
-      .walking-dog { height: 110px; }
-      .hero-right { min-height: 280px; }
+      .scard-top { min-height: 200px; padding: 20px; gap: 12px; }
+      .scard-text { flex: 0 0 52%; }
+      .scard-can  { flex: 0 0 42%; max-width: 42%; }
+      .scard-can img { max-height: 180px; }
+      .scard-name { font-size: 42px; }
+      .scard-hand { width: 80px; }
+      .scard-hand.left  { left: -26px; top: 20%; }
+      .scard-hand.right { right: -26px; top: 72%; }
+      .scard-dog-bg { width: 140px; height: 140px; }
+      .hero-dog-row { height: 130px; margin: 8px 0; }
+      .walking-dog { height: 130px; }
+      .hero-right { min-height: 260px; }
       .hero-left { padding-bottom: 0; }
     }
     @media (max-width: 520px) {
@@ -625,7 +627,7 @@
     <!-- ── PERRO CAMINANDO ── -->
     <div class="hero-dog-row">
       <video class="walking-dog" autoplay loop muted playsinline>
-        <source src="perro-caminando.webm" type="video/webm">
+        <source src="perro-caminandoo.webm" type="video/webm">
       </video>
     </div>
 

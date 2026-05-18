@@ -100,7 +100,7 @@
       height: 80px; width: auto; display: block;
     }
     .nav-logo-fb {
-      font-family: 'Bebas Neue', sans-serif;
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
       font-size: 28px; letter-spacing: 5px; color: var(--yellow);
       display: none;
     }
@@ -175,7 +175,7 @@
       100% { transform: translateX(110vw); }
     }
     .btn {
-      display: inline-block; font-family: 'Bebas Neue', sans-serif;
+      display: inline-block; font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
       font-size: 18px; letter-spacing: 3px; text-decoration: none;
       padding: 14px 36px; border: 3px solid var(--dark);
       border-radius: 50px;
@@ -205,7 +205,7 @@
     .marquee-wrap.bg-red  { background: var(--red);  padding: 13px 0; }
     .marquee-wrap.bg-teal { background: var(--teal); padding: 13px 0; }
     .marquee-chip {
-      font-family: 'Bebas Neue', sans-serif;
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
       font-size: 21px; letter-spacing: 4px;
       white-space: nowrap; padding: 0 32px;
     }
@@ -223,7 +223,7 @@
       text-transform: uppercase; color: var(--teal); margin-bottom: 6px;
     }
     .section-h2 {
-      font-family: 'Bebas Neue', sans-serif;
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
       font-size: clamp(54px, 8vw, 110px);
       line-height: .9; color: var(--dark); margin-bottom: 56px;
     }
@@ -315,7 +315,7 @@
     .c3 .scard-freelice { color: var(--cream); }
 
     .scard-name {
-      font-family: 'Bebas Neue', sans-serif;
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
       font-size: 62px; line-height: .85; color: var(--dark);
     }
     .c3 .scard-name { color: var(--white); }
@@ -332,7 +332,7 @@
       text-transform: uppercase; color: rgba(255,255,255,.7); line-height: 1.5;
     }
     .scard-abv {
-      font-family: 'Bebas Neue', sans-serif;
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
       font-size: 26px; letter-spacing: 2px;
       color: var(--yellow); margin-top: 8px;
     }
@@ -346,28 +346,30 @@
 
     .gallery-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      grid-auto-rows: 220px; gap: 10px;
+      grid-template-columns: repeat(3, 1fr);
+      grid-auto-rows: 340px; gap: 12px;
     }
     .gitem {
-      overflow: hidden; border: 2px solid rgba(255,255,255,.07);
+      overflow: hidden; border-radius: 12px;
+      border: 2px solid rgba(255,255,255,.07);
       opacity: 0; transform: translateY(16px);
       transition: opacity .5s, transform .5s;
     }
     .gitem.visible { opacity: 1; transform: translateY(0); }
     .gitem:nth-child(1) { grid-column: span 2; grid-row: span 2; }
-    .gitem:nth-child(5) { grid-column: span 2; }
+    .gitem:nth-child(6) { grid-column: span 2; }
+    .gitem:nth-child(9) { grid-column: span 2; }
     .gitem img {
       width: 100%; height: 100%; object-fit: cover;
       display: block; transition: transform .5s;
     }
-    .gitem:hover img { transform: scale(1.06); }
+    .gitem:hover img { transform: scale(1.04); }
     /* placeholder */
     .gph {
       width: 100%; height: 100%;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center; gap: 8px;
-      font-family: 'Bebas Neue', sans-serif;
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
       font-size: 12px; letter-spacing: 3px; color: rgba(255,255,255,.25);
     }
     .gph .ico { font-size: 28px; opacity: .4; }
@@ -389,7 +391,7 @@
     }
     .cta-paw { display: block; font-size: 52px; margin-bottom: 16px; animation: bounce 1.8s ease-in-out infinite; }
     .cta-h2 {
-      font-family: 'Bebas Neue', sans-serif;
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
       font-size: clamp(50px, 9vw, 130px);
       color: var(--yellow); line-height: .88;
       position: relative; z-index: 1;
@@ -400,7 +402,7 @@
       margin: 20px 0 48px; position: relative; z-index: 1;
     }
     .btn-cta {
-      display: inline-block; font-family: 'Bebas Neue', sans-serif;
+      display: inline-block; font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
       font-size: 26px; letter-spacing: 4px;
       background: var(--yellow); color: var(--dark);
       padding: 18px 60px; border: 4px solid var(--dark);
@@ -426,7 +428,7 @@
     }
     .footer-logo-img { height: 64px; width: auto; display: block; }
     .footer-logo-fb {
-      font-family: 'Bebas Neue', sans-serif;
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
       font-size: 36px; letter-spacing: 5px; color: var(--yellow);
     }
     .footer-sub {
@@ -441,7 +443,7 @@
     }
     .footer-socials { display: flex; gap: 12px; margin-top: 14px; justify-content: flex-end; }
     .footer-socials a {
-      font-family: 'Bebas Neue', sans-serif;
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
       font-size: 13px; letter-spacing: 2px;
       color: var(--yellow); text-decoration: none;
       border: 2px solid var(--yellow); padding: 6px 18px;
@@ -511,9 +513,10 @@
       .hero-left { flex: none; padding: 60px 24px 40px; }
       .hero-right { flex: none; width: 100%; height: 55vw; transform: none; opacity: 1; }
       .sabores-grid { grid-template-columns: 1fr; }
-      .gallery-grid { grid-template-columns: repeat(2,1fr); grid-auto-rows: 180px; }
+      .gallery-grid { grid-template-columns: repeat(2,1fr); grid-auto-rows: 220px; }
       .gitem:nth-child(1) { grid-column: span 1; grid-row: span 1; }
-      .gitem:nth-child(5) { grid-column: span 1; }
+      .gitem:nth-child(6) { grid-column: span 1; }
+      .gitem:nth-child(9) { grid-column: span 1; }
       nav { padding: 0 20px; }
       .nav-links li:not(:last-child) { display: none; }
       #sabores, #galeria, #comprar, footer { padding-left: 24px; padding-right: 24px; }
@@ -722,12 +725,16 @@
     Subí tus fotos a la carpeta /images/ con esos nombres.
   ★ -->
   <div class="gallery-grid">
-    <div class="gitem"><div class="gph" style="background:#CA1720;"><span class="ico">🍺</span><span>foto1.jpg</span></div></div>
-    <div class="gitem"><div class="gph" style="background:#007078;"><span class="ico">📸</span><span>foto2.jpg</span></div></div>
-    <div class="gitem"><div class="gph" style="background:#FEE04A;color:#111;"><span class="ico">🐾</span><span>foto3.jpg</span></div></div>
-    <div class="gitem"><div class="gph" style="background:#E8793A;"><span class="ico">📸</span><span>foto4.jpg</span></div></div>
-    <div class="gitem"><div class="gph" style="background:#1a5c2a;"><span class="ico">📸</span><span>foto5.jpg</span></div></div>
-    <div class="gitem"><div class="gph" style="background:#2a1a3a;"><span class="ico">📸</span><span>foto6.jpg</span></div></div>
+    <div class="gitem"><img src="foto1.png" alt="Firulais"></div>
+    <div class="gitem"><img src="foto2.png" alt="Firulais"></div>
+    <div class="gitem"><img src="foto3.png" alt="Firulais"></div>
+    <div class="gitem"><img src="foto4.png" alt="Firulais"></div>
+    <div class="gitem"><img src="foto5.png" alt="Firulais"></div>
+    <div class="gitem"><img src="foto6.png" alt="Firulais"></div>
+    <div class="gitem"><img src="foto7.png" alt="Firulais"></div>
+    <div class="gitem"><img src="foto8.png" alt="Firulais"></div>
+    <div class="gitem"><img src="foto9.png" alt="Firulais"></div>
+    <div class="gitem"><img src="foto10.png" alt="Firulais"></div>
   </div>
 </section>
 

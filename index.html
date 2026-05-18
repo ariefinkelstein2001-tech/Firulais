@@ -188,58 +188,21 @@
       animation: fadeUp .55s ease forwards .82s;
     }
 
-    /* ── TUBE + MANO + PERRO ANIMATION ── */
-    .hero-tube-row {
-      display: flex; align-items: center; height: 76px;
-      margin: 28px 0;
-      opacity: 0; transform: translateY(18px);
-      animation: fadeUp .55s ease forwards 1s;
+    /* ── WALKING DOG VIDEO ── */
+    .hero-dog-row {
+      width: 100%; height: 160px;
+      overflow: hidden; position: relative;
+      margin: 24px 0;
+      opacity: 0; animation: fadeIn .5s ease forwards 1s;
     }
-
-    /* Tube circle */
-    .tube-circle {
-      width: 76px; height: 76px; flex-shrink: 0;
-      background: var(--dark); border-radius: 50%;
-      position: relative; z-index: 2; overflow: hidden;
+    .walking-dog {
+      height: 160px; width: auto;
+      position: absolute;
+      animation: dogWalk 5s linear infinite;
     }
-    .tube-circle::after {
-      content: ''; position: absolute;
-      right: 6px; top: 50%; transform: translateY(-50%);
-      width: 14px; height: 14px;
-      background: var(--yellow); border-radius: 50%;
-    }
-
-    /* Hand sliding out */
-    .tube-hand-wrap {
-      width: 100px; height: 76px; flex-shrink: 0;
-      position: relative; overflow: hidden;
-    }
-    /* ★ Cuando tengas la imagen real: quitá .tube-hand-emoji y descomentá .tube-hand-img ★ */
-    /* .tube-hand-img {
-      position: absolute; left: -120%; top: 50%; transform: translateY(-50%);
-      height: 60px; width: auto;
-      animation: handSlide 1s cubic-bezier(.34,1.56,.64,1) forwards 1.5s;
-    } */
-    .tube-hand-emoji {
-      position: absolute; font-size: 38px;
-      left: -120%; top: 50%; transform: translateY(-50%);
-      animation: handSlide 1s cubic-bezier(.34,1.56,.64,1) forwards 1.5s;
-    }
-
-    /* Walking sprite dog */
-    .tube-dog-wrap {
-      flex: 1; height: 76px; overflow: hidden;
-      opacity: 0; animation: fadeIn .4s ease forwards 2.1s;
-    }
-    .tube-sprite {
-      /* ★ sprite-cachupin.png: los 3 frames uno al lado del otro ★ */
-      background-image: url('sprite-cachupin.png');
-      background-size: 300% auto;
-      background-repeat: no-repeat;
-      background-position: 0% 50%;
-      height: 76px;
-      width: 80px; /* ancho de 1 frame — ajustá si la imagen es distinta */
-      animation: sprite3 .5s steps(1) infinite 2.1s;
+    @keyframes dogWalk {
+      0%   { transform: translateX(110vw); }
+      100% { transform: translateX(-300px); }
     }
 
     /* Buttons */
@@ -362,35 +325,20 @@
     /* ── Hands ── */
     .scard-hand {
       position: absolute; transform: translateY(-50%);
-      width: 85px; z-index: 3;
+      width: 200px; z-index: 3;
     }
     .scard-hand img { width: 100%; height: auto; display: block; }
-    .scard-hand.left  { left: -24px;  top: 22%; }
-    .scard-hand.right { right: -24px; top: 70%; transform: translateY(-50%) scaleX(-1); }
-    /* placeholder emoji hand */
-    .hand-ph {
-      width: 85px; height: 85px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 32px;
-      background: rgba(0,0,0,.12); border-radius: 50%;
-    }
+    .scard-hand.left  { left: -70px;  top: 22%; }
+    .scard-hand.right { right: -70px; top: 70%; transform: translateY(-50%); }
 
     /* ── Spinning can ── */
     .scard-can {
-      position: absolute; right: 85px; bottom: 28px;
-      width: 92px; z-index: 4;
+      position: absolute; right: 60px; bottom: 28px;
+      width: 200px; z-index: 4;
       opacity: 0; transform-origin: center bottom;
     }
     .scard-can img { width: 100%; height: auto; display: block; }
-    /* placeholder */
-    .can-ph {
-      width: 65px; height: 95px;
-      background: var(--dark); border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Bebas Neue', sans-serif; font-size: 30px;
-      color: var(--yellow);
-    }
-    .c3 .can-ph { color: var(--red); background: var(--yellow); }
+
     .scard-can.spin { animation: canArrive 1s cubic-bezier(.34,1.56,.64,1) forwards; }
 
     /* ── Card text ── */
@@ -615,17 +563,17 @@
     }
     /* Móvil — arreglo de lata y manos en cards */
     @media (max-width: 700px) {
-      .scard-top { min-height: 260px; }
-      .scard-can { width: 62px; right: auto; left: 50%; bottom: 24px; transform: translateX(-50%); }
-      .scard-can.spin {
-        animation: canArriveMobile 1s cubic-bezier(.34,1.56,.64,1) forwards;
+      .scard-top { min-height: 240px; }
+      .scard-hand { display: none; }
+      .scard-can {
+        width: 100px;
+        right: 16px; bottom: 16px;
+        left: auto; transform: none;
       }
-      .scard-hand { width: 62px; }
-      .scard-hand.left  { left: -16px; top: 20%; }
-      .scard-hand.right { right: -16px; top: 72%; }
+      .scard-can.spin { animation: canArrive 1s cubic-bezier(.34,1.56,.64,1) forwards; }
       .scard-dog-bg { width: 150px; height: 150px; }
-      .can-ph { width: 62px; height: 80px; font-size: 22px; }
-      .hand-ph { width: 62px; height: 62px; font-size: 22px; }
+      .hero-dog-row { height: 110px; }
+      .walking-dog { height: 110px; }
     }
     @media (max-width: 520px) {
       .gallery-grid { grid-template-columns: 1fr; }
@@ -645,7 +593,7 @@
 <nav id="nav">
   <a href="#" class="nav-logo">
     <!-- ★ images/logo.png → logo circular badge ★ -->
-    <img src="logo.png" alt="Firulais"
+    <img src="FIRULAIS.png" alt="Firulais"
          onerror="this.style.display='none'; document.querySelector('.nav-logo-fb').style.display='block'">
     <span class="nav-logo-fb">FIRULAIS</span>
   </a>
@@ -671,30 +619,11 @@
     <p class="hero-sub">Craft Mix · Cerveza Artesanal</p>
     <p class="hero-italic">Perrisima. Desde el primer sorbo.</p>
 
-    <!-- ── TUBO + MANO + PERRO CAMINANDO ── -->
-    <div class="hero-tube-row">
-
-      <!-- Círculo/tubo -->
-      <div class="tube-circle"></div>
-
-      <!-- Mano saliendo del tubo -->
-      <div class="tube-hand-wrap">
-        <img src="mano-izq.png" alt=""
-             style="position:absolute; left:-120%; top:50%; transform:translateY(-50%);
-                    height:60px; width:auto;
-                    animation:handSlide 1s cubic-bezier(.34,1.56,.64,1) forwards 1.5s;">
-      </div>
-
-      <!-- Sprite del perro caminando -->
-      <div class="tube-dog-wrap">
-        <!--
-          ★ images/sprite-cachupin.png
-          Esta imagen tiene los 3 frames del perro uno al lado del otro.
-          Ajustá el "width" de .tube-sprite si el frame no es cuadrado.
-        ★ -->
-        <div class="tube-sprite"></div>
-      </div>
-
+    <!-- ── PERRO CAMINANDO ── -->
+    <div class="hero-dog-row">
+      <video class="walking-dog" autoplay loop muted playsinline>
+        <source src="perro-caminando.webm" type="video/webm">
+      </video>
     </div>
 
     <div class="hero-btns">
@@ -871,7 +800,7 @@
 <footer>
   <div>
     <!-- ★ images/logo.png → logo circular ★ -->
-    <img src="logo.png" alt="Firulais Craft Mix" class="footer-logo-img"
+    <img src="FIRULAIS.png" alt="Firulais Craft Mix" class="footer-logo-img"
          onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
     <div class="footer-logo-fb" style="display:none">FIRULAIS</div>
     <div class="footer-sub">Craft Mix · Est. 2025 · Free of Lice</div>

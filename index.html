@@ -88,10 +88,10 @@
     ══════════════════════════════ */
     nav {
       position: fixed; top: 4px; left: 0; right: 0; z-index: 1000;
-      background: var(--dark);
+      background: var(--red);
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 40px; height: 90px;
-      border-bottom: 3px solid var(--yellow);
+      border-bottom: 3px solid var(--dark);
       transition: border-color .3s;
     }
 
@@ -114,14 +114,14 @@
     }
     .nav-links a:hover { color: var(--yellow); }
     .nav-cta {
-      background: var(--red) !important; color: var(--white) !important;
-      padding: 9px 22px; border: 2px solid var(--red);
+      background: var(--yellow) !important; color: var(--dark) !important;
+      padding: 9px 22px; border: 2px solid var(--dark);
       transition: background .2s, color .2s, border-color .2s !important;
     }
     .nav-cta:hover {
-      background: var(--yellow) !important;
-      color: var(--dark) !important;
-      border-color: var(--yellow) !important;
+      background: var(--dark) !important;
+      color: var(--yellow) !important;
+      border-color: var(--dark) !important;
     }
 
     /* ══════════════════════════════
@@ -679,16 +679,10 @@
 
       <!-- Mano saliendo del tubo -->
       <div class="tube-hand-wrap">
-        <!--
-          ★ Cuando tengas images/mano-izq.png:
-          1. Borrá el div.tube-hand-emoji
-          2. Descomentá estas líneas:
-          <img src="mano-izq.png" alt=""
-               style="position:absolute; left:-120%; top:50%; transform:translateY(-50%);
-                      height:60px; width:auto;
-                      animation:handSlide 1s cubic-bezier(.34,1.56,.64,1) forwards 1.5s;">
-        ★ -->
-        <div class="tube-hand-emoji">🫳</div>
+        <img src="mano-izq.png" alt=""
+             style="position:absolute; left:-120%; top:50%; transform:translateY(-50%);
+                    height:60px; width:auto;
+                    animation:handSlide 1s cubic-bezier(.34,1.56,.64,1) forwards 1.5s;">
       </div>
 
       <!-- Sprite del perro caminando -->
@@ -750,18 +744,11 @@
         <!-- ★ images/sprite-cachupin.png → 3 frames del perro uno al lado del otro ★ -->
         <div class="scard-dog-bg" style="background-image:url('sprite-cachupin.png')"></div>
 
-        <!-- ★ Mano izquierda — cuando tengas images/mano-izq.png:
-             Reemplazá <div class="hand-ph"> por <img src="mano-izq.png" alt=""> ★ -->
-        <div class="scard-hand left"><div class="hand-ph">🫴</div></div>
+        <div class="scard-hand left"><img src="mano-izq.png" alt=""></div>
+        <div class="scard-hand right"><img src="mano-der.png" alt=""></div>
 
-        <!-- ★ Mano derecha — cuando tengas images/mano-der.png:
-             Reemplazá <div class="hand-ph"> por <img src="mano-der.png" alt=""> ★ -->
-        <div class="scard-hand right"><div class="hand-ph">🫳</div></div>
-
-        <!-- ★ Lata girando — cuando tengas images/lata-cachupin.png:
-             Reemplazá <div class="can-ph"> por <img src="lata-cachupin.png" alt=""> ★ -->
         <div class="scard-can" id="can-cachupin">
-          <div class="can-ph">F</div>
+          <img src="lata-cachupin.png" alt="Cachupin">
         </div>
 
         <div class="scard-text">
@@ -784,12 +771,11 @@
         <!-- ★ images/sprite-pepita.png ★ -->
         <div class="scard-dog-bg" style="background-image:url('sprite-pepita.png')"></div>
 
-        <div class="scard-hand left"><div class="hand-ph">🫴</div></div>
-        <div class="scard-hand right"><div class="hand-ph">🫳</div></div>
+        <div class="scard-hand left"><img src="mano-izq.png" alt=""></div>
+        <div class="scard-hand right"><img src="mano-der.png" alt=""></div>
 
-        <!-- ★ images/lata-pepita.png ★ -->
         <div class="scard-can" id="can-pepita">
-          <div class="can-ph">F</div>
+          <img src="lata-pepita.png" alt="Pepita">
         </div>
 
         <div class="scard-text">
@@ -812,12 +798,11 @@
         <!-- ★ images/sprite-cholita.png ★ -->
         <div class="scard-dog-bg" style="background-image:url('sprite-cholita.png')"></div>
 
-        <div class="scard-hand left"><div class="hand-ph">🫴</div></div>
-        <div class="scard-hand right"><div class="hand-ph">🫳</div></div>
+        <div class="scard-hand left"><img src="mano-izq.png" alt=""></div>
+        <div class="scard-hand right"><img src="mano-der.png" alt=""></div>
 
-        <!-- ★ images/lata-cholita.png ★ -->
         <div class="scard-can" id="can-cholita">
-          <div class="can-ph">F</div>
+          <img src="lata-cholita.png" alt="Cholita">
         </div>
 
         <div class="scard-text">

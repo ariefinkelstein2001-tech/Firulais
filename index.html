@@ -39,7 +39,7 @@
       --red:    #CA1720;
       --cream:  #F4E6E2;
       --teal:   #007078;
-      --yellow: #FEE04A;
+      --yellow: #FAD64A;
       --dark:   #111111;
       --white:  #ffffff;
     }
@@ -583,10 +583,7 @@
 
   <!-- Perro caminando más grande abajo -->
   <div class="hero-dog-row">
-    <video class="walking-dog" autoplay loop muted playsinline preload="auto" webkit-playsinline>
-      <source src="perroca.mp4" type="video/mp4">
-      <source src="perro-caminandoo.webm" type="video/webm">
-    </video>
+    <img class="walking-dog" src="perroca.gif" alt="Firulais caminando">
   </div>
 
 </section>
@@ -809,17 +806,6 @@
   }, { threshold: 0.15 });
 
   document.querySelectorAll('.scard, .gitem').forEach(el => io.observe(el));
-
-  /* Autoplay video sin botón en móvil */
-  const dogVid = document.querySelector('.walking-dog');
-  if (dogVid) {
-    dogVid.muted = true;
-    const tryPlay = () => dogVid.play().catch(() => {});
-    tryPlay();
-    document.addEventListener('touchstart', tryPlay, { once: true });
-    document.addEventListener('scroll', tryPlay, { once: true });
-    window.addEventListener('focus', tryPlay, { once: true });
-  }
 
   document.querySelectorAll('a[href^="#"]').forEach(a => {
     a.addEventListener('click', e => {

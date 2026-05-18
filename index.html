@@ -163,11 +163,13 @@
       width: 100%; height: 300px;
       overflow: hidden; position: relative;
       margin-top: 0;
+      background: var(--yellow);
       opacity: 0; animation: fadeIn .5s ease forwards .9s;
     }
     .walking-dog {
       height: 300px; width: auto;
       position: absolute;
+      background: var(--yellow);
       animation: dogWalk 5s linear infinite;
     }
     @keyframes dogWalk {
@@ -532,8 +534,8 @@
       .scard-hand.left  { left: -26px; top: 20%; }
       .scard-hand.right { right: -26px; top: 72%; }
       .scard-dog-bg { width: 140px; height: 140px; }
-      .hero-dog-row { height: 160px; }
-      .walking-dog { height: 160px; }
+      .hero-dog-row { height: 160px; background: var(--yellow); }
+      .walking-dog { height: 160px; background: var(--yellow); }
       .hero-btns { padding: 24px 16px 0; }
     }
     @media (max-width: 520px) {
@@ -582,8 +584,9 @@
 
   <!-- Perro caminando más grande abajo -->
   <div class="hero-dog-row">
-    <video class="walking-dog" autoplay loop muted playsinline>
+    <video class="walking-dog" autoplay loop muted playsinline disablepictureinpicture preload="auto">
       <source src="perro-caminandoo.webm" type="video/webm">
+      <source src="perro-amarillo.mp4" type="video/mp4">
     </video>
   </div>
 

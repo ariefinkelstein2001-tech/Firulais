@@ -170,6 +170,7 @@
       height: 300px; width: auto;
       position: absolute;
       background: var(--yellow);
+      mix-blend-mode: screen;
       animation: dogWalk 5s linear infinite;
     }
     @keyframes dogWalk {
@@ -535,7 +536,7 @@
       .scard-hand.right { right: -26px; top: 72%; }
       .scard-dog-bg { width: 140px; height: 140px; }
       .hero-dog-row { height: 160px; background: var(--yellow); }
-      .walking-dog { height: 160px; background: var(--yellow); }
+      .walking-dog { height: 160px; background: var(--yellow); mix-blend-mode: screen; }
       .hero-btns { padding: 24px 16px 0; }
     }
     @media (max-width: 520px) {
@@ -811,7 +812,15 @@
 
   document.querySelectorAll('.scard, .gitem').forEach(el => io.observe(el));
 
-  /* Smooth anchor scroll */
+  /* Force video autoplay on mobile */
+  const vid = document.querySelector('.walking-dog');
+  if (vid) {
+    vid.muted = true;
+    vid.play().catch(() => {
+      document.addEventListener('touchstart', () => vid.play(), { once: true });
+      document.addEventListener('click', () => vid.play(), { once: true });
+    });
+  }
   document.querySelectorAll('a[href^="#"]').forEach(a => {
     a.addEventListener('click', e => {
       const t = document.querySelector(a.getAttribute('href'));

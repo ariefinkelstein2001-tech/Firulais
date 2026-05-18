@@ -128,9 +128,9 @@
        HERO
     ══════════════════════════════ */
     #hero {
-      min-height: 100vh; padding-top: 94px;
       background: var(--yellow);
-      display: flex; flex-direction: column; align-items: stretch;
+      display: flex; flex-direction: column; align-items: center;
+      padding-top: 94px;
       position: relative; overflow: hidden;
     }
     #hero::before {
@@ -139,77 +139,39 @@
       background-size: 28px 28px; pointer-events: none;
     }
 
-    /* Left column */
-    .hero-left {
+    /* Image full width at top */
+    .hero-img-top {
       width: 100%; position: relative; z-index: 2;
-      padding: 60px 60px 40px 60px;
-      display: flex; flex-direction: column; justify-content: center;
+      opacity: 0; transform: translateY(-16px);
+      animation: fadeUp .7s ease forwards .2s;
     }
+    .hero-img-top img { width: 100%; height: auto; display: block; }
 
-    .hero-eyebrow {
-      font-weight: 700; font-size: 12px; letter-spacing: 7px;
-      text-transform: uppercase; color: var(--teal);
-      margin-bottom: 12px;
+    /* Buttons centered below image */
+    .hero-btns {
+      display: flex; gap: 16px; flex-wrap: wrap;
+      justify-content: center;
+      padding: 36px 24px 0;
+      position: relative; z-index: 2;
       opacity: 0; transform: translateY(18px);
-      animation: fadeUp .55s ease forwards .15s;
+      animation: fadeUp .55s ease forwards .6s;
     }
 
-    /* FIRULAIS con bloque teal */
-    .hero-title-wrap {
-      position: relative; display: inline-block;
-      opacity: 0; transform: translateY(40px);
-      animation: fadeUp .7s ease forwards .35s;
-    }
-    .hero-title-wrap::before {
-      content: ''; position: absolute;
-      left: -4px; right: -4px;
-      top: 40%; height: 38%;
-      background: var(--teal); z-index: 0;
-    }
-    .hero-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(78px, 12vw, 158px);
-      line-height: 1; letter-spacing: 2px; color: var(--dark);
-      position: relative; z-index: 1;
-    }
-
-    .hero-sub {
-      font-size: clamp(14px, 1.8vw, 19px); font-weight: 700;
-      letter-spacing: 5px; text-transform: uppercase; color: var(--dark);
-      margin-top: 18px;
-      opacity: 0; transform: translateY(18px);
-      animation: fadeUp .55s ease forwards .65s;
-    }
-    .hero-italic {
-      font-style: italic; font-weight: 400;
-      font-size: clamp(14px, 1.5vw, 17px); color: var(--teal);
-      margin-top: 6px;
-      opacity: 0; transform: translateY(18px);
-      animation: fadeUp .55s ease forwards .82s;
-    }
-
-    /* ── WALKING DOG VIDEO ── */
+    /* Walking dog bigger at bottom */
     .hero-dog-row {
-      width: 100%; height: 220px;
+      width: 100%; height: 300px;
       overflow: hidden; position: relative;
-      margin: 24px 0;
-      opacity: 0; animation: fadeIn .5s ease forwards 1s;
+      margin-top: 0;
+      opacity: 0; animation: fadeIn .5s ease forwards .9s;
     }
     .walking-dog {
-      height: 220px; width: auto;
+      height: 300px; width: auto;
       position: absolute;
       animation: dogWalk 5s linear infinite;
     }
     @keyframes dogWalk {
       0%   { transform: translateX(-300px); }
       100% { transform: translateX(110vw); }
-    }
-
-    /* Buttons */
-    .hero-btns {
-      display: flex; gap: 16px; flex-wrap: wrap;
-      opacity: 0; transform: translateY(18px);
-      animation: fadeUp .55s ease forwards 1.15s;
     }
     .btn {
       display: inline-block; font-family: 'Bebas Neue', sans-serif;
@@ -614,33 +576,22 @@
 <!-- ══════════ HERO ══════════ -->
 <section id="hero">
 
-  <div class="hero-left">
-    <p class="hero-eyebrow">Free of Lice · Est. 2025 · Craft Mix</p>
-
-    <!-- FIRULAIS con bloque teal detrás -->
-    <div class="hero-title-wrap">
-      <h1 class="hero-title">FIRULAIS</h1>
-    </div>
-
-    <p class="hero-sub">Craft Mix · Cerveza Artesanal</p>
-    <p class="hero-italic">Perrisima. Desde el primer sorbo.</p>
-
-    <!-- ── PERRO CAMINANDO ── -->
-    <div class="hero-dog-row">
-      <video class="walking-dog" autoplay loop muted playsinline>
-        <source src="perro-caminandoo.webm" type="video/webm">
-      </video>
-    </div>
-
-    <div class="hero-btns">
-      <a href="https://TU-TIENDA.myshopify.com" class="btn btn-red" target="_blank">Comprar Ahora</a>
-      <a href="#sabores" class="btn btn-ghost">Ver Sabores</a>
-    </div>
+  <!-- Imagen FIRULAIS arriba, full width -->
+  <div class="hero-img-top">
+    <img src="hero.jpg" alt="Firulais — Free of Lice">
   </div>
 
-  <!-- ★ images/hero.jpg → foto del perro caminando entre las letras FIRULAIS ★ -->
-  <div class="hero-right">
-    <img src="hero.jpg" alt="Firulais — Free of Lice">
+  <!-- Botones centrados -->
+  <div class="hero-btns">
+    <a href="https://TU-TIENDA.myshopify.com" class="btn btn-red" target="_blank">Comprar Ahora</a>
+    <a href="#sabores" class="btn btn-ghost">Ver Sabores</a>
+  </div>
+
+  <!-- Perro caminando más grande abajo -->
+  <div class="hero-dog-row">
+    <video class="walking-dog" autoplay loop muted playsinline>
+      <source src="perro-caminandoo.webm" type="video/webm">
+    </video>
   </div>
 
 </section>

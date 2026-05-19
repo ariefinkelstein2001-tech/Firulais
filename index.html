@@ -813,8 +813,8 @@
     if(!ls) return;
     setTimeout(()=>{
       ls.style.opacity='0';
-      setTimeout(()=>ls.remove(), 850);
-    }, 600);
+      setTimeout(()=>ls.remove(), 400);
+    }, 200);
   });
 
   /* Scroll progress */
@@ -884,7 +884,9 @@
     // Load transparent dog PNG
     const dogImg=new Image(); dogImg.src='perroo.png';
 
-    const DW=90, DH=90; // dog draw size — image is square 500x500
+    const isMobile = window.innerWidth < 600;
+    const DW = isMobile ? 55 : 90;
+    const DH = DW; // square image
     const PIPE_W=52, GAP=155, PIPE_SPEED=3.2;
 
     function fresh(hi=0){

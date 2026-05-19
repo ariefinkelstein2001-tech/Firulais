@@ -152,7 +152,7 @@
     .hero-btns {
       display: flex; gap: 16px; flex-wrap: wrap;
       justify-content: center;
-      padding: 36px 24px 0;
+      padding: 36px 24px 24px;
       position: relative; z-index: 2;
       opacity: 0; transform: translateY(18px);
       animation: fadeUp .55s ease forwards .6s;
@@ -177,26 +177,14 @@
       from { left: -320px; }
       to   { left: 110%; }
     }
-    #gameBanner {
-      display: none;
-      width: 100%;
-      background: var(--red);
-      padding: 10px 0;
-      border-top: 3px solid var(--dark);
-      border-bottom: 3px solid var(--dark);
-      overflow: hidden;
+    #gameBanner { display: none !important; }
+    .banner-inner, .banner-chip { display: none; }
+    .hero-dog-row {
+      width: 100%; height: 300px;
+      overflow: visible; position: relative;
+      margin-top: 0; background: var(--yellow);
+      opacity: 0; animation: fadeIn .5s ease forwards .9s;
     }
-    #gameBanner.show { display: block; }
-    .banner-inner {
-      display: flex; width: max-content;
-      animation: marquee 18s linear infinite;
-    }
-    .banner-chip {
-      font-family: 'BobbyJones','Bebas Neue',sans-serif;
-      font-size: 18px; letter-spacing: 3px; color: var(--yellow);
-      white-space: nowrap; padding: 0 28px;
-    }
-    .banner-chip .sep { color: rgba(255,255,255,.4); margin: 0 10px; }
     #gameHint {
       position: absolute; bottom: 10px; left: 50%;
       transform: translateX(-50%);
@@ -951,12 +939,9 @@
       for(let i=14;i<W;i+=28) for(let j=14;j<H;j+=28){
         ctx.beginPath();ctx.arc(i,j,2,0,Math.PI*2);ctx.fill();
       }
-      // Ground
-      ctx.fillStyle=C.d; ctx.fillRect(0,H-22,W,22);
-      ctx.fillStyle=C.cr; ctx.fillRect(0,H-22,W,3);
-      // Ground dots
-      ctx.fillStyle='rgba(255,255,255,0.07)';
-      for(let i=20;i<W;i+=40) ctx.fillRect(i,H-16,22,4);
+      // Ground - yellow to match page bg, no black bar
+      ctx.fillStyle='rgba(0,0,0,0.12)'; ctx.fillRect(0,H-22,W,22);
+      ctx.fillStyle='rgba(0,0,0,0.25)'; ctx.fillRect(0,H-22,W,3);
     }
 
     function drawPipe(p){

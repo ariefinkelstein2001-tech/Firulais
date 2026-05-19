@@ -169,12 +169,12 @@
       position: absolute; inset: 0; overflow: hidden;
     }
     #dogGif {
-      height: 100%; width: auto;
-      position: absolute; top: 0;
+      height: 160px; width: auto;
+      position: absolute; bottom: 0;
       animation: walkGif 5s linear infinite;
     }
     @keyframes walkGif {
-      from { left: -320px; }
+      from { left: -180px; }
       to   { left: 110%; }
     }
     #gameCanvas { display: block; }
@@ -835,7 +835,8 @@
   function startGame(){
     if(_gameActive) return;
     _gameActive=true;
-    _idle.style.display='none';
+    _idle.style.visibility='hidden'; /* visibility:hidden keeps GIF animating */
+    _idle.style.pointerEvents='none';
     _cv.style.display='block';
     _hint.style.display='block';
     document.getElementById('btnJugar').style.opacity='0.4';
@@ -863,7 +864,10 @@
     }
 
     function drawGameDog(d){
+      ctx.save();
+      ctx.globalCompositeOperation = 'multiply';
       ctx.drawImage(gifEl, d.x - DS*0.1, d.y - DS*0.12, DS, DS);
+      ctx.restore();
     }
 
     function drawHurdle(o){

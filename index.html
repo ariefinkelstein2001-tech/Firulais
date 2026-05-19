@@ -162,27 +162,11 @@
     .hero-dog-row {
       width: 100%; height: 300px;
       overflow: hidden; position: relative;
-      margin-top: 0;
-      background: var(--yellow);
+      margin-top: 0; background: var(--yellow);
       opacity: 0; animation: fadeIn .5s ease forwards .9s;
     }
-    .dog-walker {
-      position: absolute;
-      height: 300px;
-    }
-    .walking-dog {
-      height: 300px; width: auto; display: block;
-    }
-    .dog-walker.flipped .walking-dog {
-      transform: scaleX(-1);
-    }
-    @keyframes dogWalkRight {
-      from { transform: translateX(-320px); }
-      to   { transform: translateX(110vw); }
-    }
-    @keyframes dogWalkLeft {
-      from { transform: translateX(110vw); }
-      to   { transform: translateX(-320px); }
+    #gameCanvas {
+      width: 100%; height: 100%; display: block;
     }
     .btn {
       display: inline-block; font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
@@ -585,12 +569,16 @@
   <div class="hero-btns">
     <a href="https://TU-TIENDA.myshopify.com" class="btn btn-red" target="_blank">Comprar Ahora</a>
     <a href="#sabores" class="btn btn-ghost">Ver Sabores</a>
+    <a href="juego.html" class="btn btn-ghost" style="border-color:var(--teal);color:var(--teal)">🐾 Jugar</a>
   </div>
 
-  <!-- Perro caminando más grande abajo -->
-  <div class="hero-dog-row">
-    <div class="dog-walker">
-      <img class="walking-dog" src="perroca.gif" alt="Firulais caminando">
+  <!-- JUEGO — reemplaza al perro caminando -->
+  <div class="hero-dog-row" style="cursor:pointer;">
+    <canvas id="gameCanvas"></canvas>
+    <div id="gameHint" style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);
+      font-family:'BobbyJones','Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;
+      color:rgba(0,0,0,0.4);white-space:nowrap;pointer-events:none;">
+      ESPACIO · TAP PARA JUGAR
     </div>
   </div>
 

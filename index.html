@@ -557,6 +557,28 @@
 
 <body>
 
+<!-- ══ PANTALLA DE CARGA ══ -->
+<div id="loadingScreen" style="
+  position:fixed;inset:0;z-index:99999;
+  background:#FEE04A;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  transition:opacity .8s ease;
+">
+  <video autoplay loop muted playsinline
+    style="height:220px;width:auto;"
+    onerror="this.style.display='none'">
+    <source src="perroca.gif" type="image/gif">
+  </video>
+  <img src="perroca.gif" alt=""
+    style="height:220px;width:auto;margin-bottom:20px;">
+  <div style="
+    font-family:'Bebas Neue',sans-serif;
+    font-size:32px;letter-spacing:8px;
+    color:#111;opacity:0.5;
+  ">CARGANDO...</div>
+</div>
+
 <div id="progress"></div>
 
 <!-- ══════════ NAVBAR ══════════ -->
@@ -785,6 +807,16 @@
 
 <!-- ══════════ SCRIPTS ══════════ -->
 <script>
+  /* ══ LOADING SCREEN ══ */
+  window.addEventListener('load', function(){
+    const ls = document.getElementById('loadingScreen');
+    if(!ls) return;
+    setTimeout(()=>{
+      ls.style.opacity='0';
+      setTimeout(()=>ls.remove(), 850);
+    }, 600);
+  });
+
   /* Scroll progress */
   const prog = document.getElementById('progress');
   window.addEventListener('scroll', () => {
@@ -852,7 +884,7 @@
     // Load transparent dog PNG
     const dogImg=new Image(); dogImg.src='perroo.png';
 
-    const DW=90, DH=127; // dog draw size (ratio 1414:2000 ≈ 0.707)
+    const DW=90, DH=90; // dog draw size — image is square 500x500
     const PIPE_W=52, GAP=155, PIPE_SPEED=3.2;
 
     function fresh(hi=0){
@@ -962,16 +994,18 @@
     }
 
     function collide(d,p){
-      // Dog circle hitbox
-      const r=28;
-      const cx=d.x, cy=d.y;
+      // Tight rectangle hitbox — matches the actual dog image bounds
+      const hx = d.x - DW*0.48;
+      const hy = d.y - DH*0.48;
+      const hw = DW * 0.96;
+      const hh = DH * 0.96;
       // Ground
-      if(cy+r>H-22) return true;
+      if(d.y + DH*0.48 > H-22) return true;
       // Ceiling
-      if(cy-r<0) return true;
-      // Pipe boxes
-      if(cx+r>p.x-5 && cx-r<p.x+PIPE_W+5){
-        if(cy-r<p.top || cy+r>p.top+GAP) return true;
+      if(d.y - DH*0.48 < 0) return true;
+      // Pipe collision (including cap overhang)
+      if(hx+hw > p.x-5 && hx < p.x+PIPE_W+5){
+        if(hy < p.top || hy+hh > p.top+GAP) return true;
       }
       return false;
     }

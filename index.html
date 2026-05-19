@@ -166,14 +166,23 @@
       background: var(--yellow);
       opacity: 0; animation: fadeIn .5s ease forwards .9s;
     }
-    .walking-dog {
-      height: 300px; width: auto;
+    .dog-walker {
       position: absolute;
-      animation: dogWalk 5s linear infinite;
+      height: 300px;
     }
-    @keyframes dogWalk {
-      0%   { transform: translateX(-300px); }
-      100% { transform: translateX(110vw); }
+    .walking-dog {
+      height: 300px; width: auto; display: block;
+    }
+    .dog-walker.flipped .walking-dog {
+      transform: scaleX(-1);
+    }
+    @keyframes dogWalkRight {
+      from { transform: translateX(-320px); }
+      to   { transform: translateX(110vw); }
+    }
+    @keyframes dogWalkLeft {
+      from { transform: translateX(110vw); }
+      to   { transform: translateX(-320px); }
     }
     .btn {
       display: inline-block; font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
@@ -583,7 +592,9 @@
 
   <!-- Perro caminando más grande abajo -->
   <div class="hero-dog-row">
-    <img class="walking-dog" src="perroca.gif" alt="Firulais caminando">
+    <div class="dog-walker">
+      <img class="walking-dog" src="perroca.gif" alt="Firulais caminando">
+    </div>
   </div>
 
 </section>
@@ -697,7 +708,7 @@
 </section>
 
 <!-- ══════════ MARQUEE 2 ══════════ -->
-<div class="marquee-wrap bg-teal rev">
+<div class="marquee-wrap bg-teal">
   <div class="marquee-inner">
     <span class="marquee-chip">ES APARECER SIN AVISAR <span class="sep">·</span></span>
     <span class="marquee-chip">QUEDARSE MÁS DE LO PLANEADO <span class="sep">·</span></span>
@@ -741,7 +752,7 @@
 <section id="comprar">
   <span class="cta-paw">🐾</span>
   <h2 class="cta-h2">¿LISTO PARA<br>EL PRIMER SORBO?</h2>
-  <p class="cta-sub">Pedí tu pack ahora · Envío a todo Chile</p>
+  <p class="cta-sub">Pide tu pack ahora · Envío a todo Chile</p>
   <!-- ★ Cambiá esta URL ★ -->
   <a href="https://TU-TIENDA.myshopify.com" class="btn-cta" target="_blank">COMPRAR AHORA</a>
 </section>
@@ -806,6 +817,25 @@
   }, { threshold: 0.15 });
 
   document.querySelectorAll('.scard, .gitem').forEach(el => io.observe(el));
+  const walker = document.querySelector('.dog-walker');
+  if (walker) {
+    let pass = 0;
+    function runPass() {
+      pass++;
+      const goRight = (pass % 3 !== 0);
+      walker.style.animation = 'none';
+      walker.offsetHeight; // reflow
+      if (goRight) {
+        walker.classList.remove('flipped');
+        walker.style.animation = 'dogWalkRight 5s linear';
+      } else {
+        walker.classList.add('flipped');
+        walker.style.animation = 'dogWalkLeft 5s linear';
+      }
+    }
+    walker.addEventListener('animationend', runPass);
+    runPass();
+  }
 
   document.querySelectorAll('a[href^="#"]').forEach(a => {
     a.addEventListener('click', e => {

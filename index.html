@@ -177,7 +177,26 @@
       from { left: -320px; }
       to   { left: 110%; }
     }
-    #gameBanner { display: none; }
+    #gameBanner {
+      display: none;
+      width: 100%;
+      background: var(--red);
+      padding: 10px 0;
+      border-top: 3px solid var(--dark);
+      border-bottom: 3px solid var(--dark);
+      overflow: hidden;
+    }
+    #gameBanner.show { display: block; }
+    .banner-inner {
+      display: flex; width: max-content;
+      animation: marquee 18s linear infinite;
+    }
+    .banner-chip {
+      font-family: 'BobbyJones','Bebas Neue',sans-serif;
+      font-size: 18px; letter-spacing: 3px; color: var(--yellow);
+      white-space: nowrap; padding: 0 28px;
+    }
+    .banner-chip .sep { color: rgba(255,255,255,.4); margin: 0 10px; }
     #gameHint {
       position: absolute; bottom: 10px; left: 50%;
       transform: translateX(-50%);
@@ -612,27 +631,26 @@
     <button class="btn btn-ghost" id="btnJugar" onclick="startGame()" style="border-color:var(--teal);color:var(--teal);cursor:pointer;background:none;font-family:'BobbyJones','Bebas Neue',sans-serif;">🐾 Jugar</button>
   </div>
 
+  <!-- Banner que aparece ARRIBA del juego al hacer clic en Jugar -->
+  <div id="gameBanner">
+    <div class="banner-inner">
+      <span class="banner-chip">AYUDA A FIRULAIS A ARMAR EL MIX PERFECTO <span class="sep">·</span></span>
+      <span class="banner-chip">🧂 SAL <span class="sep">·</span></span>
+      <span class="banner-chip">🥭 MANGO <span class="sep">·</span></span>
+      <span class="banner-chip">🍍 PIÑA <span class="sep">·</span></span>
+      <span class="banner-chip">🌶 AJÍ <span class="sep">·</span></span>
+      <span class="banner-chip">🍋 LIMÓN <span class="sep">·</span></span>
+      <span class="banner-chip">AYUDA A FIRULAIS A ARMAR EL MIX PERFECTO <span class="sep">·</span></span>
+      <span class="banner-chip">🧂 SAL <span class="sep">·</span></span>
+      <span class="banner-chip">🥭 MANGO <span class="sep">·</span></span>
+      <span class="banner-chip">🍍 PIÑA <span class="sep">·</span></span>
+      <span class="banner-chip">🌶 AJÍ <span class="sep">·</span></span>
+      <span class="banner-chip">🍋 LIMÓN <span class="sep">·</span></span>
+    </div>
+  </div>
+
   <!-- Perro idle + Juego -->
   <div class="hero-dog-row">
-
-    <!-- Banner que aparece al jugar -->
-    <div id="gameBanner">
-      <div class="banner-inner">
-        <span class="banner-chip">AYUDA A FIRULAIS A ARMAR EL MIX PERFECTO <span class="sep">·</span></span>
-        <span class="banner-chip">SAL <span class="sep">·</span></span>
-        <span class="banner-chip">MANGO <span class="sep">·</span></span>
-        <span class="banner-chip">PIÑA <span class="sep">·</span></span>
-        <span class="banner-chip">AJÍ <span class="sep">·</span></span>
-        <span class="banner-chip">LIMÓN <span class="sep">·</span></span>
-        <span class="banner-chip">AYUDA A FIRULAIS A ARMAR EL MIX PERFECTO <span class="sep">·</span></span>
-        <span class="banner-chip">SAL <span class="sep">·</span></span>
-        <span class="banner-chip">MANGO <span class="sep">·</span></span>
-        <span class="banner-chip">PIÑA <span class="sep">·</span></span>
-        <span class="banner-chip">AJÍ <span class="sep">·</span></span>
-        <span class="banner-chip">LIMÓN <span class="sep">·</span></span>
-      </div>
-    </div>
-
     <div id="idleMode">
       <img id="dogGif" src="perroca.gif" alt="Firulais">
     </div>

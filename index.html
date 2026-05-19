@@ -453,14 +453,11 @@
     }
     .footer-socials { display: flex; gap: 12px; margin-top: 14px; justify-content: flex-end; }
     .footer-socials a {
-      font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
-      font-size: 13px; letter-spacing: 2px;
-      color: var(--yellow); text-decoration: none;
-      border: 2px solid var(--yellow); padding: 6px 18px;
-      border-radius: 50px;
-      transition: background .2s, color .2s;
+      display: flex; align-items: center;
+      text-decoration: none;
+      opacity: .85; transition: opacity .2s, transform .2s;
     }
-    .footer-socials a:hover { background: var(--yellow); color: var(--dark); }
+    .footer-socials a:hover { opacity: 1; transform: scale(1.15); background: none; color: inherit; }
     .footer-legal {
       width: 100%; text-align: center;
       font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
@@ -769,8 +766,13 @@
   <div class="footer-right">
     <p class="footer-tagline">Callejero por naturaleza. Auténtico por convicción.</p>
     <div class="footer-socials">
-      <!-- ★ Ponés tu URL de Instagram ★ -->
-      <a href="https://instagram.com/firulais" target="_blank">Instagram</a>
+      <a href="https://instagram.com/firulais_cl" target="_blank" aria-label="Instagram Firulais">
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#FEE04A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+          <circle cx="12" cy="12" r="4.5"/>
+          <circle cx="17.5" cy="6.5" r="1" fill="#FEE04A" stroke="none"/>
+        </svg>
+      </a>
     </div>
   </div>
   <p class="footer-legal">© 2025 Firulais Craft Mix · Todos los derechos reservados</p>

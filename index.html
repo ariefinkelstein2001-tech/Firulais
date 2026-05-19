@@ -177,7 +177,25 @@
       from { left: -320px; }
       to   { left: 110%; }
     }
-    #gameCanvas { display: block; }
+    #gameBanner {
+      position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+      background: var(--red); padding: 10px 0;
+      border-bottom: 3px solid var(--dark);
+      transform: translateY(-100%);
+      transition: transform .5s cubic-bezier(.34,1.56,.64,1);
+      overflow: hidden;
+    }
+    #gameBanner.show { transform: translateY(0); }
+    .banner-inner {
+      display: flex; width: max-content;
+      animation: marquee 18s linear infinite;
+    }
+    .banner-chip {
+      font-family: 'BobbyJones','Bebas Neue',sans-serif;
+      font-size: 18px; letter-spacing: 3px; color: var(--yellow);
+      white-space: nowrap; padding: 0 28px;
+    }
+    .banner-chip .sep { color: rgba(255,255,255,.4); margin: 0 10px; }
     #gameHint {
       position: absolute; bottom: 10px; left: 50%;
       transform: translateX(-50%);
@@ -614,6 +632,25 @@
 
   <!-- Perro idle + Juego -->
   <div class="hero-dog-row">
+
+    <!-- Banner que aparece al jugar -->
+    <div id="gameBanner">
+      <div class="banner-inner">
+        <span class="banner-chip">AYUDA A FIRULAIS A ARMAR EL MIX PERFECTO <span class="sep">·</span></span>
+        <span class="banner-chip">SAL <span class="sep">·</span></span>
+        <span class="banner-chip">MANGO <span class="sep">·</span></span>
+        <span class="banner-chip">PIÑA <span class="sep">·</span></span>
+        <span class="banner-chip">AJÍ <span class="sep">·</span></span>
+        <span class="banner-chip">LIMÓN <span class="sep">·</span></span>
+        <span class="banner-chip">AYUDA A FIRULAIS A ARMAR EL MIX PERFECTO <span class="sep">·</span></span>
+        <span class="banner-chip">SAL <span class="sep">·</span></span>
+        <span class="banner-chip">MANGO <span class="sep">·</span></span>
+        <span class="banner-chip">PIÑA <span class="sep">·</span></span>
+        <span class="banner-chip">AJÍ <span class="sep">·</span></span>
+        <span class="banner-chip">LIMÓN <span class="sep">·</span></span>
+      </div>
+    </div>
+
     <div id="idleMode">
       <img id="dogGif" src="perroca.gif" alt="Firulais">
     </div>
@@ -871,6 +908,7 @@
     _cv.style.display='block';
     _hint.style.display='none';
     document.getElementById('btnJugar').style.opacity='0.4';
+    document.getElementById('gameBanner').classList.add('show');
     initFlappy();
   }
   window.startGame=startGame;
@@ -885,7 +923,7 @@
     const dogImg=new Image(); dogImg.src='perroo.png';
 
     const isMobile = window.innerWidth < 600;
-    const DW = isMobile ? 55 : 90;
+    const DW = isMobile ? 55 : 65;
     const DH = DW; // square image
     const PIPE_W=52, GAP=155, PIPE_SPEED=3.2;
 

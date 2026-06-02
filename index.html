@@ -347,6 +347,39 @@
       color: var(--yellow); margin-top: 8px;
     }
 
+    /* ── Agregar al carrito (Shopify) ── */
+    .scard-buy {
+      display: flex; align-items: center; gap: 14px;
+      margin-top: 18px; flex-wrap: wrap;
+    }
+    .qty {
+      display: flex; align-items: center;
+      border: 3px solid var(--yellow); border-radius: 50px; overflow: hidden;
+    }
+    .qty-btn {
+      background: none; border: none; color: var(--yellow);
+      font-size: 22px; width: 42px; height: 44px; cursor: pointer;
+      font-family: inherit; line-height: 1;
+    }
+    .qty-btn:hover { background: var(--yellow); color: var(--dark); }
+    .qty-input {
+      width: 48px; height: 44px; text-align: center; border: none;
+      background: transparent; color: var(--white); font-size: 18px;
+      font-weight: 700; -moz-appearance: textfield;
+    }
+    .qty-input::-webkit-outer-spin-button,
+    .qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .btn-add {
+      flex: 1; min-width: 220px; cursor: pointer;
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
+      font-size: 18px; letter-spacing: 2px;
+      padding: 13px 28px; border: 3px solid var(--yellow); border-radius: 50px;
+      background: var(--yellow); color: var(--dark);
+      box-shadow: 4px 4px 0 rgba(0,0,0,.45);
+      transition: transform .12s, box-shadow .12s;
+    }
+    .btn-add:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 rgba(0,0,0,.45); }
+
     /* ══════════════════════════════
        GALERÍA
     ══════════════════════════════ */
@@ -590,8 +623,7 @@
   <ul class="nav-links">
     <li><a href="#sabores">Sabor</a></li>
     <li><a href="#galeria">Fotos</a></li>
-    <!-- ★ Cambiá esta URL por tu tienda Shopify ★ -->
-    <li><a href="https://TU-TIENDA.myshopify.com" class="nav-cta" target="_blank">Comprar</a></li>
+    <li><a href="https://kairos-brewing.myshopify.com" class="nav-cta shop-link" target="_blank">Comprar</a></li>
   </ul>
 </nav>
 
@@ -605,7 +637,7 @@
 
   <!-- Botones centrados -->
   <div class="hero-btns">
-    <a href="https://TU-TIENDA.myshopify.com" class="btn btn-red" target="_blank">Comprar Ahora</a>
+    <a href="https://kairos-brewing.myshopify.com" class="btn btn-red shop-link" target="_blank">Comprar Ahora</a>
     <a href="#sabores" class="btn btn-ghost">Ver Sabor</a>
     <button class="btn btn-ghost" id="btnJugar" onclick="startGame()" style="border-color:var(--teal);color:var(--teal);cursor:pointer;background:none;font-family:'BobbyJones','Bebas Neue',sans-serif;">🐾 Jugar</button>
   </div>
@@ -689,6 +721,14 @@
       <div class="scard-bottom">
         <p class="scard-desc">Cerveza con limón de pica natural y sal de mar</p>
         <p class="scard-abv">473 ML &nbsp;·&nbsp; 3.5% ABV</p>
+        <div class="scard-buy">
+          <div class="qty">
+            <button type="button" class="qty-btn" onclick="cambiarQty(-1)" aria-label="Restar">−</button>
+            <input id="qty-cachupin" class="qty-input" type="number" min="1" value="1" inputmode="numeric">
+            <button type="button" class="qty-btn" onclick="cambiarQty(1)" aria-label="Sumar">+</button>
+          </div>
+          <button type="button" class="btn-add" onclick="agregarCarrito()">🛒 Agregar al carrito</button>
+        </div>
       </div>
     </div>
 
@@ -741,8 +781,7 @@
   <span class="cta-paw">🐾</span>
   <h2 class="cta-h2">¿LISTO PARA<br>EL PRIMER SORBO?</h2>
   <p class="cta-sub">Pide tu pack ahora · Envío a todo Chile</p>
-  <!-- ★ Cambiá esta URL ★ -->
-  <a href="https://TU-TIENDA.myshopify.com" class="btn-cta" target="_blank">COMPRAR AHORA</a>
+  <a href="javascript:void(0)" class="btn-cta" onclick="agregarCarrito()">COMPRAR AHORA</a>
 </section>
 
 <!-- ══════════ FOOTER ══════════ -->
@@ -771,6 +810,49 @@
 
 <!-- ══════════ SCRIPTS ══════════ -->
 <script>
+  /* ════════════════════════════════════════════════════════════
+     CONFIG SHOPIFY  —  carrito conectado a tu tienda
+     ────────────────────────────────────────────────────────────
+     1) domain: el dominio de tu tienda Shopify (sin https://).
+     2) cachupinVariantId: el ID de la VARIANTE del producto Cachupin.
+        Cómo obtenerlo: Admin de Shopify > Productos > Cachupin,
+        clic en la variante; la URL termina en
+        .../variants/XXXXXXXXXXXXX  → ese número es el ID.
+     ════════════════════════════════════════════════════════════ */
+  const SHOPIFY = {
+    domain: 'kairos-brewing.myshopify.com',
+    cachupinVariantId: 'TU_VARIANT_ID'   // ← reemplazá por el número de la variante
+  };
+
+  function shopifyListo() {
+    return SHOPIFY.domain && !SHOPIFY.domain.includes('TU-TIENDA')
+        && SHOPIFY.cachupinVariantId && SHOPIFY.cachupinVariantId !== 'TU_VARIANT_ID';
+  }
+
+  function cambiarQty(delta) {
+    const el = document.getElementById('qty-cachupin');
+    if (!el) return;
+    el.value = Math.max(1, (parseInt(el.value, 10) || 1) + delta);
+  }
+
+  /* Agrega Cachupin al carrito de Shopify y lleva al carrito de la tienda */
+  function agregarCarrito() {
+    if (!shopifyListo()) {
+      alert('Falta configurar el ID de variante de Cachupin en el bloque CONFIG SHOPIFY del código.');
+      return;
+    }
+    const el = document.getElementById('qty-cachupin');
+    const qty = el ? Math.max(1, parseInt(el.value, 10) || 1) : 1;
+    window.location.href = `https://${SHOPIFY.domain}/cart/${SHOPIFY.cachupinVariantId}:${qty}`;
+  }
+
+  /* Apunta todos los botones de compra a la tienda Shopify configurada */
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.shop-link').forEach(a => {
+      a.href = 'https://' + SHOPIFY.domain;
+    });
+  });
+
   /* ══ LOADING SCREEN ══ */
   window.addEventListener('load', function(){
     const ls = document.getElementById('loadingScreen');

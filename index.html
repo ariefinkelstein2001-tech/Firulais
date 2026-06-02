@@ -21,13 +21,9 @@
   ║  images/logo.png            → Logo circular badge
   ║  images/hero.jpg            → Perro caminando entre letras FIRULAIS
   ║  images/sprite-cachupin.png → 3 frames Cachupin (en una imagen)
-  ║  images/sprite-pepita.png   → 3 frames Pepita  (en una imagen)
-  ║  images/sprite-cholita.png  → 3 frames Cholita (en una imagen)
   ║  images/mano-izq.png        → Mano izquierda sirviendo lata
   ║  images/mano-der.png        → Mano derecha vertiendo lata
   ║  images/lata-cachupin.png   → Lata Cachupin PNG fondo transparente
-  ║  images/lata-pepita.png     → Lata Pepita PNG fondo transparente
-  ║  images/lata-cholita.png    → Lata Cholita PNG fondo transparente
   ║  images/foto1.jpg - foto6.jpg → Galería de fotos
   ║
   ║  Busca "★" en el código para ver dónde va cada imagen.
@@ -249,7 +245,8 @@
 
     .sabores-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: minmax(0, 420px);
+      justify-content: center;
       gap: 20px;
     }
 
@@ -275,8 +272,6 @@
       padding: 28px 30px 28px 36px; gap: 8px;
     }
     .scard-top.c1 { background: #FEE04A; }
-    .scard-top.c2 { background: #E8793A; }
-    .scard-top.c3 { background: var(--red); }
 
     /* ── Dog sprite background ── */
     .scard-dog-bg {
@@ -325,25 +320,21 @@
       text-transform: uppercase; padding: 5px 12px;
       border-radius: 999px; margin-bottom: 10px;
     }
-    .c3 .scard-badge { background: var(--yellow); color: var(--dark); }
 
     .scard-freelice {
       font-size: 11px; font-weight: 700; letter-spacing: 4px;
       text-transform: uppercase; opacity: .4; margin-bottom: 2px;
     }
-    .c3 .scard-freelice { color: var(--cream); }
 
     .scard-name {
       font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
       font-size: 62px; line-height: .85; color: var(--dark);
     }
-    .c3 .scard-name { color: var(--white); }
 
     .scard-nick {
       font-size: 20px; font-weight: 700; font-style: italic;
       color: var(--teal); margin-top: 2px;
     }
-    .c3 .scard-nick { color: var(--yellow); }
 
     .scard-bottom { background: var(--dark); padding: 20px 28px; }
     .scard-desc {
@@ -697,58 +688,6 @@
       </div>
       <div class="scard-bottom">
         <p class="scard-desc">Cerveza con limón de pica natural y sal de mar</p>
-        <p class="scard-abv">473 ML &nbsp;·&nbsp; 3.5% ABV</p>
-      </div>
-    </div>
-
-    <!-- ─── PEPITA ─── -->
-    <div class="scard">
-      <div class="scard-top c2">
-
-        <!-- ★ images/sprite-pepita.png ★ -->
-        <div class="scard-dog-bg" style="background-image:url('sprite-pepita.png')"></div>
-
-        <div class="scard-hand left"><img src="mano-izq.png" alt=""></div>
-
-        <div class="scard-text">
-          <span class="scard-badge">Spicy &amp; Sweet</span>
-          <p class="scard-freelice">Free of Lice</p>
-          <h3 class="scard-name">FIRULAIS</h3>
-          <p class="scard-nick">Pepita</p>
-        </div>
-
-        <div class="scard-can" id="can-pepita">
-          <img src="lata-pepita.png" alt="Pepita">
-        </div>
-      </div>
-      <div class="scard-bottom">
-        <p class="scard-desc">Cerveza con mango y ají habanero natural</p>
-        <p class="scard-abv">473 ML &nbsp;·&nbsp; 3.5% ABV</p>
-      </div>
-    </div>
-
-    <!-- ─── CHOLITA ─── -->
-    <div class="scard">
-      <div class="scard-top c3">
-
-        <!-- ★ images/sprite-cholita.png ★ -->
-        <div class="scard-dog-bg" style="background-image:url('sprite-cholita.png')"></div>
-
-        <div class="scard-hand left"><img src="mano-izq.png" alt=""></div>
-
-        <div class="scard-text">
-          <span class="scard-badge">Michelada</span>
-          <p class="scard-freelice">Free of Lice</p>
-          <h3 class="scard-name">FIRULAIS</h3>
-          <p class="scard-nick">Cholita</p>
-        </div>
-
-        <div class="scard-can" id="can-cholita">
-          <img src="lata-cholita.png" alt="Cholita">
-        </div>
-      </div>
-      <div class="scard-bottom">
-        <p class="scard-desc">Cerveza con limón de pica, sal y jugo de tomate natural</p>
         <p class="scard-abv">473 ML &nbsp;·&nbsp; 3.5% ABV</p>
       </div>
     </div>

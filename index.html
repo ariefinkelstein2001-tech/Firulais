@@ -623,7 +623,7 @@
   <ul class="nav-links">
     <li><a href="#sabores">Sabor</a></li>
     <li><a href="#galeria">Fotos</a></li>
-    <li><a href="https://kairos-brewing.myshopify.com" class="nav-cta shop-link" target="_blank">Comprar</a></li>
+    <li><a href="https://kairos-brewing.myshopify.com" class="nav-cta" target="_blank">Comprar</a></li>
   </ul>
 </nav>
 
@@ -637,7 +637,7 @@
 
   <!-- Botones centrados -->
   <div class="hero-btns">
-    <a href="https://kairos-brewing.myshopify.com" class="btn btn-red shop-link" target="_blank">Comprar Ahora</a>
+    <a href="javascript:void(0)" class="btn btn-red" onclick="agregarCarrito()">Comprar Ahora</a>
     <a href="#sabores" class="btn btn-ghost">Ver Sabor</a>
     <button class="btn btn-ghost" id="btnJugar" onclick="startGame()" style="border-color:var(--teal);color:var(--teal);cursor:pointer;background:none;font-family:'BobbyJones','Bebas Neue',sans-serif;">🐾 Jugar</button>
   </div>
@@ -808,26 +808,33 @@
   <p class="footer-legal">© 2025 Firulais Craft Mix · Todos los derechos reservados</p>
 </footer>
 
+<!-- Carrito flotante de Shopify (Buy Button SDK lo monta acá) -->
+<div id="shopify-cart"></div>
+
 <!-- ══════════ SCRIPTS ══════════ -->
 <script>
   /* ════════════════════════════════════════════════════════════
-     CONFIG SHOPIFY  —  carrito conectado a tu tienda
+     CONFIG SHOPIFY  —  carrito en la misma página (Buy Button SDK)
      ────────────────────────────────────────────────────────────
-     1) domain: el dominio de tu tienda Shopify (sin https://).
-     2) cachupinVariantId: el ID de la VARIANTE del producto Cachupin.
-        Cómo obtenerlo: Admin de Shopify > Productos > Cachupin,
-        clic en la variante; la URL termina en
-        .../variants/XXXXXXXXXXXXX  → ese número es el ID.
+     1) domain: dominio de tu tienda Shopify (sin https://).
+     2) storefrontAccessToken: token de la Storefront API.
+        Admin Shopify > Configuración > Apps y canales de venta >
+        Desarrollar apps > (creá una app) > API Storefront >
+        instalá y copiá el "Storefront API access token".
+     3) cachupinProductId: ID numérico del producto Cachupin.
+        Admin > Productos > Cachupin; la URL termina en
+        .../products/XXXXXXXXXXXXX  → ese número.
+     Al "Agregar al carrito" NO se sale de la página: se abre un
+     carrito flotante. El checkout final abre en Shopify.
      ════════════════════════════════════════════════════════════ */
   const SHOPIFY = {
     domain: 'kairos-brewing.myshopify.com',
-    cachupinVariantId: 'TU_VARIANT_ID'   // ← reemplazá por el número de la variante
+    storefrontAccessToken: 'TU_STOREFRONT_TOKEN',  // ← pegá el token de Storefront API
+    cachupinProductId: 'TU_PRODUCT_ID'             // ← pegá el ID numérico del producto
   };
 
-  function shopifyListo() {
-    return SHOPIFY.domain && !SHOPIFY.domain.includes('TU-TIENDA')
-        && SHOPIFY.cachupinVariantId && SHOPIFY.cachupinVariantId !== 'TU_VARIANT_ID';
-  }
+  let shopifyCart = null;
+  let cachupinVariant = null;
 
   function cambiarQty(delta) {
     const el = document.getElementById('qty-cachupin');
@@ -835,23 +842,50 @@
     el.value = Math.max(1, (parseInt(el.value, 10) || 1) + delta);
   }
 
-  /* Agrega Cachupin al carrito de Shopify y lleva al carrito de la tienda */
+  /* Agrega Cachupin al carrito flotante (sin salir de la página) */
   function agregarCarrito() {
-    if (!shopifyListo()) {
-      alert('Falta configurar el ID de variante de Cachupin en el bloque CONFIG SHOPIFY del código.');
+    if (!shopifyCart || !cachupinVariant) {
+      alert('El carrito de Shopify todavía no está listo. Falta configurar el token de Storefront API y/o el ID del producto en el bloque CONFIG SHOPIFY.');
       return;
     }
     const el = document.getElementById('qty-cachupin');
     const qty = el ? Math.max(1, parseInt(el.value, 10) || 1) : 1;
-    window.location.href = `https://${SHOPIFY.domain}/cart/${SHOPIFY.cachupinVariantId}:${qty}`;
+    shopifyCart.addVariantToCart(cachupinVariant, qty);   // abre el carrito, no redirige
   }
 
-  /* Apunta todos los botones de compra a la tienda Shopify configurada */
-  document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.shop-link').forEach(a => {
-      a.href = 'https://' + SHOPIFY.domain;
+  /* ── Buy Button SDK de Shopify ── */
+  (function cargarShopify() {
+    if (SHOPIFY.storefrontAccessToken === 'TU_STOREFRONT_TOKEN' ||
+        SHOPIFY.cachupinProductId === 'TU_PRODUCT_ID') return; // sin credenciales no carga
+    const src = 'https://sdks.shopifycdn.com/buy-button/latest/buy-button-storefront.min.js';
+    const s = document.createElement('script');
+    s.async = true; s.src = src; s.onload = initShopify;
+    document.head.appendChild(s);
+  })();
+
+  function initShopify() {
+    const client = ShopifyBuy.buildClient({
+      domain: SHOPIFY.domain,
+      storefrontAccessToken: SHOPIFY.storefrontAccessToken
     });
-  });
+    ShopifyBuy.UI.onReady(client).then(function (ui) {
+      ui.createComponent('cart', {
+        node: document.getElementById('shopify-cart'),
+        options: {
+          cart: {
+            text: { title: 'Carrito', total: 'Subtotal', button: 'Finalizar compra', empty: 'Tu carrito está vacío' },
+            styles: { button: { 'background-color': '#E63946', ':hover': { 'background-color': '#c92f3c' }, ':focus': { 'background-color': '#c92f3c' } } }
+          },
+          toggle: { styles: { toggle: { 'background-color': '#E63946', ':hover': { 'background-color': '#c92f3c' } } } }
+        }
+      }).then(function (cart) { shopifyCart = cart; });
+
+      const gid = 'gid://shopify/Product/' + SHOPIFY.cachupinProductId;
+      client.product.fetch(gid).then(function (product) {
+        cachupinVariant = product.variants[0];
+      });
+    });
+  }
 
   /* ══ LOADING SCREEN ══ */
   window.addEventListener('load', function(){

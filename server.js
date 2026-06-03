@@ -70,34 +70,6 @@ app.get('/api/cachupin', async (req, res) => {
   }
 });
 
-/* Crea una orden borrador en Shopify y devuelve la URL de pago (checkout real) */
-app.post('/api/checkout', async (req, res) => {
-  if (!STORE || !TOKEN) {
-    return res.status(500).json({ error: 'Faltan SHOPIFY_STORE_DOMAIN o SHOPIFY_ADMIN_TOKEN' });
-  }
-  const items = Array.isArray(req.body.items) ? req.body.items : [];
-  const line_items = items
-    .filter(i => i && i.variantId && Number(i.quantity) > 0)
-    .map(i => ({ variant_id: Number(i.variantId), quantity: Number(i.quantity) }));
-  if (!line_items.length) {
-    return res.status(400).json({ error: 'El carrito está vacío' });
-  }
-  try {
-    const r = await fetch(`https://${STORE}/admin/api/${API_VERSION}/draft_orders.json`, {
-      method: 'POST',
-      headers: { 'X-Shopify-Access-Token': TOKEN, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ draft_order: { line_items } })
-    });
-    const data = await r.json();
-    if (!r.ok || !data.draft_order || !data.draft_order.invoice_url) {
-      return res.status(502).json({ error: 'Shopify no pudo crear el checkout', detail: data });
-    }
-    res.json({ checkoutUrl: data.draft_order.invoice_url });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
 /* Archivos estáticos de la página */
 app.use(express.static(path.join(__dirname)));
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));

@@ -692,12 +692,12 @@
   transition:opacity .8s ease;
 ">
   <video autoplay loop muted playsinline
-    style="height:220px;width:auto;"
-    onerror="this.style.display='none'">
-    <source src="perroca.gif" type="image/gif">
+    style="height:220px;width:auto;margin-bottom:20px;"
+    onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+    <source src="perroca.mp4" type="video/mp4">
   </video>
-  <img src="perroca.gif" alt=""
-    style="height:220px;width:auto;margin-bottom:20px;">
+  <img src="perroo.png" alt=""
+    style="display:none;height:220px;width:auto;margin-bottom:20px;">
   <div style="
     font-family:'Bebas Neue',sans-serif;
     font-size:32px;letter-spacing:8px;
@@ -758,7 +758,9 @@
   <!-- Perro idle + Juego -->
   <div class="hero-dog-row">
     <div id="idleMode">
-      <img id="dogGif" src="perroca.gif" alt="Firulais">
+      <video id="dogGif" autoplay loop muted playsinline aria-label="Firulais">
+        <source src="perroca.mp4" type="video/mp4">
+      </video>
     </div>
     <canvas id="gameCanvas" style="display:none;width:100%;height:100%;"></canvas>
     <div id="gameHint">ESPACIO · TAP PARA SALTAR</div>
@@ -810,7 +812,7 @@
         </div>
 
         <div class="scard-can" id="can-cachupin">
-          <img src="lata-cachupin.png" alt="Cachupin">
+          <img src="lata-cachupin.webp" alt="Cachupin">
         </div>
       </div>
       <div class="scard-bottom">
@@ -865,16 +867,16 @@
     Subí tus fotos a la carpeta /images/ con esos nombres.
   ★ -->
   <div class="gallery-grid">
-    <div class="gitem"><img src="foto1.png" alt="Firulais"></div>
-    <div class="gitem"><img src="foto2.png" alt="Firulais"></div>
-    <div class="gitem"><img src="foto3.png" alt="Firulais"></div>
-    <div class="gitem"><img src="foto4.png" alt="Firulais"></div>
-    <div class="gitem"><img src="foto5.png" alt="Firulais"></div>
-    <div class="gitem"><img src="foto6.png" alt="Firulais"></div>
-    <div class="gitem"><img src="foto7.png" alt="Firulais"></div>
-    <div class="gitem"><img src="foto8.png" alt="Firulais"></div>
-    <div class="gitem"><img src="foto9.png" alt="Firulais"></div>
-    <div class="gitem"><img src="foto10.png" alt="Firulais"></div>
+    <div class="gitem"><img src="foto1.webp" alt="Firulais" loading="lazy" decoding="async"></div>
+    <div class="gitem"><img src="foto2.webp" alt="Firulais" loading="lazy" decoding="async"></div>
+    <div class="gitem"><img src="foto3.webp" alt="Firulais" loading="lazy" decoding="async"></div>
+    <div class="gitem"><img src="foto4.webp" alt="Firulais" loading="lazy" decoding="async"></div>
+    <div class="gitem"><img src="foto5.webp" alt="Firulais" loading="lazy" decoding="async"></div>
+    <div class="gitem"><img src="foto6.webp" alt="Firulais" loading="lazy" decoding="async"></div>
+    <div class="gitem"><img src="foto7.webp" alt="Firulais" loading="lazy" decoding="async"></div>
+    <div class="gitem"><img src="foto8.webp" alt="Firulais" loading="lazy" decoding="async"></div>
+    <div class="gitem"><img src="foto9.webp" alt="Firulais" loading="lazy" decoding="async"></div>
+    <div class="gitem"><img src="foto10.webp" alt="Firulais" loading="lazy" decoding="async"></div>
   </div>
 </section>
 

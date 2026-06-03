@@ -379,6 +379,85 @@
       transition: transform .12s, box-shadow .12s;
     }
     .btn-add:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 rgba(0,0,0,.45); }
+    .scard-price {
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
+      font-size: 22px; letter-spacing: 1px; color: var(--cream); margin-top: 6px;
+    }
+
+    /* ══════════════════════════════
+       CARRITO
+    ══════════════════════════════ */
+    .cart-fab {
+      position: fixed; right: 22px; bottom: 22px; z-index: 1200;
+      width: 60px; height: 60px; border-radius: 50%;
+      background: var(--red); color: #fff; border: 3px solid var(--dark);
+      font-size: 24px; cursor: pointer; box-shadow: 4px 4px 0 var(--dark);
+      transition: transform .12s;
+    }
+    .cart-fab:hover { transform: translateY(-2px); }
+    .cart-count {
+      position: absolute; top: -6px; right: -6px;
+      min-width: 22px; height: 22px; padding: 0 5px; border-radius: 999px;
+      background: var(--yellow); color: var(--dark);
+      font-size: 12px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid var(--dark);
+    }
+    .cart-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.5);
+      opacity: 0; visibility: hidden; transition: opacity .25s; z-index: 1300;
+    }
+    .cart-overlay.open { opacity: 1; visibility: visible; }
+    .cart-drawer {
+      position: fixed; top: 0; right: 0; height: 100%;
+      width: 380px; max-width: 90vw; background: var(--cream);
+      z-index: 1400; transform: translateX(100%); transition: transform .28s ease;
+      display: flex; flex-direction: column; box-shadow: -8px 0 30px rgba(0,0,0,.25);
+    }
+    .cart-drawer.open { transform: translateX(0); }
+    .cart-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 24px; border-bottom: 3px solid var(--dark);
+    }
+    .cart-head h3 {
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
+      font-size: 26px; letter-spacing: 2px; color: var(--dark);
+    }
+    .cart-close {
+      background: none; border: none; font-size: 22px; cursor: pointer; color: var(--dark);
+    }
+    .cart-empty { padding: 40px 24px; text-align: center; color: var(--dark); opacity: .6; }
+    .cart-items { flex: 1; overflow-y: auto; padding: 12px 18px; }
+    .cart-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 6px; border-bottom: 1px solid rgba(0,0,0,.12);
+    }
+    .cart-row-info { flex: 1; }
+    .cart-row-name { font-weight: 700; color: var(--dark); font-size: 14px; }
+    .cart-row-price { color: var(--dark); opacity: .7; font-size: 13px; margin-top: 2px; }
+    .cart-row-qty { display: flex; align-items: center; gap: 8px; }
+    .cart-row-qty button {
+      width: 28px; height: 28px; border: 2px solid var(--dark); background: none;
+      border-radius: 50%; cursor: pointer; font-size: 15px; color: var(--dark); line-height: 1;
+    }
+    .cart-row-qty button:hover { background: var(--dark); color: var(--cream); }
+    .cart-row-qty span { min-width: 18px; text-align: center; font-weight: 700; color: var(--dark); }
+    .cart-row-del { background: none; border: none; cursor: pointer; color: var(--red); font-size: 15px; }
+    .cart-foot { padding: 18px 24px 24px; border-top: 3px solid var(--dark); }
+    .cart-total-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
+      font-size: 22px; letter-spacing: 1px; color: var(--dark); margin-bottom: 14px;
+    }
+    .cart-checkout {
+      width: 100%; cursor: pointer;
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
+      font-size: 18px; letter-spacing: 2px; padding: 14px;
+      border: 3px solid var(--dark); border-radius: 50px;
+      background: var(--red); color: #fff; box-shadow: 4px 4px 0 var(--dark);
+      transition: transform .12s, box-shadow .12s;
+    }
+    .cart-checkout:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--dark); }
 
     /* ══════════════════════════════
        GALERÍA
@@ -721,6 +800,7 @@
       <div class="scard-bottom">
         <p class="scard-desc">Cerveza con limón de pica natural y sal de mar</p>
         <p class="scard-abv">473 ML &nbsp;·&nbsp; 3.5% ABV</p>
+        <p class="scard-price" id="precio-cachupin"></p>
         <div class="scard-buy">
           <div class="qty">
             <button type="button" class="qty-btn" onclick="cambiarQty(-1)" aria-label="Restar">−</button>
@@ -808,33 +888,52 @@
   <p class="footer-legal">© 2025 Firulais Craft Mix · Todos los derechos reservados</p>
 </footer>
 
-<!-- Carrito flotante de Shopify (Buy Button SDK lo monta acá) -->
-<div id="shopify-cart"></div>
+<!-- ══════════ CARRITO ══════════ -->
+<button class="cart-fab" onclick="abrirCarrito()" aria-label="Ver carrito">
+  🛒<span id="cart-count" class="cart-count" style="display:none">0</span>
+</button>
+<div id="cart-overlay" class="cart-overlay" onclick="cerrarCarrito()"></div>
+<aside id="cart-drawer" class="cart-drawer" aria-label="Carrito">
+  <div class="cart-head">
+    <h3>Tu carrito</h3>
+    <button type="button" class="cart-close" onclick="cerrarCarrito()" aria-label="Cerrar">✕</button>
+  </div>
+  <div id="cart-empty" class="cart-empty">Tu carrito está vacío 🐾</div>
+  <div id="cart-items" class="cart-items"></div>
+  <div class="cart-foot">
+    <div class="cart-total-row"><span>Total</span><span id="cart-total">$0</span></div>
+    <button type="button" id="cart-checkout" class="cart-checkout" style="display:none" onclick="finalizarCompra()">Finalizar compra en Shopify</button>
+  </div>
+</aside>
 
 <!-- ══════════ SCRIPTS ══════════ -->
 <script>
   /* ════════════════════════════════════════════════════════════
-     CONFIG SHOPIFY  —  carrito en la misma página (Buy Button SDK)
-     ────────────────────────────────────────────────────────────
-     1) domain: dominio de tu tienda Shopify (sin https://).
-     2) storefrontAccessToken: token de la Storefront API.
-        Admin Shopify > Configuración > Apps y canales de venta >
-        Desarrollar apps > (creá una app) > API Storefront >
-        instalá y copiá el "Storefront API access token".
-     3) cachupinProductId: ID numérico del producto Cachupin.
-        Admin > Productos > Cachupin; la URL termina en
-        .../products/XXXXXXXXXXXXX  → ese número.
-     Al "Agregar al carrito" NO se sale de la página: se abre un
-     carrito flotante. El checkout final abre en Shopify.
+     CARRITO FIRULAIS  →  conectado a Shopify vía el servidor (Railway)
+     El servidor (server.js) usa SHOPIFY_STORE_DOMAIN y SHOPIFY_ADMIN_TOKEN.
+     "Agregar al carrito" suma sin salir de la página; "Finalizar
+     compra" abre el checkout real de Shopify.
      ════════════════════════════════════════════════════════════ */
-  const SHOPIFY = {
-    domain: 'kairos-brewing.myshopify.com',
-    storefrontAccessToken: 'TU_STOREFRONT_TOKEN',  // ← pegá el token de Storefront API
-    cachupinProductId: 'TU_PRODUCT_ID'             // ← pegá el ID numérico del producto
-  };
+  let CACHUPIN = null;   // { variantId, price, currency, storeDomain, title }
+  let carrito = [];      // [{ variantId, title, price, qty }]
 
-  let shopifyCart = null;
-  let cachupinVariant = null;
+  /* Trae los datos reales del producto desde el servidor */
+  fetch('/api/cachupin')
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(data => {
+      CACHUPIN = data;
+      const p = document.getElementById('precio-cachupin');
+      if (p && data.price) p.textContent = formatPrecio(data.price, data.currency);
+    })
+    .catch(() => { /* sin servidor/credenciales: el botón avisará al tocar */ });
+
+  function formatPrecio(value, currency) {
+    const n = Number(value);
+    if (isNaN(n)) return '';
+    try {
+      return new Intl.NumberFormat('es-CL', { style: 'currency', currency: currency || 'CLP', maximumFractionDigits: 0 }).format(n);
+    } catch (e) { return '$' + n; }
+  }
 
   function cambiarQty(delta) {
     const el = document.getElementById('qty-cachupin');
@@ -842,49 +941,87 @@
     el.value = Math.max(1, (parseInt(el.value, 10) || 1) + delta);
   }
 
-  /* Agrega Cachupin al carrito flotante (sin salir de la página) */
   function agregarCarrito() {
-    if (!shopifyCart || !cachupinVariant) {
-      alert('El carrito de Shopify todavía no está listo. Falta configurar el token de Storefront API y/o el ID del producto en el bloque CONFIG SHOPIFY.');
+    if (!CACHUPIN || !CACHUPIN.variantId) {
+      alert('El carrito todavía no está conectado a Shopify.\n\nRevisá que el servidor tenga las variables SHOPIFY_STORE_DOMAIN y SHOPIFY_ADMIN_TOKEN, y que exista el producto "Cachupin" en la tienda.');
       return;
     }
     const el = document.getElementById('qty-cachupin');
     const qty = el ? Math.max(1, parseInt(el.value, 10) || 1) : 1;
-    shopifyCart.addVariantToCart(cachupinVariant, qty);   // abre el carrito, no redirige
+    const item = carrito.find(i => i.variantId === CACHUPIN.variantId);
+    if (item) item.qty += qty;
+    else carrito.push({ variantId: CACHUPIN.variantId, title: CACHUPIN.title || 'Firulais Cachupin', price: CACHUPIN.price, qty: qty });
+    renderCarrito();
+    abrirCarrito();
   }
 
-  /* ── Buy Button SDK de Shopify ── */
-  (function cargarShopify() {
-    if (SHOPIFY.storefrontAccessToken === 'TU_STOREFRONT_TOKEN' ||
-        SHOPIFY.cachupinProductId === 'TU_PRODUCT_ID') return; // sin credenciales no carga
-    const src = 'https://sdks.shopifycdn.com/buy-button/latest/buy-button-storefront.min.js';
-    const s = document.createElement('script');
-    s.async = true; s.src = src; s.onload = initShopify;
-    document.head.appendChild(s);
-  })();
+  function quitarItem(variantId) {
+    carrito = carrito.filter(i => i.variantId !== variantId);
+    renderCarrito();
+  }
 
-  function initShopify() {
-    const client = ShopifyBuy.buildClient({
-      domain: SHOPIFY.domain,
-      storefrontAccessToken: SHOPIFY.storefrontAccessToken
-    });
-    ShopifyBuy.UI.onReady(client).then(function (ui) {
-      ui.createComponent('cart', {
-        node: document.getElementById('shopify-cart'),
-        options: {
-          cart: {
-            text: { title: 'Carrito', total: 'Subtotal', button: 'Finalizar compra', empty: 'Tu carrito está vacío' },
-            styles: { button: { 'background-color': '#E63946', ':hover': { 'background-color': '#c92f3c' }, ':focus': { 'background-color': '#c92f3c' } } }
-          },
-          toggle: { styles: { toggle: { 'background-color': '#E63946', ':hover': { 'background-color': '#c92f3c' } } } }
-        }
-      }).then(function (cart) { shopifyCart = cart; });
+  function itemQty(variantId, delta) {
+    const item = carrito.find(i => i.variantId === variantId);
+    if (!item) return;
+    item.qty = Math.max(1, item.qty + delta);
+    renderCarrito();
+  }
 
-      const gid = 'gid://shopify/Product/' + SHOPIFY.cachupinProductId;
-      client.product.fetch(gid).then(function (product) {
-        cachupinVariant = product.variants[0];
-      });
-    });
+  function totalCarrito() { return carrito.reduce((s, i) => s + (Number(i.price) || 0) * i.qty, 0); }
+  function cantidadCarrito() { return carrito.reduce((s, i) => s + i.qty, 0); }
+
+  function renderCarrito() {
+    const cont = document.getElementById('cart-items');
+    const vacio = document.getElementById('cart-empty');
+    const totalEl = document.getElementById('cart-total');
+    const countEl = document.getElementById('cart-count');
+    const checkoutBtn = document.getElementById('cart-checkout');
+    if (!cont) return;
+    const cur = CACHUPIN && CACHUPIN.currency;
+
+    if (!carrito.length) {
+      cont.innerHTML = '';
+      if (vacio) vacio.style.display = 'block';
+      if (checkoutBtn) checkoutBtn.style.display = 'none';
+    } else {
+      if (vacio) vacio.style.display = 'none';
+      if (checkoutBtn) checkoutBtn.style.display = 'block';
+      cont.innerHTML = carrito.map(i => `
+        <div class="cart-row">
+          <div class="cart-row-info">
+            <p class="cart-row-name">${i.title}</p>
+            <p class="cart-row-price">${formatPrecio(i.price, cur)}</p>
+          </div>
+          <div class="cart-row-qty">
+            <button type="button" onclick="itemQty(${i.variantId}, -1)">−</button>
+            <span>${i.qty}</span>
+            <button type="button" onclick="itemQty(${i.variantId}, 1)">+</button>
+          </div>
+          <button type="button" class="cart-row-del" onclick="quitarItem(${i.variantId})" aria-label="Quitar">✕</button>
+        </div>`).join('');
+    }
+    if (totalEl) totalEl.textContent = formatPrecio(totalCarrito(), cur);
+    if (countEl) {
+      const n = cantidadCarrito();
+      countEl.textContent = n;
+      countEl.style.display = n > 0 ? 'flex' : 'none';
+    }
+  }
+
+  function abrirCarrito() {
+    document.getElementById('cart-drawer').classList.add('open');
+    document.getElementById('cart-overlay').classList.add('open');
+  }
+  function cerrarCarrito() {
+    document.getElementById('cart-drawer').classList.remove('open');
+    document.getElementById('cart-overlay').classList.remove('open');
+  }
+
+  /* Lleva al checkout real de Shopify (cart permalink) */
+  function finalizarCompra() {
+    if (!carrito.length || !CACHUPIN || !CACHUPIN.storeDomain) return;
+    const items = carrito.map(i => `${i.variantId}:${i.qty}`).join(',');
+    window.location.href = `https://${CACHUPIN.storeDomain}/cart/${items}`;
   }
 
   /* ══ LOADING SCREEN ══ */

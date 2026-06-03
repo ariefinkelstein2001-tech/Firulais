@@ -1062,11 +1062,25 @@
     document.getElementById('cart-overlay').classList.remove('open');
   }
 
-  /* Lleva al checkout real de Shopify (cart permalink) */
-  function finalizarCompra() {
-    if (!carrito.length || !CACHUPIN || !CACHUPIN.storeDomain) return;
-    const items = carrito.map(i => `${i.variantId}:${i.qty}`).join(',');
-    window.location.href = `https://${CACHUPIN.storeDomain}/cart/${items}`;
+  /* Crea el checkout en el servidor (Admin API) y redirige a pagar en Shopify */
+  async function finalizarCompra() {
+    if (!carrito.length) return;
+    const btn = document.getElementById('cart-checkout');
+    const original = btn ? btn.textContent : '';
+    if (btn) { btn.disabled = true; btn.textContent = 'Generando checkout…'; }
+    try {
+      const r = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: carrito.map(i => ({ variantId: i.variantId, quantity: i.qty })) })
+      });
+      const data = await r.json();
+      if (!r.ok || !data.checkoutUrl) throw new Error(data.error || 'No se pudo crear el checkout');
+      window.location.href = data.checkoutUrl;
+    } catch (e) {
+      alert('No se pudo iniciar el checkout.\n\n' + (e.message || ''));
+      if (btn) { btn.disabled = false; btn.textContent = original; }
+    }
   }
 
   /* ══ LOADING SCREEN ══ */

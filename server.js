@@ -45,8 +45,13 @@ app.get('/api/cachupin', async (req, res) => {
     if (!product) {
       return res.status(404).json({ error: 'No se encontró un producto "Cachupin" en la tienda' });
     }
-    const variant = product.variants && product.variants[0];
-    if (!variant) {
+    const variants = (product.variants || []).map(v => ({
+      variantId: v.id,
+      title: v.title,                 // ej: "6 Pack", "12", "24"
+      price: v.price,
+      available: v.available !== false
+    }));
+    if (!variants.length) {
       return res.status(404).json({ error: 'El producto Cachupin no tiene variantes' });
     }
     let currency = 'CLP';
@@ -55,11 +60,10 @@ app.get('/api/cachupin', async (req, res) => {
       currency = (shop.shop && shop.shop.currency) || currency;
     }
     res.json({
-      variantId: variant.id,
       title: product.title,
-      price: variant.price,
       currency: currency,
-      storeDomain: STORE
+      storeDomain: STORE,
+      variants: variants
     });
   } catch (e) {
     res.status(500).json({ error: e.message });

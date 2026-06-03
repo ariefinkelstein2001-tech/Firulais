@@ -381,8 +381,24 @@
     .btn-add:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 rgba(0,0,0,.45); }
     .scard-price {
       font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
-      font-size: 22px; letter-spacing: 1px; color: var(--cream); margin-top: 6px;
+      font-size: 22px; letter-spacing: 1px; color: var(--cream); margin-top: 14px;
     }
+    .pack-label {
+      font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      color: rgba(255,255,255,.55); margin-top: 18px; margin-bottom: 8px;
+    }
+    .pack-options { display: flex; flex-wrap: wrap; gap: 10px; }
+    .pack-loading { color: rgba(255,255,255,.5); font-size: 13px; }
+    .pack-opt {
+      flex: 1; min-width: 92px; cursor: pointer; text-align: center;
+      padding: 10px 14px; border-radius: 14px;
+      border: 2px solid rgba(255,255,255,.25); background: rgba(255,255,255,.04);
+      color: var(--white); transition: border-color .15s, background .15s;
+    }
+    .pack-opt:hover { border-color: var(--yellow); }
+    .pack-opt.sel { border-color: var(--yellow); background: rgba(254,224,74,.14); }
+    .pack-opt .pack-name { font-weight: 800; font-size: 15px; }
+    .pack-opt .pack-price { font-size: 13px; opacity: .8; margin-top: 2px; }
 
     /* ══════════════════════════════
        CARRITO
@@ -702,7 +718,7 @@
   <ul class="nav-links">
     <li><a href="#sabores">Sabor</a></li>
     <li><a href="#galeria">Fotos</a></li>
-    <li><a href="https://kairos-brewing.myshopify.com" class="nav-cta" target="_blank">Comprar</a></li>
+    <li><a href="javascript:void(0)" class="nav-cta" onclick="abrirCarrito()">Carrito</a></li>
   </ul>
 </nav>
 
@@ -800,6 +816,12 @@
       <div class="scard-bottom">
         <p class="scard-desc">Cerveza con limón de pica natural y sal de mar</p>
         <p class="scard-abv">473 ML &nbsp;·&nbsp; 3.5% ABV</p>
+
+        <p class="pack-label">Elegí tu pack</p>
+        <div class="pack-options" id="pack-options">
+          <span class="pack-loading">Cargando packs…</span>
+        </div>
+
         <p class="scard-price" id="precio-cachupin"></p>
         <div class="scard-buy">
           <div class="qty">
@@ -914,18 +936,18 @@
      "Agregar al carrito" suma sin salir de la página; "Finalizar
      compra" abre el checkout real de Shopify.
      ════════════════════════════════════════════════════════════ */
-  let CACHUPIN = null;   // { variantId, price, currency, storeDomain, title }
-  let carrito = [];      // [{ variantId, title, price, qty }]
+  let CACHUPIN = null;     // { title, currency, storeDomain, variants: [{variantId,title,price}] }
+  let packSel = null;      // variante (pack) elegida
+  let carrito = [];        // [{ variantId, title, price, qty }]
 
-  /* Trae los datos reales del producto desde el servidor */
+  /* Trae el producto real (con sus packs 6/12/24) desde el servidor */
   fetch('/api/cachupin')
     .then(r => r.ok ? r.json() : Promise.reject())
-    .then(data => {
-      CACHUPIN = data;
-      const p = document.getElementById('precio-cachupin');
-      if (p && data.price) p.textContent = formatPrecio(data.price, data.currency);
-    })
-    .catch(() => { /* sin servidor/credenciales: el botón avisará al tocar */ });
+    .then(data => { CACHUPIN = data; renderPacks(); })
+    .catch(() => {
+      const c = document.getElementById('pack-options');
+      if (c) c.innerHTML = '<span class="pack-loading">No se pudo conectar con la tienda.</span>';
+    });
 
   function formatPrecio(value, currency) {
     const n = Number(value);
@@ -935,6 +957,28 @@
     } catch (e) { return '$' + n; }
   }
 
+  /* Pinta los packs disponibles y selecciona el primero por defecto */
+  function renderPacks() {
+    const c = document.getElementById('pack-options');
+    if (!c || !CACHUPIN || !CACHUPIN.variants) return;
+    c.innerHTML = CACHUPIN.variants.map((v, idx) => `
+      <button type="button" class="pack-opt${idx === 0 ? ' sel' : ''}" data-idx="${idx}" onclick="elegirPack(${idx})">
+        <div class="pack-name">${v.title}</div>
+        <div class="pack-price">${formatPrecio(v.price, CACHUPIN.currency)}</div>
+      </button>`).join('');
+    elegirPack(0);
+  }
+
+  function elegirPack(idx) {
+    if (!CACHUPIN || !CACHUPIN.variants[idx]) return;
+    packSel = CACHUPIN.variants[idx];
+    document.querySelectorAll('.pack-opt').forEach(b => {
+      b.classList.toggle('sel', Number(b.dataset.idx) === idx);
+    });
+    const p = document.getElementById('precio-cachupin');
+    if (p) p.textContent = formatPrecio(packSel.price, CACHUPIN.currency);
+  }
+
   function cambiarQty(delta) {
     const el = document.getElementById('qty-cachupin');
     if (!el) return;
@@ -942,15 +986,16 @@
   }
 
   function agregarCarrito() {
-    if (!CACHUPIN || !CACHUPIN.variantId) {
+    if (!CACHUPIN || !packSel) {
       alert('El carrito todavía no está conectado a Shopify.\n\nRevisá que el servidor tenga las variables SHOPIFY_STORE_DOMAIN y SHOPIFY_ADMIN_TOKEN, y que exista el producto "Cachupin" en la tienda.');
       return;
     }
     const el = document.getElementById('qty-cachupin');
     const qty = el ? Math.max(1, parseInt(el.value, 10) || 1) : 1;
-    const item = carrito.find(i => i.variantId === CACHUPIN.variantId);
+    const nombre = (CACHUPIN.title || 'Firulais Cachupin') + ' · ' + packSel.title;
+    const item = carrito.find(i => i.variantId === packSel.variantId);
     if (item) item.qty += qty;
-    else carrito.push({ variantId: CACHUPIN.variantId, title: CACHUPIN.title || 'Firulais Cachupin', price: CACHUPIN.price, qty: qty });
+    else carrito.push({ variantId: packSel.variantId, title: nombre, price: packSel.price, qty: qty });
     renderCarrito();
     abrirCarrito();
   }

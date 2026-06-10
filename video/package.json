@@ -5,7 +5,7 @@
   "description": "Videos de Firulais hechos con Remotion",
   "scripts": {
     "dev": "remotion studio",
-    "render": "remotion render FirulaisIntro out/video.mp4",
+    "render": "remotion render FirulaisVideo out/firulais.mp4",
     "upgrade": "remotion upgrade"
   },
   "dependencies": {

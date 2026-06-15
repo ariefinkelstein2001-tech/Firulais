@@ -1259,18 +1259,24 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ first: first, last: last, email: email })
       });
-      const data = await r.json().catch(() => ({}));
+      let data = {};
+      try { data = await r.json(); } catch (_) {}
       if (r.ok && data.ok) {
         document.getElementById(p + '-form').style.display = 'none';
         msg.textContent = 'Listo ' + (first || '') + '. Revisá tu correo — ahí va tu 10%. 🐾';
         msg.classList.add('ok');
         try { localStorage.setItem('firu_pop', '1'); } catch (_) {}
       } else {
-        throw new Error(data.error || 'Error');
+        // Modo diagnóstico: muestra el error real del servidor
+        const detail = data.error || ('HTTP ' + r.status);
+        msg.textContent = 'Error: ' + detail + (data.status ? ' [' + data.status + ']' : '');
+        msg.classList.add('err');
+        btn.disabled = false; btn.textContent = original;
+        console.error('subscribe fail', r.status, data);
       }
     } catch (err) {
       console.error('Klaviyo subscribe error:', err);
-      msg.textContent = 'Uy, algo falló. Probá de nuevo en un rato.';
+      msg.textContent = 'Error de red: ' + (err.message || err);
       msg.classList.add('err');
       btn.disabled = false; btn.textContent = original;
     }

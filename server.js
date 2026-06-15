@@ -113,7 +113,10 @@ app.post('/api/subscribe', async (req, res) => {
     });
     if (r.status === 202 || r.ok) return res.json({ ok: true });
     const body = await r.text();
-    return res.status(502).json({ error: 'Klaviyo rechazó la suscripción', status: r.status, body });
+    console.error('Klaviyo rechazo:', r.status, body);
+    let detail = body;
+    try { const j = JSON.parse(body); detail = (j.errors && j.errors[0] && (j.errors[0].detail || j.errors[0].title)) || body; } catch (_) {}
+    return res.status(502).json({ error: 'Klaviyo: ' + detail, status: r.status });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

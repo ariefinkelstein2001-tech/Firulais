@@ -533,6 +533,49 @@
     .nl-msg.err { color: #ffd7d7; }
     .nl-fine { margin-top: 14px; font-size: 13px; opacity: .7; }
 
+    /* ── Popup 10% (5s) ── */
+    .pop-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.55);
+      opacity: 0; visibility: hidden; transition: opacity .3s; z-index: 1500;
+    }
+    .pop-overlay.open { opacity: 1; visibility: visible; }
+    .pop-modal {
+      position: fixed; left: 50%; top: 50%;
+      transform: translate(-50%, -46%) scale(.96);
+      width: 440px; max-width: 92vw;
+      background: var(--cream); color: var(--dark);
+      border: 4px solid var(--dark); border-radius: 22px;
+      box-shadow: 10px 10px 0 var(--dark);
+      padding: 40px 30px 26px; text-align: center; z-index: 1600;
+      opacity: 0; visibility: hidden;
+      transition: opacity .3s, transform .3s;
+    }
+    .pop-modal.open { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
+    .pop-close {
+      position: absolute; top: 12px; right: 16px;
+      background: none; border: none; font-size: 22px; cursor: pointer; color: var(--dark);
+    }
+    .pop-paw { font-size: 32px; }
+    .pop-title {
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
+      font-size: clamp(30px, 7vw, 44px); line-height: .95; color: var(--red);
+      margin: 4px 0 10px; letter-spacing: 1px;
+    }
+    .pop-sub { font-size: 16px; line-height: 1.45; margin-bottom: 20px; }
+    .pop-sub strong { color: var(--teal); }
+    .pop-form { display: flex; flex-direction: column; gap: 10px; }
+    .pop-row { display: flex; gap: 10px; }
+    .pop-row .nl-input { flex: 1; min-width: 0; }
+    .pop-modal .nl-input { background: var(--white); }
+    .pop-msg { margin-top: 12px; font-weight: 700; min-height: 20px; }
+    .pop-msg.ok { color: var(--teal); }
+    .pop-msg.err { color: var(--red); }
+    .pop-no {
+      display: block; margin: 12px auto 0; background: none; border: none; cursor: pointer;
+      font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: rgba(0,0,0,.5);
+    }
+    .pop-no:hover { color: var(--dark); }
+
     /* ══════════════════════════════
        GALERÍA
     ══════════════════════════════ */
@@ -961,7 +1004,7 @@
     <span class="nl-paw">🐾</span>
     <h2 class="nl-title">SUMATE A LA JAURÍA</h2>
     <p class="nl-sub">Deja tu correo y te llega un <strong>10% de descuento</strong> pa' estrenar tu primera compra.</p>
-    <form id="nl-form" class="nl-form" onsubmit="return suscribir(event)">
+    <form id="nl-form" class="nl-form" onsubmit="return suscribir(event, 'nl')">
       <div class="nl-row">
         <input id="nl-first" class="nl-input" type="text" required placeholder="Nombre" autocomplete="given-name" aria-label="Nombre">
         <input id="nl-last" class="nl-input" type="text" required placeholder="Apellido" autocomplete="family-name" aria-label="Apellido">
@@ -1020,6 +1063,25 @@
     <button type="button" id="cart-checkout" class="cart-checkout" style="display:none" onclick="finalizarCompra()">Finalizar compra en Shopify</button>
   </div>
 </aside>
+
+<!-- ══════════ POPUP 10% (5s) ══════════ -->
+<div id="pop-overlay" class="pop-overlay" onclick="cerrarPopup()"></div>
+<div id="pop-modal" class="pop-modal" role="dialog" aria-modal="true" aria-label="10% de descuento">
+  <button class="pop-close" onclick="cerrarPopup()" aria-label="Cerrar">✕</button>
+  <span class="pop-paw">🐾</span>
+  <h2 class="pop-title">NO TE QUEDÍS AFUERA</h2>
+  <p class="pop-sub">Sumate a la jauría y llevate un <strong>10% en tu primera compra</strong>.</p>
+  <form id="pop-form" class="pop-form" onsubmit="return suscribir(event, 'pop')">
+    <div class="pop-row">
+      <input id="pop-first" class="nl-input" type="text" required placeholder="Nombre" autocomplete="given-name" aria-label="Nombre">
+      <input id="pop-last" class="nl-input" type="text" required placeholder="Apellido" autocomplete="family-name" aria-label="Apellido">
+    </div>
+    <input id="pop-email" class="nl-input" type="email" required placeholder="tu@correo.cl" autocomplete="email" aria-label="Tu correo">
+    <button type="submit" class="nl-btn" id="pop-btn">Quiero mi 10%</button>
+  </form>
+  <p class="pop-msg" id="pop-msg" role="status"></p>
+  <button class="pop-no" onclick="cerrarPopup()">No, gracias</button>
+</div>
 
 <!-- ══════════ SCRIPTS ══════════ -->
 <script>
@@ -1181,17 +1243,19 @@
   /* ── Registro a la lista de Klaviyo (10% primera compra) ── */
   const KLAVIYO = { companyId: 'VeBNTa', listId: 'S2grGC' };
 
-  async function suscribir(e) {
+  /* Sirve tanto al form de la sección ('nl') como al popup ('pop') */
+  async function suscribir(e, p) {
     e.preventDefault();
-    const first = document.getElementById('nl-first').value.trim();
-    const last  = document.getElementById('nl-last').value.trim();
-    const email = document.getElementById('nl-email').value.trim();
-    const btn   = document.getElementById('nl-btn');
-    const msg   = document.getElementById('nl-msg');
+    p = p || 'nl';
+    const first = document.getElementById(p + '-first').value.trim();
+    const last  = document.getElementById(p + '-last').value.trim();
+    const email = document.getElementById(p + '-email').value.trim();
+    const btn   = document.getElementById(p + '-btn');
+    const msg   = document.getElementById(p + '-msg');
     if (!email) return false;
     const original = btn.textContent;
     btn.disabled = true; btn.textContent = 'Enviando…';
-    msg.textContent = ''; msg.className = 'nl-msg';
+    msg.textContent = ''; msg.className = p + '-msg';
     try {
       const r = await fetch(`https://a.klaviyo.com/client/subscriptions/?company_id=${KLAVIYO.companyId}`, {
         method: 'POST',
@@ -1218,9 +1282,10 @@
         })
       });
       if (r.status === 202 || r.ok) {
-        document.getElementById('nl-form').style.display = 'none';
+        document.getElementById(p + '-form').style.display = 'none';
         msg.textContent = 'Listo ' + (first || '') + '. Revisá tu correo — ahí va tu 10%. 🐾';
         msg.classList.add('ok');
+        try { localStorage.setItem('firu_pop', '1'); } catch (_) {}
       } else {
         const data = await r.json().catch(() => null);
         throw new Error((data && data.errors && data.errors[0] && data.errors[0].detail) || 'Error');
@@ -1232,6 +1297,25 @@
     }
     return false;
   }
+
+  /* ── Popup de bienvenida (10% off) a los 5 segundos ── */
+  function abrirPopup() {
+    const ov = document.getElementById('pop-overlay');
+    const md = document.getElementById('pop-modal');
+    if (ov && md) { ov.classList.add('open'); md.classList.add('open'); }
+  }
+  function cerrarPopup() {
+    const ov = document.getElementById('pop-overlay');
+    const md = document.getElementById('pop-modal');
+    if (ov) ov.classList.remove('open');
+    if (md) md.classList.remove('open');
+    try { localStorage.setItem('firu_pop', '1'); } catch (_) {}
+  }
+  (function programarPopup() {
+    let visto = false;
+    try { visto = !!localStorage.getItem('firu_pop'); } catch (_) {}
+    if (!visto) setTimeout(abrirPopup, 5000);
+  })();
 
   /* ══ LOADING SCREEN ══ */
   window.addEventListener('load', function(){

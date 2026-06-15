@@ -1052,25 +1052,6 @@
   <a href="javascript:void(0)" class="btn-cta" onclick="agregarCarrito()">COMPRAR AHORA</a>
 </section>
 
-<!-- ══════════ NEWSLETTER / 10% OFF ══════════ -->
-<section id="newsletter">
-  <div class="nl-inner">
-    <span class="nl-paw">🐾</span>
-    <h2 class="nl-title">LLEVATE UN 10%</h2>
-    <p class="nl-sub">Deja tu correo y te llega un <strong>10% de descuento</strong> pa' estrenar tu primera compra.</p>
-    <form id="nl-form" class="nl-form" onsubmit="return suscribir(event, 'nl')">
-      <div class="nl-row">
-        <input id="nl-first" class="nl-input" type="text" required placeholder="Nombre" autocomplete="given-name" aria-label="Nombre">
-        <input id="nl-last" class="nl-input" type="text" required placeholder="Apellido" autocomplete="family-name" aria-label="Apellido">
-      </div>
-      <input id="nl-email" class="nl-input" type="email" required placeholder="tu@correo.cl" autocomplete="email" aria-label="Tu correo">
-      <button type="submit" class="nl-btn" id="nl-btn">Quiero mi 10%</button>
-    </form>
-    <p class="nl-msg" id="nl-msg" role="status"></p>
-    <p class="nl-fine">Sin spam. Te podés bajar cuando quieras.</p>
-  </div>
-</section>
-
 <!-- ══════════ FOOTER ══════════ -->
 <footer>
   <div>
@@ -1117,25 +1098,6 @@
     <button type="button" id="cart-checkout" class="cart-checkout" style="display:none" onclick="finalizarCompra()">Finalizar compra en Shopify</button>
   </div>
 </aside>
-
-<!-- ══════════ POPUP 10% (5s) ══════════ -->
-<div id="pop-overlay" class="pop-overlay" onclick="cerrarPopup()"></div>
-<div id="pop-modal" class="pop-modal" role="dialog" aria-modal="true" aria-label="10% de descuento">
-  <button class="pop-close" onclick="cerrarPopup()" aria-label="Cerrar">✕</button>
-  <span class="pop-paw">🐾</span>
-  <h2 class="pop-title">NO TE QUEDÍS AFUERA</h2>
-  <p class="pop-sub">Llevate un <strong>10% en tu primera compra</strong>.</p>
-  <form id="pop-form" class="pop-form" onsubmit="return suscribir(event, 'pop')">
-    <div class="pop-row">
-      <input id="pop-first" class="nl-input" type="text" required placeholder="Nombre" autocomplete="given-name" aria-label="Nombre">
-      <input id="pop-last" class="nl-input" type="text" required placeholder="Apellido" autocomplete="family-name" aria-label="Apellido">
-    </div>
-    <input id="pop-email" class="nl-input" type="email" required placeholder="tu@correo.cl" autocomplete="email" aria-label="Tu correo">
-    <button type="submit" class="nl-btn" id="pop-btn">Quiero mi 10%</button>
-  </form>
-  <p class="pop-msg" id="pop-msg" role="status"></p>
-  <button class="pop-no" onclick="cerrarPopup()">No, gracias</button>
-</div>
 
 <!-- ══════════ SCRIPTS ══════════ -->
 <script>

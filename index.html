@@ -301,6 +301,7 @@
 
     /* ── Spinning can — right column ── */
     .scard-can {
+      position: relative;
       flex: 0 0 48%; max-width: 48%;
       opacity: 0; z-index: 4;
       transform-origin: center;
@@ -308,6 +309,23 @@
       padding-right: 40px;
     }
     .scard-can img { width: 100%; height: auto; display: block; max-height: 360px; object-fit: contain; }
+    .can-badge {
+      position: absolute; top: 6px; right: 18px; z-index: 6;
+      width: 74px; height: 74px; border-radius: 50%;
+      background: var(--red); color: #fff; border: 3px solid var(--dark);
+      box-shadow: 3px 3px 0 var(--dark);
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      line-height: 1; transform: rotate(-8deg);
+      opacity: 0; transition: opacity .2s, transform .2s;
+    }
+    .can-badge.show { display: flex; opacity: 1; }
+    .can-badge .can-badge-num {
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
+      font-size: 30px; letter-spacing: 1px;
+    }
+    .can-badge .can-badge-lbl {
+      font-size: 9px; font-weight: 800; letter-spacing: 2px; margin-top: 2px;
+    }
     .scard-can.spin { animation: canArrive 1s cubic-bezier(.34,1.56,.64,1) forwards; }
 
     /* ── Card text ── */
@@ -338,9 +356,10 @@
 
     .scard-bottom { background: var(--dark); padding: 20px 28px; }
     .scard-desc {
-      font-size: 14px; font-weight: 600; letter-spacing: 1px;
-      text-transform: uppercase; color: rgba(255,255,255,.7); line-height: 1.5;
+      font-size: 14px; font-weight: 500; letter-spacing: .3px;
+      color: rgba(255,255,255,.78); line-height: 1.6; margin-bottom: 8px;
     }
+    .scard-desc:last-of-type { margin-bottom: 0; }
     .scard-abv {
       font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
       font-size: 26px; letter-spacing: 2px;
@@ -812,12 +831,14 @@
         </div>
 
         <div class="scard-can" id="can-cachupin">
+          <span class="can-badge" id="can-badge" aria-hidden="true"></span>
           <img src="lata-cachupin.webp" alt="Cachupin">
         </div>
       </div>
       <div class="scard-bottom">
-        <p class="scard-desc">Cerveza con limón de pica natural y sal de mar</p>
-        <p class="scard-abv">473 ML &nbsp;·&nbsp; 3.5% ABV</p>
+        <p class="scard-desc">Una chelada que mezcla lo cítrico del limón de pica natural y un golpe de sal de mar, pensada para el "Ready to Drink".</p>
+        <p class="scard-desc">Nació de la calle, como todo buen kiltro. Sin etiquetas finas ni discursos largos — solo una fórmula simple que funciona: cerveza fría, limón de pica, sal de mar, y listo.</p>
+        <p class="scard-abv">473 ML &nbsp;·&nbsp; 4.5% ABV</p>
 
         <p class="pack-label">Elegí tu pack</p>
         <div class="pack-options" id="pack-options">
@@ -971,6 +992,11 @@
     elegirPack(0);
   }
 
+  function packNum(title) {
+    const m = String(title || '').match(/\d+/);
+    return m ? m[0] : '';
+  }
+
   function elegirPack(idx) {
     if (!CACHUPIN || !CACHUPIN.variants[idx]) return;
     packSel = CACHUPIN.variants[idx];
@@ -979,6 +1005,17 @@
     });
     const p = document.getElementById('precio-cachupin');
     if (p) p.textContent = formatPrecio(packSel.price, CACHUPIN.currency);
+    // Badge con el número del pack al lado de la lata
+    const badge = document.getElementById('can-badge');
+    if (badge) {
+      const n = packNum(packSel.title);
+      if (n) {
+        badge.innerHTML = `<span class="can-badge-num">×${n}</span><span class="can-badge-lbl">PACK</span>`;
+        badge.classList.add('show');
+      } else {
+        badge.classList.remove('show');
+      }
+    }
   }
 
   function cambiarQty(delta) {

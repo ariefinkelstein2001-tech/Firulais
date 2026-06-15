@@ -1002,7 +1002,7 @@
 <section id="newsletter">
   <div class="nl-inner">
     <span class="nl-paw">🐾</span>
-    <h2 class="nl-title">SUMATE A LA JAURÍA</h2>
+    <h2 class="nl-title">LLEVATE UN 10%</h2>
     <p class="nl-sub">Deja tu correo y te llega un <strong>10% de descuento</strong> pa' estrenar tu primera compra.</p>
     <form id="nl-form" class="nl-form" onsubmit="return suscribir(event, 'nl')">
       <div class="nl-row">
@@ -1070,7 +1070,7 @@
   <button class="pop-close" onclick="cerrarPopup()" aria-label="Cerrar">✕</button>
   <span class="pop-paw">🐾</span>
   <h2 class="pop-title">NO TE QUEDÍS AFUERA</h2>
-  <p class="pop-sub">Sumate a la jauría y llevate un <strong>10% en tu primera compra</strong>.</p>
+  <p class="pop-sub">Llevate un <strong>10% en tu primera compra</strong>.</p>
   <form id="pop-form" class="pop-form" onsubmit="return suscribir(event, 'pop')">
     <div class="pop-row">
       <input id="pop-first" class="nl-input" type="text" required placeholder="Nombre" autocomplete="given-name" aria-label="Nombre">
@@ -1240,10 +1240,7 @@
     window.location.href = `https://${CACHUPIN.storeDomain}/cart/${cartLine}`;
   }
 
-  /* ── Registro a la lista de Klaviyo (10% primera compra) ── */
-  const KLAVIYO = { companyId: 'VeBNTa', listId: 'S2grGC' };
-
-  /* Sirve tanto al form de la sección ('nl') como al popup ('pop') */
+  /* Registro a Klaviyo vía el servidor. Sirve al form de la sección ('nl') y al popup ('pop') */
   async function suscribir(e, p) {
     e.preventDefault();
     p = p || 'nl';
@@ -1257,40 +1254,22 @@
     btn.disabled = true; btn.textContent = 'Enviando…';
     msg.textContent = ''; msg.className = p + '-msg';
     try {
-      const r = await fetch(`https://a.klaviyo.com/client/subscriptions/?company_id=${KLAVIYO.companyId}`, {
+      const r = await fetch('/api/subscribe', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'revision': '2024-10-15' },
-        body: JSON.stringify({
-          data: {
-            type: 'subscription',
-            attributes: {
-              custom_source: 'Firulais Web - 10% primera compra',
-              profile: {
-                data: {
-                  type: 'profile',
-                  attributes: {
-                    email: email,
-                    first_name: first,
-                    last_name: last,
-                    subscriptions: { email: { marketing: { consent: 'SUBSCRIBED' } } }
-                  }
-                }
-              }
-            },
-            relationships: { list: { data: { type: 'list', id: KLAVIYO.listId } } }
-          }
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ first: first, last: last, email: email })
       });
-      if (r.status === 202 || r.ok) {
+      const data = await r.json().catch(() => ({}));
+      if (r.ok && data.ok) {
         document.getElementById(p + '-form').style.display = 'none';
         msg.textContent = 'Listo ' + (first || '') + '. Revisá tu correo — ahí va tu 10%. 🐾';
         msg.classList.add('ok');
         try { localStorage.setItem('firu_pop', '1'); } catch (_) {}
       } else {
-        const data = await r.json().catch(() => null);
-        throw new Error((data && data.errors && data.errors[0] && data.errors[0].detail) || 'Error');
+        throw new Error(data.error || 'Error');
       }
     } catch (err) {
+      console.error('Klaviyo subscribe error:', err);
       msg.textContent = 'Uy, algo falló. Probá de nuevo en un rato.';
       msg.classList.add('err');
       btn.disabled = false; btn.textContent = original;

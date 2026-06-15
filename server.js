@@ -70,6 +70,55 @@ app.get('/api/cachupin', async (req, res) => {
   }
 });
 
+/* Suscribe un perfil a la lista de Klaviyo (server-side, evita CORS/ad-blockers) */
+app.post('/api/subscribe', async (req, res) => {
+  const PRIV = process.env.KLAVIYO_PRIVATE_KEY;
+  const LIST = process.env.KLAVIYO_LIST_ID || 'S2grGC';
+  if (!PRIV) return res.status(500).json({ error: 'Falta KLAVIYO_PRIVATE_KEY en el servidor' });
+
+  const first = (req.body && req.body.first || '').trim();
+  const last  = (req.body && req.body.last  || '').trim();
+  const email = (req.body && req.body.email || '').trim();
+  if (!email) return res.status(400).json({ error: 'Falta el email' });
+
+  try {
+    const r = await fetch('https://a.klaviyo.com/api/profile-subscription-bulk-create-jobs/', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Klaviyo-API-Key ${PRIV}`,
+        'revision': '2024-10-15',
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        data: {
+          type: 'profile-subscription-bulk-create-job',
+          attributes: {
+            custom_source: 'Firulais Web - 10% primera compra',
+            profiles: {
+              data: [{
+                type: 'profile',
+                attributes: {
+                  email: email,
+                  first_name: first,
+                  last_name: last,
+                  subscriptions: { email: { marketing: { consent: 'SUBSCRIBED' } } }
+                }
+              }]
+            }
+          },
+          relationships: { list: { data: { type: 'list', id: LIST } } }
+        }
+      })
+    });
+    if (r.status === 202 || r.ok) return res.json({ ok: true });
+    const body = await r.text();
+    return res.status(502).json({ error: 'Klaviyo rechazó la suscripción', status: r.status, body });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 /* Archivos estáticos de la página */
 app.use(express.static(path.join(__dirname)));
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));

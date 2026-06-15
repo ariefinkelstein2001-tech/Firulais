@@ -70,6 +70,18 @@ app.get('/api/cachupin', async (req, res) => {
   }
 });
 
+/* Chequeo rápido de configuración (abrir en el navegador: /api/health) */
+app.get('/api/health', (req, res) => {
+  res.json({
+    ok: true,
+    version: 'klaviyo-diag-1',
+    hasShopify: !!(process.env.SHOPIFY_STORE_DOMAIN && process.env.SHOPIFY_ADMIN_TOKEN),
+    hasKlaviyoKey: !!process.env.KLAVIYO_PRIVATE_KEY,
+    klaviyoKeyPrefix: (process.env.KLAVIYO_PRIVATE_KEY || '').slice(0, 3),
+    klaviyoList: process.env.KLAVIYO_LIST_ID || 'S2grGC'
+  });
+});
+
 /* Suscribe un perfil a la lista de Klaviyo (server-side, evita CORS/ad-blockers) */
 app.post('/api/subscribe', async (req, res) => {
   const PRIV = process.env.KLAVIYO_PRIVATE_KEY;

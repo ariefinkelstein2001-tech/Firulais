@@ -598,6 +598,13 @@
       letter-spacing: 2px; text-transform: uppercase;
       color: rgba(255,255,255,.3);
     }
+    .footer-links { margin-top: 12px; font-size: 14px; }
+    .footer-links a {
+      color: var(--yellow); text-decoration: none; font-weight: 600;
+      letter-spacing: .5px; transition: opacity .2s;
+    }
+    .footer-links a:hover { opacity: .7; text-decoration: underline; }
+    .footer-sep { color: rgba(255,255,255,.4); margin: 0 8px; }
     .footer-socials { display: flex; gap: 12px; margin-top: 14px; justify-content: flex-end; }
     .footer-socials a {
       display: flex; align-items: center;
@@ -920,6 +927,11 @@
   </div>
   <div class="footer-right">
     <p class="footer-tagline">Callejero por naturaleza. Auténtico por convicción.</p>
+    <div class="footer-links">
+      <a href="politicas.html#envio">Política de Envío</a>
+      <span class="footer-sep">·</span>
+      <a href="politicas.html#privacidad">Privacidad</a>
+    </div>
     <div class="footer-socials">
       <a href="https://instagram.com/firulais_cl" target="_blank" aria-label="Instagram Firulais">
         <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#FEE04A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">

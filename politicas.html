@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FIRULAIS — Políticas de Envío y Privacidad</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,400;1,700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red:    #CA1720;
+      --cream:  #F4E6E2;
+      --teal:   #007078;
+      --yellow: #FEE04A;
+      --dark:   #111111;
+      --white:  #ffffff;
+    }
+    @font-face {
+      font-family: 'BobbyJones';
+      src: url('BobbyJones.woff2') format('woff2'),
+           url('BobbyJones.woff')  format('woff');
+      font-weight: normal; font-style: normal; font-display: swap;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Barlow Condensed', sans-serif;
+      background: var(--cream); color: var(--dark);
+      line-height: 1.65; font-size: 17px;
+    }
+
+    /* ── NAV ── */
+    .legal-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 28px; border-bottom: 3px solid var(--dark);
+      background: var(--cream); position: sticky; top: 0; z-index: 10;
+    }
+    .legal-nav a.brand {
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
+      font-size: 28px; letter-spacing: 2px; color: var(--dark); text-decoration: none;
+    }
+    .legal-nav a.back {
+      font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+      color: var(--dark); text-decoration: none; font-size: 15px;
+      border: 2px solid var(--dark); border-radius: 999px; padding: 8px 18px;
+      transition: background .15s, color .15s;
+    }
+    .legal-nav a.back:hover { background: var(--dark); color: var(--yellow); }
+
+    /* ── HEADER ── */
+    .legal-head {
+      background: var(--dark); color: var(--cream);
+      padding: 60px 28px 50px; text-align: center;
+    }
+    .legal-head .paw { font-size: 34px; }
+    .legal-head h1 {
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
+      font-size: clamp(40px, 8vw, 72px); line-height: .95; color: var(--white);
+      margin-top: 8px; letter-spacing: 1px;
+    }
+    .legal-head p { color: var(--yellow); font-weight: 700; letter-spacing: 2px; text-transform: uppercase; font-size: 14px; margin-top: 10px; }
+
+    /* ── TOC ── */
+    .legal-toc {
+      max-width: 820px; margin: 30px auto 0; padding: 0 24px;
+      display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+    }
+    .legal-toc a {
+      text-decoration: none; color: var(--dark); font-weight: 700;
+      border: 2px solid var(--dark); border-radius: 999px; padding: 8px 18px;
+      font-size: 14px; text-transform: uppercase; letter-spacing: 1px;
+      transition: background .15s, color .15s;
+    }
+    .legal-toc a:hover { background: var(--red); color: var(--white); border-color: var(--red); }
+
+    /* ── CONTENT ── */
+    .legal-wrap { max-width: 820px; margin: 0 auto; padding: 40px 24px 20px; }
+    .legal-section { padding: 30px 0; border-bottom: 1px solid rgba(0,0,0,.12); }
+    .legal-section:last-child { border-bottom: none; }
+    .legal-section h2 {
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
+      font-size: clamp(28px, 5vw, 40px); color: var(--red); letter-spacing: 1px;
+      margin-bottom: 18px;
+    }
+    .legal-section h3 {
+      font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+      color: var(--teal); margin: 26px 0 8px; font-size: 18px;
+    }
+    .legal-section p { margin-bottom: 14px; }
+    .legal-section ul { margin: 0 0 14px 22px; }
+    .legal-section li { margin-bottom: 8px; }
+    .legal-section a { color: var(--teal); word-break: break-word; }
+    .legal-updated { font-style: italic; opacity: .65; font-size: 14px; }
+
+    /* ── FOOTER ── */
+    .legal-foot {
+      background: var(--dark); color: var(--cream);
+      text-align: center; padding: 34px 24px;
+    }
+    .legal-foot a { color: var(--yellow); text-decoration: none; font-weight: 700; }
+    .legal-foot .small { font-size: 13px; opacity: .7; margin-top: 10px; }
+
+    @media (max-width: 600px) {
+      .legal-nav { padding: 14px 18px; }
+      .legal-nav a.brand { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="legal-nav">
+    <a href="/" class="brand">FIRULAIS</a>
+    <a href="/" class="back">← Volver</a>
+  </nav>
+
+  <header class="legal-head">
+    <div class="paw">🐾</div>
+    <h1>POLÍTICAS</h1>
+    <p>Envío · Privacidad</p>
+  </header>
+
+  <div class="legal-toc">
+    <a href="#envio">Política de Envío</a>
+    <a href="#privacidad">Privacidad</a>
+  </div>
+
+  <main class="legal-wrap">
+
+    <!-- ═══ POLÍTICA DE ENVÍO ═══ -->
+    <section class="legal-section" id="envio">
+      <h2>Política de Envío</h2>
+
+      <p>Firulais realiza envíos en la Región Metropolitana a través de servicios externos que vienen incluidos en la tarifa del total del pedido.</p>
+
+      <p>En caso de que el usuario ofreciera una dirección equivocada, imprecisa o confusa, y no sea posible localizarlo ni contactarlo, Firulais quedará liberado de la responsabilidad del envío.</p>
+
+      <p>Será responsabilidad del cliente informar todas las condiciones y/o restricciones que puedan impedir realizar la entrega de la mercancía en el día, hora o lugar acordado.</p>
+
+      <p>Por motivos de seguridad las transacciones pueden tardar hasta 72 horas en ser procesadas por su banco. Entendiendo que estas se realizan por un sistema independiente, Firulais procesa el pedido cuando este pago es confirmado o recepcionado y no antes.</p>
+
+      <p>Los pedidos dentro de la Región Metropolitana se entregarán en las próximas 24 horas hábiles después de confirmar el pedido.</p>
+
+      <p>Al momento de la entrega, el usuario o persona autorizada deberá revisar el paquete. Al recibirlo y confirmar, terminará el proceso de compra, siendo responsable de la mercancía a partir de ese instante. En caso de que el repartidor confirme haberlo entregado, pasadas las 12 horas de no responder a la confirmación de recepción enviada por Firulais, terminará el proceso de compra, siendo responsable de la mercancía a partir de ese instante. Cualquier daño o golpe que sobrevenga con posterioridad a la entrega no será responsabilidad de Firulais.</p>
+    </section>
+
+    <!-- ═══ PRIVACIDAD ═══ -->
+    <section class="legal-section" id="privacidad">
+      <h2>Política de Privacidad</h2>
+
+      <p>Firulais pertenece a Zatara SpA (inscrita en el Registro de Empresas y Sociedades), con domicilio en Los Bellotos, Las Condes, Santiago de Chile, RUT 77.412.658-9, le informa a usted como cliente que los datos personales que nos facilite a través de nuestra tienda online son incorporados a un fichero personal e intransferible, de propiedad de este titular, con la única misión de tramitar sus pedidos y realizar la operación de venta online.</p>
+
+      <p>Existen diferentes formas en las cuales sus datos personales o comerciales pueden pasar a nuestro fichero y, por tanto, distintas finalidades y usos de sus datos en el futuro, siempre con su consentimiento:</p>
+
+      <h3>Formulario de contacto o consultas</h3>
+      <p>Si da su consentimiento antes del envío de la consulta o formulario de contacto, sus datos formarán parte de nuestro fichero y la finalidad será enviarle cualquier tipo de información acerca de Firulais (comercial, nuevos productos, ofertas, suscripciones, promociones, información corporativa, etc.).</p>
+
+      <h3>Suscripción</h3>
+      <p>Si deja su correo electrónico en la casilla de suscripción habilitada en la web (claramente identificada), sus datos formarán parte de nuestro fichero y la finalidad será enviarle información general acerca de Firulais.</p>
+
+      <h3>Registro</h3>
+      <p>Si da su consentimiento antes del envío del formulario de registro como usuario, sus datos formarán parte de nuestro fichero y la finalidad será identificarle en próximos accesos mediante las claves asignadas y enviarle información general acerca de Firulais.</p>
+
+      <h3>Pago</h3>
+      <p>El proceso de pago funciona sobre un servidor seguro que utiliza protocolo SSL (Secure Socket Layer), que transmite información encriptada a las plataformas de pago de terceros, por lo cual Firulais nunca tendrá acceso a dicha información.</p>
+
+      <p>Firulais nunca solicita, a través de correo, teléfono ni ningún otro método de comunicación, información relacionada a su tarjeta de crédito ni demás datos personales diferentes a los requeridos en el momento de registro y proceso de compra.</p>
+
+      <p>En todo momento podrá dirigirse a <a href="mailto:info@kairos-brewing.com">info@kairos-brewing.com</a> para rectificar sus preferencias respecto a la información a recibir o el deseo de no recibir ningún tipo de información, o cambiar sus datos personales, la dirección de envío de la información, etc.</p>
+
+      <p>El disfrute de la condición de usuario registrado siempre exigirá la inclusión de sus datos en nuestro fichero, con la finalidad prioritaria de identificarle mediante sus claves de acceso personales; el consentimiento a recibir información general de otro tipo será a su elección. Por tanto, si sus datos han sido recogidos para la utilización de algún servicio de información que no requiera registro o suscripción, sin su consentimiento para recibir información futura de promociones y noticias de Firulais, estos serán eliminados de nuestra base de datos una vez resuelta la consulta o información solicitada.</p>
+
+      <h3>Divulgación de datos</h3>
+      <p>Si nuestro negocio participara en una joint venture, comprara, fuera vendido a, o se fusionara con otra entidad mercantil, la información sobre usted podrá ser revelada o transmitida a nuestros nuevos socios comerciales o propietarios o a sus asesores.</p>
+
+      <p>Podremos utilizar la información que usted nos proporcione si tuviéramos el deber de revelar o compartir su información para cumplir con (y/o creyéramos tener la obligación de cumplir con) cualquier requerimiento legal; o con el fin de aplicar las condiciones de nuestra página web y de cualquier otro contrato suscrito con usted, o para proteger los derechos de Firulais o demás colaboradores nuestros. Con ello nos referimos a cruzar información con otras empresas y organizaciones con el objeto de evitar y protegernos del fraude.</p>
+
+      <h3>Seguridad y retención de datos</h3>
+      <p>Adoptaremos las medidas de protección de datos necesarias para evitar accesos no autorizados y tratamientos ilegales, pérdidas accidentales, destrucción y daños. Conservaremos su información por el plazo que resulte legalmente exigible.</p>
+
+      <p>En el supuesto de que hubiera escogido una contraseña que le permita acceder a determinadas partes de la página web, será responsable de mantener la confidencialidad de dicha contraseña. Le recomendamos no compartir su contraseña con nadie.</p>
+
+      <p>Desafortunadamente, la transmisión de información a través de internet no es completamente segura. A pesar de que adoptaremos las medidas para proteger sus datos, no podemos garantizar la seguridad de los datos que transmita a la página web; toda transmisión se realizará a su propio riesgo. Una vez recibida la información, utilizaremos procedimientos estrictos y medidas de seguridad para tratar de evitar los accesos no autorizados.</p>
+
+      <h3>Uso de cookies</h3>
+      <p>Las cookies son fragmentos de información que las páginas web almacenan en la computadora del usuario para recordar sus preferencias; de esta manera Firulais puede ofrecer una experiencia más personalizada.</p>
+
+      <p>Firulais utiliza las cookies, entre otras cosas, para:</p>
+      <ul>
+        <li>Recordar preferencias (de pago, de compra, etc.) y así poder ofrecer un servicio personalizado. No obstante, el proceso de pago funciona sobre un servidor seguro utilizando el protocolo SSL (Secure Socket Layer), que transmite la información encriptada a la que Firulais no puede acceder.</li>
+        <li>Analizar el comportamiento de navegación (qué secciones se visitan, dónde se hace clic, etc.).</li>
+        <li>La posibilidad de compartir contenidos (como productos y campañas) en redes sociales.</li>
+        <li>Conocer las fuentes de tráfico de nuestros clientes.</li>
+        <li>Impedir actividades fraudulentas.</li>
+        <li>Maximizar la seguridad en nuestro sitio web.</li>
+      </ul>
+
+      <p>Algunas cookies del sitio web son fijadas por terceros; estas compañías externas procesan la información y nos facilitan datos referentes a la publicidad de nuestras promociones, etc. En ningún momento recaban información personal con la que se pueda identificar a un usuario en específico. Ninguna cookie tiene un periodo de validez superior a los dos años.</p>
+
+      <p>Si no se desea que se guarden estas cookies, puede cambiarse la configuración del navegador en cualquier momento. Sin embargo, recomendamos que no se desactiven, ya que se puede dejar de disfrutar de ciertos servicios de nuestra web.</p>
+
+      <p>Si aun así se prefiere desactivar las cookies de terceros, puede solicitarse desde los siguientes links:</p>
+      <ul>
+        <li>Google Analytics: <a href="https://tools.google.com/dlpage/gaoptout?hl=es" target="_blank" rel="noopener">tools.google.com/dlpage/gaoptout</a></li>
+        <li>AddThis: <a href="http://www.addthis.com/privacy/opt-out" target="_blank" rel="noopener">addthis.com/privacy/opt-out</a></li>
+        <li>Google Remarketing: <a href="https://support.google.com/adwords/answer/2549116?hl=es" target="_blank" rel="noopener">support.google.com/adwords/answer/2549116</a></li>
+        <li>ComScore: <a href="http://www.scorecardresearch.com/privacy.aspx" target="_blank" rel="noopener">scorecardresearch.com/privacy</a></li>
+      </ul>
+
+      <h3>Cambios</h3>
+      <p>Firulais podría realizar modificaciones en su Política de Privacidad y Cookies; estas modificaciones estarán disponibles en nuestra página web. Si estos cambios afectaran a los derechos del usuario, se informará de los mismos por email (a la última dirección que nos haya sido facilitada). En cualquier caso, la Política de Privacidad y Cookies revisada estará siempre disponible en la web.</p>
+
+      <h3>Aceptación de las condiciones de uso</h3>
+      <p>Esta declaración de confidencialidad está sujeta a las condiciones de uso del sitio de Firulais, lo cual constituye un acuerdo legal entre el usuario y Firulais. Si el usuario utiliza nuestros servicios, significa que ha leído, entendido y aceptado las condiciones antes expuestas.</p>
+
+      <p>Todos los comentarios, consultas y solicitudes relativas a nuestra utilización de la información sobre usted serán bienvenidos y deberán remitirse a <a href="mailto:info@kairos-brewing.com">info@kairos-brewing.com</a>.</p>
+    </section>
+
+  </main>
+
+  <footer class="legal-foot">
+    <a href="/">← Volver a Firulais</a>
+    <p class="small">© 2025 Firulais Craft Mix · Zatara SpA · Todos los derechos reservados</p>
+  </footer>
+
+</body>
+</html>

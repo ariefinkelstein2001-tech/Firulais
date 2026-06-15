@@ -498,6 +498,45 @@
     .cart-checkout:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--dark); }
 
     /* ══════════════════════════════
+       NEWSLETTER / 10% OFF
+    ══════════════════════════════ */
+    #newsletter {
+      background: var(--teal); color: var(--cream);
+      padding: 80px 24px; text-align: center; border-top: 4px solid var(--dark);
+    }
+    .nl-inner { max-width: 640px; margin: 0 auto; }
+    .nl-paw { font-size: 38px; }
+    .nl-title {
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
+      font-size: clamp(38px, 8vw, 66px); line-height: .95; color: var(--white);
+      margin: 6px 0 14px; letter-spacing: 1px;
+    }
+    .nl-sub { font-size: 19px; line-height: 1.5; margin-bottom: 26px; }
+    .nl-sub strong { color: var(--yellow); }
+    .nl-form { display: flex; flex-direction: column; gap: 12px; max-width: 460px; margin: 0 auto; }
+    .nl-row { display: flex; gap: 12px; }
+    .nl-row .nl-input { flex: 1; min-width: 0; }
+    .nl-input {
+      width: 100%;
+      padding: 15px 20px; border: 3px solid var(--dark); border-radius: 50px;
+      font-size: 16px; font-family: inherit; background: var(--cream); color: var(--dark);
+    }
+    .nl-input:focus { outline: none; box-shadow: 0 0 0 3px var(--yellow); }
+    .nl-btn {
+      cursor: pointer; font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
+      font-size: 18px; letter-spacing: 2px; padding: 15px 32px;
+      border: 3px solid var(--dark); border-radius: 50px;
+      background: var(--yellow); color: var(--dark); box-shadow: 4px 4px 0 var(--dark);
+      transition: transform .12s, box-shadow .12s;
+    }
+    .nl-btn:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--dark); }
+    .nl-btn:disabled { opacity: .6; cursor: default; transform: none; box-shadow: 4px 4px 0 var(--dark); }
+    .nl-msg { margin-top: 18px; font-weight: 700; font-size: 17px; min-height: 22px; }
+    .nl-msg.ok { color: var(--yellow); }
+    .nl-msg.err { color: #ffd7d7; }
+    .nl-fine { margin-top: 14px; font-size: 13px; opacity: .7; }
+
+    /* ══════════════════════════════
        GALERÍA
     ══════════════════════════════ */
     #galeria { background: var(--dark); padding: 100px 60px; }
@@ -919,6 +958,25 @@
   <a href="javascript:void(0)" class="btn-cta" onclick="agregarCarrito()">COMPRAR AHORA</a>
 </section>
 
+<!-- ══════════ NEWSLETTER / 10% OFF ══════════ -->
+<section id="newsletter">
+  <div class="nl-inner">
+    <span class="nl-paw">🐾</span>
+    <h2 class="nl-title">SUMATE A LA JAURÍA</h2>
+    <p class="nl-sub">Deja tu correo y te llega un <strong>10% de descuento</strong> pa' estrenar tu primera compra.</p>
+    <form id="nl-form" class="nl-form" onsubmit="return suscribir(event)">
+      <div class="nl-row">
+        <input id="nl-first" class="nl-input" type="text" required placeholder="Nombre" autocomplete="given-name" aria-label="Nombre">
+        <input id="nl-last" class="nl-input" type="text" required placeholder="Apellido" autocomplete="family-name" aria-label="Apellido">
+      </div>
+      <input id="nl-email" class="nl-input" type="email" required placeholder="tu@correo.cl" autocomplete="email" aria-label="Tu correo">
+      <button type="submit" class="nl-btn" id="nl-btn">Quiero mi 10%</button>
+    </form>
+    <p class="nl-msg" id="nl-msg" role="status"></p>
+    <p class="nl-fine">Sin spam. Te podés bajar cuando quieras.</p>
+  </div>
+</section>
+
 <!-- ══════════ FOOTER ══════════ -->
 <footer>
   <div>
@@ -1121,6 +1179,61 @@
     if (!carrito.length || !CACHUPIN || !CACHUPIN.storeDomain) return;
     const cartLine = carrito.map(i => `${i.variantId}:${i.qty}`).join(',');
     window.location.href = `https://${CACHUPIN.storeDomain}/cart/${cartLine}`;
+  }
+
+  /* ── Registro a la lista de Klaviyo (10% primera compra) ── */
+  const KLAVIYO = { companyId: 'VeBNTa', listId: 'S2grGC' };
+
+  async function suscribir(e) {
+    e.preventDefault();
+    const first = document.getElementById('nl-first').value.trim();
+    const last  = document.getElementById('nl-last').value.trim();
+    const email = document.getElementById('nl-email').value.trim();
+    const btn   = document.getElementById('nl-btn');
+    const msg   = document.getElementById('nl-msg');
+    if (!email) return false;
+    const original = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Enviando…';
+    msg.textContent = ''; msg.className = 'nl-msg';
+    try {
+      const r = await fetch(`https://a.klaviyo.com/client/subscriptions/?company_id=${KLAVIYO.companyId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'revision': '2024-10-15' },
+        body: JSON.stringify({
+          data: {
+            type: 'subscription',
+            attributes: {
+              custom_source: 'Firulais Web - 10% primera compra',
+              profile: {
+                data: {
+                  type: 'profile',
+                  attributes: {
+                    email: email,
+                    first_name: first,
+                    last_name: last,
+                    subscriptions: { email: { marketing: { consent: 'SUBSCRIBED' } } }
+                  }
+                }
+              }
+            },
+            relationships: { list: { data: { type: 'list', id: KLAVIYO.listId } } }
+          }
+        })
+      });
+      if (r.status === 202 || r.ok) {
+        document.getElementById('nl-form').style.display = 'none';
+        msg.textContent = 'Listo ' + (first || '') + '. Revisá tu correo — ahí va tu 10%. 🐾';
+        msg.classList.add('ok');
+      } else {
+        const data = await r.json().catch(() => null);
+        throw new Error((data && data.errors && data.errors[0] && data.errors[0].detail) || 'Error');
+      }
+    } catch (err) {
+      msg.textContent = 'Uy, algo falló. Probá de nuevo en un rato.';
+      msg.classList.add('err');
+      btn.disabled = false; btn.textContent = original;
+    }
+    return false;
   }
 
   /* ══ LOADING SCREEN ══ */

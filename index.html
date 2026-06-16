@@ -197,11 +197,21 @@
     }
     .hero-img-top img { width: 100%; height: auto; display: block; }
 
+    /* Tagline bajo la imagen */
+    .hero-tag {
+      text-align: center; margin: 0; padding: 8px 24px 0;
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
+      font-size: clamp(15px, 2.4vw, 20px); letter-spacing: 1px;
+      color: var(--teal); position: relative; z-index: 2;
+      opacity: 0; transform: translateY(10px);
+      animation: fadeUp .6s ease forwards .45s;
+    }
+
     /* Buttons centered below image */
     .hero-btns {
       display: flex; gap: 16px; flex-wrap: wrap;
       justify-content: center;
-      padding: 36px 24px 24px;
+      padding: 16px 24px 24px;
       position: relative; z-index: 2;
       opacity: 0; transform: translateY(18px);
       animation: fadeUp .55s ease forwards .6s;
@@ -891,6 +901,8 @@
   <div class="hero-img-top">
     <img src="hero.jpg" alt="Firulais — Free of Lice">
   </div>
+
+  <p class="hero-tag">La primera Craft Mix de Chile</p>
 
   <!-- Botones centrados -->
   <div class="hero-btns">

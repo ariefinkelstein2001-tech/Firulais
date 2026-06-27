@@ -229,7 +229,7 @@ app.get('/api/leaderboard', (req, res) => {
   const scores = all
     .slice()
     .sort((a, b) => b.score - a.score)
-    .slice(0, 25)
+    .slice(0, 100)
     .map(s => ({ nombre: s.nombre, score: s.score }));
   res.json({ leaderboard: scores, total: all.length });
 });
@@ -267,7 +267,7 @@ app.post('/api/score', async (req, res) => {
   // Calcular posición en el ranking
   const ordenado = scores.slice().sort((a, b) => b.score - a.score);
   const pos = ordenado.findIndex(s => s.email === email) + 1;
-  const top = ordenado.slice(0, 25).map(s => ({ nombre: s.nombre, score: s.score }));
+  const top = ordenado.slice(0, 100).map(s => ({ nombre: s.nombre, score: s.score }));
 
   res.json({ ok: true, pos, total: scores.length, mejor, leaderboard: top });
 });
@@ -277,7 +277,8 @@ function tierPercent(pos) {
   if (pos <= 5) return 20;
   if (pos <= 10) return 15;
   if (pos <= 20) return 12;
-  return 10;
+  if (pos <= 100) return 10;
+  return 0;   // del 101 en adelante, sin descuento
 }
 function nextTierInfo(pos) {
   if (pos <= 5) return null;            // ya está en lo más alto
@@ -352,6 +353,11 @@ app.post('/api/redeem', async (req, res) => {
   const pos = idx + 1;
   const percent = tierPercent(pos);
   const rec = scores.find(s => s.email === email);
+
+  // Del puesto 101 en adelante no hay descuento
+  if (!percent) {
+    return res.status(400).json({ error: 'Vas #' + pos + '. Subí al top 100 jugando pa ganar tu cupón 🐾' });
+  }
 
   // 1 código activo a la vez: si el tramo no cambió, reusar el mismo código
   if (rec && rec.issuedTier === percent && rec.issuedCode) {

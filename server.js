@@ -210,6 +210,102 @@ app.post('/api/score', async (req, res) => {
   res.json({ ok: true, pos, total: scores.length, mejor, leaderboard: top });
 });
 
+/* ── Tramos de descuento según el puesto ── */
+function tierPercent(pos) {
+  if (pos <= 5) return 20;
+  if (pos <= 10) return 15;
+  if (pos <= 20) return 12;
+  return 10;
+}
+function nextTierInfo(pos) {
+  if (pos <= 5) return null;            // ya está en lo más alto
+  if (pos <= 10) return { pct: 20, rank: 5 };
+  if (pos <= 20) return { pct: 15, rank: 10 };
+  return { pct: 12, rank: 20 };
+}
+
+/* Estado del jugador: puesto, tramo actual y progreso al siguiente (para la barrita) */
+app.get('/api/status', (req, res) => {
+  const email = (req.query.email || '').trim().toLowerCase();
+  if (!email) return res.json({ registered: false });
+  const sorted = leerScores().slice().sort((a, b) => b.score - a.score);
+  const idx = sorted.findIndex(s => s.email === email);
+  if (idx < 0) return res.json({ registered: false });
+
+  const pos = idx + 1;
+  const mejor = sorted[idx].score;
+  const percent = tierPercent(pos);
+  const nt = nextTierInfo(pos);
+  let nextPercent = null, nextThreshold = null, faltan = null;
+  if (nt) {
+    nextPercent = nt.pct;
+    const boundary = sorted[nt.rank - 1];
+    nextThreshold = boundary ? boundary.score : mejor;
+    faltan = Math.max(0, nextThreshold - mejor + 1);
+  }
+  res.json({ registered: true, pos, mejor, percent, nextPercent, nextThreshold, faltan, total: sorted.length });
+});
+
+/* Crea un código de descuento único en Shopify (% off, 1 uso, vence en 48h) */
+async function crearDescuentoShopify(percent, email) {
+  if (!STORE || !TOKEN) return { ok: false, status: 0, error: 'Shopify no configurado' };
+  const now = new Date();
+  const ends = new Date(now.getTime() + 48 * 3600 * 1000);
+  const code = 'FIRU' + percent + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+  try {
+    const pr = await fetch(`https://${STORE}/admin/api/${API_VERSION}/price_rules.json`, {
+      method: 'POST',
+      headers: { 'X-Shopify-Access-Token': TOKEN, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ price_rule: {
+        title: `Firulais juego ${percent}% ${email}`,
+        target_type: 'line_item', target_selection: 'all', allocation_method: 'across',
+        value_type: 'percentage', value: `-${percent}.0`,
+        customer_selection: 'all', usage_limit: 1,
+        starts_at: now.toISOString(), ends_at: ends.toISOString()
+      }})
+    });
+    if (!pr.ok) { const b = await pr.text(); return { ok: false, status: pr.status, error: b }; }
+    const ruleId = (await pr.json()).price_rule.id;
+    const dc = await fetch(`https://${STORE}/admin/api/${API_VERSION}/price_rules/${ruleId}/discount_codes.json`, {
+      method: 'POST',
+      headers: { 'X-Shopify-Access-Token': TOKEN, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ discount_code: { code } })
+    });
+    if (!dc.ok) { const b = await dc.text(); return { ok: false, status: dc.status, error: b }; }
+    return { ok: true, code, percent, endsAt: ends.toISOString() };
+  } catch (e) {
+    return { ok: false, status: 0, error: e.message };
+  }
+}
+
+/* Canjear: genera el código del tramo según el puesto ACTUAL del jugador */
+app.post('/api/redeem', async (req, res) => {
+  const email = (req.body && req.body.email || '').trim().toLowerCase();
+  if (!email) return res.status(400).json({ error: 'Falta el email' });
+  const scores = leerScores();
+  const sorted = scores.slice().sort((a, b) => b.score - a.score);
+  const idx = sorted.findIndex(s => s.email === email);
+  if (idx < 0) return res.status(404).json({ error: 'Todavía no estás en el ranking. Jugá primero.' });
+
+  const pos = idx + 1;
+  const percent = tierPercent(pos);
+  const rec = scores.find(s => s.email === email);
+
+  // 1 código activo a la vez: si el tramo no cambió, reusar el mismo código
+  if (rec && rec.issuedTier === percent && rec.issuedCode) {
+    return res.json({ ok: true, code: rec.issuedCode, percent, reused: true });
+  }
+  const r = await crearDescuentoShopify(percent, email);
+  if (!r.ok) {
+    console.error('Descuento Shopify falló:', r.status, r.error);
+    let detail = r.error || '';
+    try { const j = JSON.parse(r.error); detail = j.errors ? JSON.stringify(j.errors) : detail; } catch (_) {}
+    return res.status(502).json({ error: 'No se pudo generar el código', status: r.status, detail: String(detail).slice(0, 300) });
+  }
+  if (rec) { rec.issuedCode = r.code; rec.issuedTier = percent; guardarScores(scores); }
+  res.json({ ok: true, code: r.code, percent, endsAt: r.endsAt });
+});
+
 /* Archivos estáticos de la página */
 app.use(express.static(path.join(__dirname)));
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));

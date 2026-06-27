@@ -76,33 +76,43 @@ async function klaviyoSubscribe({ first, last, email, phone, score }) {
   const LIST = process.env.KLAVIYO_LIST_ID || 'S2grGC';
   if (!PRIV) return { ok: false, status: 0, detail: 'Falta KLAVIYO_PRIVATE_KEY' };
 
+  const headers = {
+    'Authorization': `Klaviyo-API-Key ${PRIV}`,
+    'revision': '2024-10-15',
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  };
+
+  // 2) Best-effort: enriquece el perfil con nombre/teléfono/puntaje (NO rompe la suscripción)
   const properties = {};
   if (phone) properties.telefono = phone;
   if (score != null) properties.mejor_puntaje_juego = score;
+  const enrichAttrs = { email: email };
+  if (first) enrichAttrs.first_name = first;
+  if (last) enrichAttrs.last_name = last;
+  if (Object.keys(properties).length) enrichAttrs.properties = properties;
+  if (first || last || Object.keys(properties).length) {
+    fetch('https://a.klaviyo.com/api/profiles/', {
+      method: 'POST', headers,
+      body: JSON.stringify({ data: { type: 'profile', attributes: enrichAttrs } })
+    }).then(async pr => {
+      if (!pr.ok && pr.status !== 409) console.error('Klaviyo enrich:', pr.status, await pr.text());
+    }).catch(() => {});
+  }
 
-  const attributes = {
-    email: email,
-    first_name: first || undefined,
-    last_name: last || undefined,
-    subscriptions: { email: { marketing: { consent: 'SUBSCRIBED' } } }
-  };
-  if (Object.keys(properties).length) attributes.properties = properties;
-
+  // 1) Suscripción (solo email + consentimiento) → mete el contacto en la lista
   try {
     const r = await fetch('https://a.klaviyo.com/api/profile-subscription-bulk-create-jobs/', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Klaviyo-API-Key ${PRIV}`,
-        'revision': '2024-10-15',
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
+      method: 'POST', headers,
       body: JSON.stringify({
         data: {
           type: 'profile-subscription-bulk-create-job',
           attributes: {
             custom_source: 'Firulais Web',
-            profiles: { data: [{ type: 'profile', attributes }] }
+            profiles: { data: [{ type: 'profile', attributes: {
+              email: email,
+              subscriptions: { email: { marketing: { consent: 'SUBSCRIBED' } } }
+            } }] }
           },
           relationships: { list: { data: { type: 'list', id: LIST } } }
         }

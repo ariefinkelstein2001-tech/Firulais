@@ -1495,10 +1495,15 @@
   function finalizarCompra() {
     if (!carrito.length || !CACHUPIN || !CACHUPIN.storeDomain) return;
     const cartLine = carrito.map(i => `${i.variantId}:${i.qty}`).join(',');
-    let url = `https://${CACHUPIN.storeDomain}/cart/${cartLine}`;
     let code = window._firuCode;
     try { code = code || localStorage.getItem('firu_code'); } catch (_) {}
-    if (code) url += `?discount=${encodeURIComponent(code)}`;  // se aplica solo en el checkout
+    let url;
+    if (code) {
+      // Forma oficial de Shopify: aplica el descuento y redirige al carrito ya cargado
+      url = `https://${CACHUPIN.storeDomain}/discount/${encodeURIComponent(code)}?redirect=${encodeURIComponent('/cart/' + cartLine)}`;
+    } else {
+      url = `https://${CACHUPIN.storeDomain}/cart/${cartLine}`;
+    }
     window.location.href = url;
   }
 

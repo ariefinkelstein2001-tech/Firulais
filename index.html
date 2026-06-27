@@ -227,14 +227,19 @@
     #idleMode {
       position: absolute; inset: 0; overflow: hidden;
     }
-    #dogGif {
-      height: clamp(120px, 26vh, 230px); width: auto;
-      position: absolute; bottom: 16px;
-      animation: walkGif 6s linear infinite;
+    .dog-walk {
+      height: clamp(110px, 24vh, 220px); width: auto;
+      position: absolute; left: -320px;
     }
+    #dogGif { bottom: 16px; animation: walkGif 6s linear infinite; }
+    #dogGif2 { top: 14%; transform: scaleX(-1); animation: walkRev 7.5s linear infinite; }
     @keyframes walkGif {
       from { left: -320px; }
       to   { left: 110%; }
+    }
+    @keyframes walkRev {
+      from { left: 110%; }
+      to   { left: -320px; }
     }
     #gameBanner { display: none !important; }
     .banner-inner, .banner-chip { display: none; }
@@ -547,6 +552,9 @@
       font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
       font-size: 22px; letter-spacing: 1px; color: var(--dark); margin-bottom: 14px;
     }
+    .cart-old { text-decoration: line-through; opacity: .5; font-size: 16px; margin-right: 6px; }
+    .cart-new { color: var(--red); }
+    .cart-off { font-size: 13px; background: var(--yellow); color: var(--dark); border: 2px solid var(--dark); border-radius: 999px; padding: 1px 8px; margin-left: 6px; }
     .cart-checkout {
       width: 100%; cursor: pointer;
       font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
@@ -937,25 +945,42 @@
     }
     #game-zone.playing .game-stage { flex: 1 1 auto; height: auto; min-height: 0; }
 
-    /* ── Game over: panel central con mini-ranking ── */
+    /* ── Game over: tarjeta visual con ranking scrolleable ── */
     .go-ui {
-      position: absolute; inset: 0; z-index: 6; background: rgba(0,0,0,.62); cursor: pointer;
-      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 16px;
+      position: absolute; inset: 0; z-index: 6; background: rgba(0,0,0,.6); cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 14px;
+    }
+    .go-card {
+      background: var(--cream); color: var(--dark); cursor: default;
+      border: 4px solid var(--dark); border-radius: 20px; box-shadow: 8px 8px 0 rgba(0,0,0,.45);
+      padding: 18px; width: min(420px, 94%); max-height: 84%;
+      display: flex; flex-direction: column;
     }
     .go-score {
-      font-family: 'BobbyJones', 'Bebas Neue', sans-serif; font-size: clamp(26px, 5vw, 40px); letter-spacing: 1px;
-      color: var(--yellow); text-shadow: 2px 2px 0 rgba(0,0,0,.5);
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif; font-size: clamp(24px, 5vw, 34px); letter-spacing: 1px;
+      color: var(--red); text-align: center;
     }
-    .go-rank { color: var(--cream); font-weight: 700; font-size: 15px; }
-    .go-top { list-style: none; margin: 6px 0; padding: 0; width: min(340px, 88%); }
+    .go-rank { text-align: center; font-weight: 700; font-size: 14px; color: var(--teal); margin-top: 2px; }
+    .go-toprow {
+      display: flex; justify-content: space-between; margin: 12px 6px 4px;
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 1px; color: var(--dark); opacity: .55;
+    }
+    .go-top {
+      list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1; min-height: 130px;
+      border: 2px solid var(--dark); border-radius: 12px; background: var(--white);
+    }
     .go-top li {
-      display: flex; justify-content: space-between; gap: 10px; padding: 4px 12px;
-      color: var(--cream); font-size: 14px; border-bottom: 1px solid rgba(255,255,255,.12);
+      display: grid; grid-template-columns: 32px 1fr auto 40px; align-items: center; gap: 8px;
+      padding: 7px 10px; font-size: 14px; border-bottom: 1px solid rgba(0,0,0,.08);
     }
-    .go-top li.me { background: rgba(254,224,74,.18); border-radius: 6px; }
-    .go-top .gt-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .go-top .gt-score { color: var(--yellow); font-weight: 800; }
-    .go-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 6px; }
+    .go-top li:nth-child(1) { background: rgba(254,224,74,.55); }
+    .go-top li:nth-child(2), .go-top li:nth-child(3), .go-top li:nth-child(4), .go-top li:nth-child(5) { background: rgba(254,224,74,.22); }
+    .gt-pos { font-family: 'BobbyJones', 'Bebas Neue', sans-serif; color: var(--dark); }
+    .gt-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+    .gt-disc { font-weight: 800; color: var(--red); font-size: 13px; }
+    .gt-disc.none { color: rgba(0,0,0,.3); }
+    .gt-score { font-family: 'BobbyJones', 'Bebas Neue', sans-serif; color: var(--teal); text-align: right; }
+    .go-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
     .go-btn {
       cursor: pointer; font-family: 'BobbyJones', 'Bebas Neue', sans-serif; font-size: 15px; letter-spacing: 1px;
       padding: 11px 18px; border: 3px solid var(--dark); border-radius: 50px;
@@ -964,7 +989,22 @@
     .go-btn:hover { transform: translate(-2px,-2px); box-shadow: 5px 5px 0 var(--dark); }
     .go-redeem { background: var(--yellow); color: var(--dark); }
     .go-replay { background: var(--red); color: var(--white); }
-    .go-tap { color: rgba(255,255,255,.6); font-size: 12px; margin-top: 4px; }
+    .go-tap { color: rgba(255,255,255,.7); font-size: 12px; }
+    .go-code { color: var(--dark); font-size: 13px; margin-top: 12px; text-align: center; }
+    .go-code b { color: var(--red); font-family: 'BobbyJones', 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 1px; }
+    .go-copy { margin-left: 6px; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 12px; padding: 3px 10px; border: 2px solid var(--dark); border-radius: 999px; background: transparent; color: var(--dark); }
+    .go-codenote { display: block; font-size: 11px; opacity: .7; margin-top: 2px; }
+
+    /* Barrita de descuento dentro del juego */
+    .disc-bar {
+      position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 5;
+      display: flex; align-items: center; gap: 8px; width: min(440px, 88%);
+    }
+    .disc-lbl { font-family: 'BobbyJones', 'Bebas Neue', sans-serif; font-size: 15px; }
+    .disc-from { color: var(--dark); }
+    .disc-to { color: var(--red); }
+    .disc-track { flex: 1; height: 14px; background: rgba(0,0,0,.18); border: 2px solid var(--dark); border-radius: 999px; overflow: hidden; }
+    .disc-fill { height: 100%; width: 0%; background: var(--red); transition: width .25s ease; }
     .rank-wrap { max-width: 640px; margin: 0 auto; overflow-x: auto; }
     .rank-table {
       width: 100%; border-collapse: collapse;
@@ -1130,65 +1170,38 @@
     </div>
     <div class="game-stage" id="game-stage">
       <div id="idleMode">
-        <video id="dogGif" autoplay loop muted playsinline aria-label="Firulais">
+        <video id="dogGif2" class="dog-walk dog-rev" autoplay loop muted playsinline aria-label="Firulais">
+          <source src="perroca.mp4" type="video/mp4">
+        </video>
+        <video id="dogGif" class="dog-walk" autoplay loop muted playsinline aria-label="Firulais">
           <source src="perroca.mp4" type="video/mp4">
         </video>
       </div>
       <canvas id="gameCanvas" style="display:none;width:100%;height:100%;"></canvas>
       <div id="gameHint">ESPACIO · TAP PARA SALTAR</div>
+      <!-- Barrita de descuento: se llena a medida que jugás -->
+      <div id="disc-bar" class="disc-bar" style="display:none">
+        <span class="disc-lbl disc-from" id="disc-from">10%</span>
+        <div class="disc-track"><div class="disc-fill" id="disc-fill"></div></div>
+        <span class="disc-lbl disc-to" id="disc-to">12%</span>
+      </div>
       <div id="game-over-ui" class="go-ui" style="display:none" onclick="goReplay()">
-        <p class="go-score">GAME OVER · <span id="go-score-val">0</span> pts</p>
-        <p class="go-rank" id="go-rank"></p>
-        <ol class="go-top" id="go-top"></ol>
-        <div class="go-actions">
-          <button type="button" class="go-btn go-redeem" id="go-redeem" onclick="event.stopPropagation(); goCanjear()">🎟️ Canjear</button>
-          <button type="button" class="go-btn go-replay" onclick="event.stopPropagation(); goReplay()">🔄 Jugar de nuevo</button>
+        <div class="go-card" onclick="event.stopPropagation()">
+          <p class="go-score">GAME OVER · <span id="go-score-val">0</span> pts</p>
+          <p class="go-rank" id="go-rank"></p>
+          <div class="go-toprow"><span>RANKING</span><span>DCTO</span></div>
+          <ol class="go-top" id="go-top"></ol>
+          <div class="go-actions">
+            <button type="button" class="go-btn go-replay" onclick="goReplay()">🔄 Seguir jugando</button>
+            <button type="button" class="go-btn go-redeem" id="go-redeem" onclick="goCanjear()">🎟️ Canjear cupón</button>
+          </div>
+          <p class="go-code" id="go-code" style="display:none"></p>
         </div>
-        <p class="go-tap">tap para jugar de nuevo</p>
+        <p class="go-tap">toca fuera para seguir jugando</p>
       </div>
     </div>
   </div>
 
-</section>
-
-<!-- ══════════ RANKING ══════════ -->
-<section id="ranking">
-  <p class="section-tag">El juego</p>
-  <h2 class="section-h2">RANKING FIRULAIS</h2>
-  <p class="rank-intro">Los más perros del carrete. Mientras más alto en la tabla, más grande tu descuento. 🐾</p>
-  <p class="rank-count" id="rank-count"></p>
-
-  <div class="tier-grid">
-    <div class="tier-card t1"><span class="tier-pos">Top 5</span><span class="tier-off">20%</span><span class="tier-lbl">OFF</span></div>
-    <div class="tier-card t2"><span class="tier-pos">6 a 10</span><span class="tier-off">15%</span><span class="tier-lbl">OFF</span></div>
-    <div class="tier-card t3"><span class="tier-pos">11 a 20</span><span class="tier-off">12%</span><span class="tier-lbl">OFF</span></div>
-    <div class="tier-card t4"><span class="tier-pos">21 en adelante</span><span class="tier-off">10%</span><span class="tier-lbl">OFF</span></div>
-  </div>
-  <p class="tier-note">Tu descuento se mueve con tu puesto: si te pasan, baja; si subís, sube. Canjeás el que te toque <strong>según dónde estés</strong>.</p>
-
-  <div id="tu-estado" class="tu-estado" style="display:none">
-    <p class="te-title">TU ESTADO 🐾</p>
-    <p class="te-line">Vas <strong id="te-pos">#-</strong> · tu descuento ahora: <strong id="te-pct" class="te-pct">10%</strong></p>
-    <div class="te-bar-row">
-      <span class="te-bar-lbl" id="te-bar-from">10%</span>
-      <div class="te-bar-wrap"><div id="te-bar" class="te-bar"></div></div>
-      <span class="te-bar-lbl te-bar-lbl-to" id="te-bar-to">20%</span>
-    </div>
-    <p id="te-next" class="te-next"></p>
-    <button type="button" id="te-canjear" class="te-btn" onclick="canjear()">Canjear mi descuento</button>
-    <p id="te-code" class="te-code" style="display:none"></p>
-  </div>
-
-  <div class="rank-wrap">
-    <table class="rank-table">
-      <thead>
-        <tr><th>#</th><th>Jugador</th><th>Puntos</th></tr>
-      </thead>
-      <tbody id="rank-body">
-        <tr><td colspan="3" class="rank-empty">Cargando ranking…</td></tr>
-      </tbody>
-    </table>
-  </div>
 </section>
 
 <!-- ══════════ MARQUEE 1 ══════════ -->
@@ -1514,7 +1527,17 @@
           <button type="button" class="cart-row-del" onclick="quitarItem(${i.variantId})" aria-label="Quitar">✕</button>
         </div>`).join('');
     }
-    if (totalEl) totalEl.textContent = formatPrecio(totalCarrito(), cur);
+    if (totalEl) {
+      const sub = totalCarrito();
+      let pct = 0;
+      try { pct = parseInt(window._firuPct || localStorage.getItem('firu_pct'), 10) || 0; } catch (_) {}
+      if (pct > 0) {
+        const desc = Math.round(sub * (1 - pct / 100));
+        totalEl.innerHTML = '<span class="cart-old">' + formatPrecio(sub, cur) + '</span> <span class="cart-new">' + formatPrecio(desc, cur) + '</span> <span class="cart-off">-' + pct + '%</span>';
+      } else {
+        totalEl.textContent = formatPrecio(sub, cur);
+      }
+    }
     if (countEl) {
       const n = cantidadCarrito();
       countEl.textContent = n;
@@ -1615,29 +1638,19 @@
   function getPlayer(){ try { return JSON.parse(localStorage.getItem('firu_player') || 'null'); } catch (_) { return null; } }
   function savePlayer(p){ try { localStorage.setItem('firu_player', JSON.stringify(p)); } catch (_) {} }
 
-  function renderRanking(list){
-    const tb = document.getElementById('rank-body');
-    if (!tb) return;
-    if (!list || !list.length){
-      tb.innerHTML = '<tr><td colspan="3" class="rank-empty">Todavía no hay competidores. Sé el primero 🐾</td></tr>';
-      return;
-    }
-    tb.innerHTML = list.map((s, i) =>
-      `<tr><td class="rank-pos">${i + 1}</td><td>${escapeHtml(s.nombre)}</td><td class="rank-score">${s.score}</td></tr>`
-    ).join('');
-  }
-  function cargarRanking(){
-    fetch('/api/leaderboard').then(r => r.json()).then(d => {
-      renderRanking(d.leaderboard);
-      const c = document.getElementById('rank-count');
-      if (c && typeof d.total === 'number') c.textContent = d.total + ' jugadores en la pista 🐾';
-    }).catch(() => {});
-  }
-
   function enviarScore(payload){
     return fetch('/api/score', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
-    }).then(r => r.json()).then(d => { if (d && d.leaderboard) renderRanking(d.leaderboard); return d; }).catch(() => null);
+    }).then(r => r.json()).catch(() => null);
+  }
+
+  /* Descuento por puesto: top5 20, 6-10 15, 11-20 12, 21-100 10, 101+ sin dcto */
+  function tierPct(pos){
+    if (pos <= 5) return 20;
+    if (pos <= 10) return 15;
+    if (pos <= 20) return 12;
+    if (pos <= 100) return 10;
+    return 0;
   }
 
   let _pendingScore = 0;
@@ -1647,115 +1660,77 @@
     _pendingScore = score | 0;
     const player = getPlayer();
     if (player && player.email){
-      enviarScore({ first: player.first, last: player.last, email: player.email, phone: player.phone || '', score: _pendingScore })
-        .then(function(){ cargarEstado(); });
-      mostrarGameOver(_pendingScore, true);   // registrado: Canjear + Volver a jugar
-    } else if (!localStorage.getItem('firu_game_optout')){
-      abrirGameModal(_pendingScore);          // primera vez: formulario
-    } else {
-      mostrarGameOver(_pendingScore, false);  // sin código: solo Volver a jugar
+      enviarScore({ first: player.first, last: player.last, email: player.email, phone: player.phone || '', score: _pendingScore });
     }
+    mostrarGameOver(_pendingScore);
   }
   window.onGameOver = onGameOver;
 
-  /* Panel TU ESTADO (tramo en vivo + barrita) */
-  function cargarEstado(){
-    const p = getPlayer();
-    if (!p || !p.email){ const e = document.getElementById('tu-estado'); if (e) e.style.display = 'none'; return; }
-    fetch('/api/status?email=' + encodeURIComponent(p.email))
-      .then(r => r.json()).then(renderEstado).catch(() => {});
-  }
-  function renderEstado(d){
-    const box = document.getElementById('tu-estado');
-    if (!box) return;
-    if (!d || !d.registered){ box.style.display = 'none'; return; }
-    box.style.display = 'block';
-    document.getElementById('te-pos').textContent = '#' + d.pos;
-    document.getElementById('te-pct').textContent = d.percent + '%';
-    const btn = document.getElementById('te-canjear'); btn.textContent = 'Canjear mi ' + d.percent + '%';
-    const bar = document.getElementById('te-bar');
-    const next = document.getElementById('te-next');
-    const from = document.getElementById('te-bar-from');
-    const to = document.getElementById('te-bar-to');
-    if (from) from.textContent = d.percent + '%';
-    if (d.nextPercent){
-      if (to) to.textContent = d.nextPercent + '%';
-      const pct = d.nextThreshold > 0 ? Math.min(100, Math.round((d.mejor / d.nextThreshold) * 100)) : 100;
-      bar.style.width = pct + '%';
-      next.textContent = 'Te faltan ' + d.faltan + ' pts pa\'l ' + d.nextPercent + '% 🔥';
-    } else {
-      if (to) to.textContent = 'MAX';
-      bar.style.width = '100%';
-      next.textContent = 'Estás en lo más alto. No te dejís bajar 🐾';
-    }
-  }
-  function canjear(){
-    const p = getPlayer(); if (!p || !p.email) return;
-    const btn = document.getElementById('te-canjear');
-    const out = document.getElementById('te-code');
-    const orig = btn.textContent;
-    btn.disabled = true; btn.textContent = 'Generando…';
-    fetch('/api/redeem', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: p.email }) })
-      .then(r => r.json()).then(d => {
-        if (d && d.code){
-          window._firuCode = d.code;
-          try { localStorage.setItem('firu_code', d.code); } catch (_) {}
-          out.style.display = 'block';
-          out.innerHTML = 'Tu código <strong>' + d.percent + '%</strong>:<br><span class="te-codeval" id="te-codeval">' + escapeHtml(d.code) + '</span> <button type="button" class="te-copy" onclick="copiarCodigo()">Copiar</button><br><span class="te-codenote">Ya queda aplicado solo al ir al carrito. Vence en 48h.</span>';
-          btn.textContent = 'Canjeado ✓';
-        } else {
-          btn.disabled = false; btn.textContent = orig;
-          out.style.display = 'block';
-          out.innerHTML = '<span class="te-codenote">No se pudo generar: ' + escapeHtml(d.error || d.detail || 'error') + '</span>';
-        }
-      }).catch(() => { btn.disabled = false; btn.textContent = orig; });
-  }
-  window.canjear = canjear;
-
-  function copiarCodigo(){
-    let code = window._firuCode;
-    try { code = code || localStorage.getItem('firu_code'); } catch (_) {}
-    if (!code) return;
-    if (navigator.clipboard) navigator.clipboard.writeText(code);
-    const b = document.querySelector('.te-copy');
-    if (b) { const t = b.textContent; b.textContent = 'Copiado ✓'; setTimeout(() => { b.textContent = t; }, 1500); }
-  }
-  window.copiarCodigo = copiarCodigo;
-
-  /* Game over DENTRO del juego: botones en esquinas */
-  function mostrarGameOver(score, registered){
+  /* Game over: tarjeta con ranking scrolleable + opciones */
+  function mostrarGameOver(score){
     const ui = document.getElementById('game-over-ui'); if (!ui) return;
     const v = document.getElementById('go-score-val'); if (v) v.textContent = score;
-    const rd = document.getElementById('go-redeem'); if (rd) rd.style.display = registered ? '' : 'none';
+    const code = document.getElementById('go-code'); if (code){ code.style.display = 'none'; code.innerHTML = ''; }
+    const rd = document.getElementById('go-redeem'); if (rd){ rd.disabled = false; rd.textContent = '🎟️ Canjear cupón'; }
     ui.style.display = 'flex';
     const player = getPlayer();
-    // Mini-ranking (top 5) dentro del game over
     fetch('/api/leaderboard').then(r => r.json()).then(d => {
       const ol = document.getElementById('go-top');
-      if (ol && d.leaderboard) {
-        ol.innerHTML = d.leaderboard.slice(0, 5).map((s, i) =>
-          `<li><span class="gt-name">${i + 1}. ${escapeHtml(s.nombre)}</span><span class="gt-score">${s.score}</span></li>`).join('');
+      if (ol && d.leaderboard){
+        ol.innerHTML = d.leaderboard.map((s, i) => {
+          const pct = tierPct(i + 1);
+          const disc = pct ? `<span class="gt-disc">${pct}%</span>` : `<span class="gt-disc none">—</span>`;
+          return `<li><span class="gt-pos">${i + 1}</span><span class="gt-name">${escapeHtml(s.nombre)}</span>${disc}<span class="gt-score">${s.score}</span></li>`;
+        }).join('');
       }
     }).catch(() => {});
-    // Tu puesto
-    const rk = document.getElementById('go-rank');
-    if (rk) rk.textContent = '';
-    if (registered && player && player.email) {
+    const rk = document.getElementById('go-rank'); if (rk) rk.textContent = '';
+    if (player && player.email){
       fetch('/api/status?email=' + encodeURIComponent(player.email)).then(r => r.json()).then(st => {
-        if (rk && st.registered) rk.textContent = 'Vas #' + st.pos + ' de ' + st.total + ' · tu descuento: ' + st.percent + '%';
+        if (rk && st.registered){
+          rk.textContent = st.percent ? ('Vas #' + st.pos + ' · tu cupón: ' + st.percent + '%') : ('Vas #' + st.pos + ' · subí al top 100 pa ganar cupón');
+        }
       }).catch(() => {});
     }
   }
   function ocultarGameOver(){ const ui = document.getElementById('game-over-ui'); if (ui) ui.style.display = 'none'; }
   function goReplay(){ ocultarGameOver(); if (typeof window.reiniciarJuego === 'function') window.reiniciarJuego(); }
   window.goReplay = goReplay;
-  function goCanjear(){
-    const est = document.getElementById('tu-estado');
-    if (est) est.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    setTimeout(function(){ if (typeof canjear === 'function') canjear(); }, 450);
+
+  /* Canjear: registrado → genera el código; si no → abre el formulario */
+  async function goCanjear(){
+    const player = getPlayer();
+    if (!player || !player.email){ abrirGameModal(_pendingScore); return; }
+    const btn = document.getElementById('go-redeem');
+    const out = document.getElementById('go-code');
+    const t = btn ? btn.textContent : '';
+    if (btn){ btn.disabled = true; btn.textContent = 'Generando…'; }
+    try {
+      const r = await fetch('/api/redeem', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: player.email }) });
+      const d = await r.json();
+      if (d && d.code){
+        window._firuCode = d.code; window._firuPct = d.percent;
+        try { localStorage.setItem('firu_code', d.code); localStorage.setItem('firu_pct', d.percent); } catch (_) {}
+        if (typeof renderCarrito === 'function') renderCarrito();
+        if (out){ out.style.display = 'block'; out.innerHTML = 'Tu cupón <b>' + d.percent + '%</b> · <b>' + escapeHtml(d.code) + '</b> <button type="button" class="go-copy" onclick="copiarCodigo()">Copiar</button><span class="go-codenote">Se aplica solo al ir al carrito.</span>'; }
+        if (btn){ btn.textContent = 'Cupón listo ✓'; }
+      } else { throw new Error(d.error || d.detail || 'error'); }
+    } catch (e){
+      if (out){ out.style.display = 'block'; out.innerHTML = '<span class="go-codenote">No se pudo generar: ' + escapeHtml(e.message || '') + '</span>'; }
+      if (btn){ btn.disabled = false; btn.textContent = t; }
+    }
   }
   window.goCanjear = goCanjear;
 
+  function copiarCodigo(){
+    let code = window._firuCode; try { code = code || localStorage.getItem('firu_code'); } catch (_) {}
+    if (!code) return;
+    if (navigator.clipboard) navigator.clipboard.writeText(code);
+    const b = document.querySelector('.go-copy, .g-copy'); if (b){ const t = b.textContent; b.textContent = 'Copiado ✓'; setTimeout(() => { b.textContent = t; }, 1500); }
+  }
+  window.copiarCodigo = copiarCodigo;
+
+  /* Popup (formulario) — solo se abre al apretar "Canjear cupón" sin estar registrado */
   function abrirGameModal(score){
     const v = document.getElementById('g-score-val'); if (v) v.textContent = score;
     document.getElementById('game-overlay').classList.add('open');
@@ -1764,10 +1739,10 @@
   function cerrarGameModal(){
     document.getElementById('game-overlay').classList.remove('open');
     document.getElementById('game-modal').classList.remove('open');
-    try { localStorage.setItem('firu_game_optout', '1'); } catch (_) {}
   }
   window.cerrarGameModal = cerrarGameModal;
 
+  /* Registro por el popup → registra + canjea + muestra el código */
   async function suscribirJuego(e){
     e.preventDefault();
     const first = document.getElementById('g-first').value.trim();
@@ -1781,23 +1756,25 @@
     btn.disabled = true; btn.textContent = 'Enviando…';
     msg.textContent = ''; msg.className = 'g-msg';
     try {
-      const r = await fetch('/api/score', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ first, last, email, phone, score: _pendingScore })
-      });
+      const r = await fetch('/api/score', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ first, last, email, phone, score: _pendingScore }) });
       const d = await r.json().catch(() => ({}));
-      if (r.ok && d.ok){
-        savePlayer({ first, last, email, phone });
-        try { localStorage.removeItem('firu_game_optout'); } catch (_) {}
-        if (d.leaderboard) renderRanking(d.leaderboard);
-        document.getElementById('g-form').style.display = 'none';
-        const skip = document.querySelector('.g-skip'); if (skip) skip.style.display = 'none';
-        msg.textContent = `Listo ${first}. Quedaste #${d.pos} con ${d.mejor} pts. Mirá tu descuento abajo en el ranking. 🐾`;
-        msg.classList.add('ok');
-        cargarEstado();
-      } else {
-        throw new Error(d.error || 'Error');
-      }
+      if (!(r.ok && d.ok)) throw new Error(d.error || 'Error');
+      savePlayer({ first, last, email, phone });
+      let codeHtml = '';
+      try {
+        const rr = await fetch('/api/redeem', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+        const rd = await rr.json();
+        if (rd && rd.code){
+          window._firuCode = rd.code; window._firuPct = rd.percent;
+          try { localStorage.setItem('firu_code', rd.code); localStorage.setItem('firu_pct', rd.percent); } catch (_) {}
+          if (typeof renderCarrito === 'function') renderCarrito();
+          codeHtml = 'Tu cupón <b>' + rd.percent + '%</b> · <b>' + escapeHtml(rd.code) + '</b> <button type="button" class="g-copy" onclick="copiarCodigo()">Copiar</button><br><span style="font-size:12px;opacity:.7">Se aplica solo al ir al carrito.</span>';
+        }
+      } catch (_) {}
+      document.getElementById('g-form').style.display = 'none';
+      const skip = document.querySelector('.g-skip'); if (skip) skip.style.display = 'none';
+      msg.innerHTML = codeHtml || ('Listo ' + first + '. Ya estás en el ranking. 🐾');
+      msg.classList.add('ok');
     } catch (err) {
       console.error('score error', err);
       msg.textContent = 'Uy, algo falló. Probá de nuevo en un rato.';
@@ -1808,7 +1785,32 @@
   }
   window.suscribirJuego = suscribirJuego;
 
-  /* Entrar al juego: scrollear dejando visibles tagline + botones, juego grande abajo */
+  /* Barrita de descuento en vivo (se llena con el puntaje) */
+  function cargarTiers(){
+    fetch('/api/leaderboard').then(r => r.json()).then(d => {
+      const lb = d.leaderboard || [];
+      window._tiers = { t5: (lb[4] && lb[4].score) || 0, t10: (lb[9] && lb[9].score) || 0, t20: (lb[19] && lb[19].score) || 0 };
+    }).catch(() => {});
+  }
+  function actualizarBarra(score){
+    const t = window._tiers; const bar = document.getElementById('disc-bar');
+    if (!t || !bar) return;
+    bar.style.display = 'flex';
+    let cur, nxt, lo, hi;
+    if (score >= t.t5)       { cur = 20; nxt = 20; lo = t.t5;  hi = t.t5; }
+    else if (score >= t.t10) { cur = 15; nxt = 20; lo = t.t10; hi = t.t5; }
+    else if (score >= t.t20) { cur = 12; nxt = 15; lo = t.t20; hi = t.t10; }
+    else                     { cur = 10; nxt = 12; lo = 0;     hi = t.t20; }
+    const pct = hi > lo ? Math.min(100, Math.round((score - lo) / (hi - lo) * 100)) : 100;
+    const f = document.getElementById('disc-fill'); if (f) f.style.width = pct + '%';
+    const a = document.getElementById('disc-from'); if (a) a.textContent = cur + '%';
+    const b = document.getElementById('disc-to');   if (b) b.textContent = (cur === nxt ? 'MAX' : nxt + '%');
+  }
+  window.actualizarBarra = actualizarBarra;
+  function ocultarBarra(){ const bar = document.getElementById('disc-bar'); if (bar) bar.style.display = 'none'; }
+  window.ocultarBarra = ocultarBarra;
+
+  /* Entrar al juego: scroll + ajustar alto para que el juego termine al final de la pantalla */
   function entrarJuego(){
     const tag = document.querySelector('.hero-tag');
     const nav = document.getElementById('nav');
@@ -1817,15 +1819,21 @@
       const y = tag.getBoundingClientRect().top + window.pageYOffset - navH - 10;
       window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
     }
-    setTimeout(function(){ if (typeof startGame === 'function') startGame(); }, 450);
+    cargarTiers();
+    setTimeout(function(){
+      const zone = document.getElementById('game-zone');
+      if (zone){
+        const top = zone.getBoundingClientRect().top;
+        zone.style.height = Math.max(300, window.innerHeight - top - 4) + 'px';
+      }
+      if (typeof startGame === 'function') startGame();
+    }, 480);
   }
   window.entrarJuego = entrarJuego;
-  window.jugarScroll = entrarJuego; // compat
+  window.jugarScroll = entrarJuego;
 
-  /* Salir del modo juego (X) — vuelve a la página normal */
   function cerrarJuego(){
-    const zone = document.getElementById('game-zone');
-    if (zone) zone.classList.remove('playing');
+    const zone = document.getElementById('game-zone'); if (zone) zone.style.height = '';
     document.body.style.overflow = '';
     try { if (typeof _raf2 !== 'undefined' && _raf2) cancelAnimationFrame(_raf2); } catch (_) {}
     try { _gameActive = false; } catch (_) {}
@@ -1833,16 +1841,13 @@
     const idle = document.getElementById('idleMode');
     const hint = document.getElementById('gameHint');
     const go = document.getElementById('game-over-ui');
-    const bj = document.getElementById('btnJugar');
     if (cv) cv.style.display = 'none';
     if (idle) { idle.style.visibility = 'visible'; idle.style.pointerEvents = ''; }
     if (hint) hint.style.display = '';
     if (go) go.style.display = 'none';
-    if (bj) bj.style.opacity = '';
+    ocultarBarra();
   }
   window.cerrarJuego = cerrarJuego;
-
-  document.addEventListener('DOMContentLoaded', function(){ cargarRanking(); cargarEstado(); });
 
   /* ══ LOADING SCREEN ══ */
   window.addEventListener('load', function(){
@@ -1946,7 +1951,7 @@
         pipes:[],collectibles:[],score:0,hi,frame:0,nextPipe:80,speed:PIPE_SPEED};
     }
     let s=fresh();
-    let _overFired=false;
+    let _overFired=false, _lastBar=-1;
 
     function flap(){
       // No reiniciar mientras está abierto el modal del 10%/ranking
@@ -2149,6 +2154,10 @@
       // Disparar el modal/ranking una sola vez cuando pierde
       if(s.over && !_overFired){ _overFired=true; if(typeof onGameOver==='function') onGameOver(s.score); }
       if(!s.over){ _overFired=false; if(typeof ocultarGameOver==='function') ocultarGameOver(); }
+      // Barrita de descuento: visible y llenándose mientras se juega
+      if(s.started && !s.over){
+        if(typeof actualizarBarra==='function' && s.score!==_lastBar){ _lastBar=s.score; actualizarBarra(s.score); }
+      } else if(typeof ocultarBarra==='function'){ ocultarBarra(); }
 
       drawBg();
       s.pipes.forEach(p=>drawPipe(p));

@@ -903,6 +903,27 @@
       color: var(--yellow); background: rgba(255,255,255,.08); padding: 4px 12px; border-radius: 8px; display: inline-block; margin-top: 4px;
     }
     .te-codenote { font-size: 12px; opacity: .7; }
+
+    /* Overlay de game over DENTRO del juego, botones en las esquinas */
+    .go-ui { position: absolute; inset: 0; z-index: 6; background: rgba(0,0,0,.55); }
+    .go-score {
+      position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 1px;
+      color: var(--yellow); text-shadow: 2px 2px 0 rgba(0,0,0,.5); white-space: nowrap;
+    }
+    .go-btn {
+      position: absolute; bottom: 16px; cursor: pointer;
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif; font-size: 15px; letter-spacing: 1px;
+      padding: 11px 18px; border: 3px solid var(--dark); border-radius: 50px;
+      box-shadow: 3px 3px 0 var(--dark); transition: transform .12s, box-shadow .12s;
+    }
+    .go-btn:hover { transform: translate(-2px,-2px); box-shadow: 5px 5px 0 var(--dark); }
+    .go-redeem { left: 16px; background: var(--yellow); color: var(--dark); }
+    .go-replay { right: 16px; background: var(--red); color: var(--white); }
+    @media (max-width: 480px) {
+      .go-btn { font-size: 13px; padding: 9px 14px; }
+      .go-redeem { left: 10px; } .go-replay { right: 10px; }
+    }
     .rank-wrap { max-width: 640px; margin: 0 auto; overflow-x: auto; }
     .rank-table {
       width: 100%; border-collapse: collapse;
@@ -1068,6 +1089,13 @@
     </div>
     <canvas id="gameCanvas" style="display:none;width:100%;height:100%;"></canvas>
     <div id="gameHint">ESPACIO · TAP PARA SALTAR</div>
+    <div id="game-over-ui" class="go-ui" style="display:none">
+      <p class="go-score">GAME OVER · <span id="go-score-val">0</span> pts</p>
+      <div class="go-btns">
+        <button type="button" class="go-btn go-redeem" id="go-redeem" onclick="goCanjear()">🎟️ Canjear código</button>
+        <button type="button" class="go-btn go-replay" onclick="goReplay()">🔄 Volver a jugar</button>
+      </div>
+    </div>
   </div>
 
 </section>
@@ -1552,8 +1580,11 @@
     if (player && player.email){
       enviarScore({ first: player.first, last: player.last, email: player.email, phone: player.phone || '', score: _pendingScore })
         .then(function(){ cargarEstado(); });
+      mostrarGameOver(_pendingScore, true);   // registrado: Canjear + Volver a jugar
     } else if (!localStorage.getItem('firu_game_optout')){
-      abrirGameModal(_pendingScore);
+      abrirGameModal(_pendingScore);          // primera vez: formulario
+    } else {
+      mostrarGameOver(_pendingScore, false);  // sin código: solo Volver a jugar
     }
   }
   window.onGameOver = onGameOver;
@@ -1604,6 +1635,23 @@
       }).catch(() => { btn.disabled = false; btn.textContent = orig; });
   }
   window.canjear = canjear;
+
+  /* Game over DENTRO del juego: botones en esquinas */
+  function mostrarGameOver(score, registered){
+    const ui = document.getElementById('game-over-ui'); if (!ui) return;
+    const v = document.getElementById('go-score-val'); if (v) v.textContent = score;
+    const rd = document.getElementById('go-redeem'); if (rd) rd.style.display = registered ? '' : 'none';
+    ui.style.display = 'block';
+  }
+  function ocultarGameOver(){ const ui = document.getElementById('game-over-ui'); if (ui) ui.style.display = 'none'; }
+  function goReplay(){ ocultarGameOver(); if (typeof window.reiniciarJuego === 'function') window.reiniciarJuego(); }
+  window.goReplay = goReplay;
+  function goCanjear(){
+    const est = document.getElementById('tu-estado');
+    if (est) est.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(function(){ if (typeof canjear === 'function') canjear(); }, 500);
+  }
+  window.goCanjear = goCanjear;
 
   function abrirGameModal(score){
     const v = document.getElementById('g-score-val'); if (v) v.textContent = score;
@@ -1770,6 +1818,11 @@
       }
       s.dog.vy=-6.8; // flap goes UP
     }
+
+    // Reinicio desde el botón "Volver a jugar"
+    window.reiniciarJuego=function(){
+      const hi=s.hi; s=fresh(hi); s.started=true; s.dog.vy=-6;
+    };
 
     function drawBg(){
       // Sky
@@ -1953,7 +2006,7 @@
 
       // Disparar el modal/ranking una sola vez cuando pierde
       if(s.over && !_overFired){ _overFired=true; if(typeof onGameOver==='function') onGameOver(s.score); }
-      if(!s.over) _overFired=false;
+      if(!s.over){ _overFired=false; if(typeof ocultarGameOver==='function') ocultarGameOver(); }
 
       drawBg();
       s.pipes.forEach(p=>drawPipe(p));

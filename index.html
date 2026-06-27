@@ -228,8 +228,8 @@
       position: absolute; inset: 0; overflow: hidden;
     }
     #dogGif {
-      height: 100%; width: auto;
-      position: absolute; bottom: 0;
+      height: clamp(120px, 26vh, 230px); width: auto;
+      position: absolute; bottom: 16px;
       animation: walkGif 6s linear infinite;
     }
     @keyframes walkGif {
@@ -239,7 +239,7 @@
     #gameBanner { display: none !important; }
     .banner-inner, .banner-chip { display: none; }
     .hero-dog-row {
-      width: 100%; height: 300px;
+      width: 100%; height: 72vh; min-height: 460px; max-height: 780px;
       overflow: visible; position: relative;
       margin-top: 0; background: var(--yellow);
       opacity: 0; animation: fadeIn .5s ease forwards .9s;
@@ -838,7 +838,7 @@
       .scard-hand.left  { left: -26px; top: 20%; }
       .scard-hand.right { right: -26px; top: 72%; }
       .scard-dog-bg { width: 140px; height: 140px; }
-      .hero-dog-row { height: 160px; background: var(--yellow); }
+      .hero-dog-row { height: 70vh; min-height: 420px; max-height: none; background: var(--yellow); }
       .walking-dog { height: 160px; }
       .hero-btns { padding: 24px 16px 0; }
     }
@@ -886,8 +886,18 @@
     .te-title { font-family: 'BobbyJones', 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; color: var(--yellow); }
     .te-line { font-size: 16px; margin: 6px 0 12px; }
     .te-pct { font-family: 'BobbyJones', 'Bebas Neue', sans-serif; font-size: 22px; color: var(--yellow); }
+    .te-bar-row { display: flex; align-items: center; gap: 10px; }
+    .te-bar-row .te-bar-wrap { flex: 1; }
+    .te-bar-lbl { font-family: 'BobbyJones', 'Bebas Neue', sans-serif; font-size: 15px; color: var(--cream); white-space: nowrap; }
+    .te-bar-lbl-to { color: var(--yellow); }
     .te-bar-wrap { height: 16px; background: rgba(255,255,255,.15); border-radius: 999px; overflow: hidden; }
     .te-bar { height: 100%; width: 0%; background: var(--yellow); border-radius: 999px; transition: width .5s ease; }
+    .te-copy {
+      margin-left: 8px; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 13px; padding: 4px 12px; border: 2px solid var(--yellow); border-radius: 999px;
+      background: transparent; color: var(--yellow);
+    }
+    .te-copy:hover { background: var(--yellow); color: var(--dark); }
     .te-next { font-size: 14px; font-weight: 700; margin: 10px 0 16px; color: var(--cream); }
     .te-btn {
       cursor: pointer; font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
@@ -1119,7 +1129,11 @@
   <div id="tu-estado" class="tu-estado" style="display:none">
     <p class="te-title">TU ESTADO 🐾</p>
     <p class="te-line">Vas <strong id="te-pos">#-</strong> · tu descuento ahora: <strong id="te-pct" class="te-pct">10%</strong></p>
-    <div class="te-bar-wrap"><div id="te-bar" class="te-bar"></div></div>
+    <div class="te-bar-row">
+      <span class="te-bar-lbl" id="te-bar-from">10%</span>
+      <div class="te-bar-wrap"><div id="te-bar" class="te-bar"></div></div>
+      <span class="te-bar-lbl te-bar-lbl-to" id="te-bar-to">20%</span>
+    </div>
     <p id="te-next" class="te-next"></p>
     <button type="button" id="te-canjear" class="te-btn" onclick="canjear()">Canjear mi descuento</button>
     <p id="te-code" class="te-code" style="display:none"></p>
@@ -1481,7 +1495,11 @@
   function finalizarCompra() {
     if (!carrito.length || !CACHUPIN || !CACHUPIN.storeDomain) return;
     const cartLine = carrito.map(i => `${i.variantId}:${i.qty}`).join(',');
-    window.location.href = `https://${CACHUPIN.storeDomain}/cart/${cartLine}`;
+    let url = `https://${CACHUPIN.storeDomain}/cart/${cartLine}`;
+    let code = window._firuCode;
+    try { code = code || localStorage.getItem('firu_code'); } catch (_) {}
+    if (code) url += `?discount=${encodeURIComponent(code)}`;  // se aplica solo en el checkout
+    window.location.href = url;
   }
 
   /* Registro a Klaviyo vía el servidor. Sirve al form de la sección ('nl') y al popup ('pop') */
@@ -1612,11 +1630,16 @@
     const btn = document.getElementById('te-canjear'); btn.textContent = 'Canjear mi ' + d.percent + '%';
     const bar = document.getElementById('te-bar');
     const next = document.getElementById('te-next');
+    const from = document.getElementById('te-bar-from');
+    const to = document.getElementById('te-bar-to');
+    if (from) from.textContent = d.percent + '%';
     if (d.nextPercent){
+      if (to) to.textContent = d.nextPercent + '%';
       const pct = d.nextThreshold > 0 ? Math.min(100, Math.round((d.mejor / d.nextThreshold) * 100)) : 100;
       bar.style.width = pct + '%';
       next.textContent = 'Te faltan ' + d.faltan + ' pts pa\'l ' + d.nextPercent + '% 🔥';
     } else {
+      if (to) to.textContent = 'MAX';
       bar.style.width = '100%';
       next.textContent = 'Estás en lo más alto. No te dejís bajar 🐾';
     }
@@ -1630,8 +1653,10 @@
     fetch('/api/redeem', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: p.email }) })
       .then(r => r.json()).then(d => {
         if (d && d.code){
+          window._firuCode = d.code;
+          try { localStorage.setItem('firu_code', d.code); } catch (_) {}
           out.style.display = 'block';
-          out.innerHTML = 'Tu código <strong>' + d.percent + '%</strong>:<br><span class="te-codeval">' + escapeHtml(d.code) + '</span><br><span class="te-codenote">Pégalo en el checkout. Vence en 48h.</span>';
+          out.innerHTML = 'Tu código <strong>' + d.percent + '%</strong>:<br><span class="te-codeval" id="te-codeval">' + escapeHtml(d.code) + '</span> <button type="button" class="te-copy" onclick="copiarCodigo()">Copiar</button><br><span class="te-codenote">Ya queda aplicado solo al ir al carrito. Vence en 48h.</span>';
           btn.textContent = 'Canjeado ✓';
         } else {
           btn.disabled = false; btn.textContent = orig;
@@ -1641,6 +1666,16 @@
       }).catch(() => { btn.disabled = false; btn.textContent = orig; });
   }
   window.canjear = canjear;
+
+  function copiarCodigo(){
+    let code = window._firuCode;
+    try { code = code || localStorage.getItem('firu_code'); } catch (_) {}
+    if (!code) return;
+    if (navigator.clipboard) navigator.clipboard.writeText(code);
+    const b = document.querySelector('.te-copy');
+    if (b) { const t = b.textContent; b.textContent = 'Copiado ✓'; setTimeout(() => { b.textContent = t; }, 1500); }
+  }
+  window.copiarCodigo = copiarCodigo;
 
   /* Game over DENTRO del juego: botones en esquinas */
   function mostrarGameOver(score, registered){
@@ -1791,7 +1826,10 @@
   window.startGame=startGame;
 
   function initFlappy(){
-    const W=800,H=300;
+    // Tamaño responsivo: usa el tamaño REAL del contenedor
+    const rect=_cv.getBoundingClientRect();
+    const W=Math.max(320, Math.round(rect.width||800));
+    const H=Math.max(220, Math.round(rect.height||300));
     _cv.width=W; _cv.height=H;
     const ctx=_cv.getContext('2d');
     const C={y:'#FEE04A',r:'#CA1720',t:'#007078',d:'#111111',cr:'#F4E6E2'};
@@ -1799,14 +1837,24 @@
     // Load transparent dog PNG
     const dogImg=new Image(); dogImg.src='perroo.png';
 
-    const isMobile = window.innerWidth < 600;
-    const DW = isMobile ? 55 : 65;
-    const DH = DW; // square image
-    const PIPE_W=52, GAP=155, PIPE_SPEED=3.2;
+    // Constantes escaladas proporcionalmente (tuning base: alto 300 / ancho 800)
+    const SC=H/300;
+    const GROUND=Math.round(22*SC);
+    const DW=Math.round(60*SC), DH=DW;
+    const PIPE_W=Math.max(26, Math.round(W*0.065));
+    const GAP=Math.round(H*0.52);
+    const GRAV=0.38*SC;
+    const FLAP=-6.8*SC, PUSH=-6*SC;
+    const PIPE_SPEED=Math.max(2.4, W*0.0042);
+    const DOG_X=Math.round(W*0.16);
+    const COLL_R=Math.round(30*SC);
+    const ANGK=0.055/SC;
+    const CAP=Math.round(18*SC);
+    const MINTOP=Math.round(35*SC);
 
     function fresh(hi=0){
       return{started:false,over:false,
-        dog:{x:130,y:H/2,vy:0,angle:0},
+        dog:{x:DOG_X,y:H/2,vy:0,angle:0},
         pipes:[],collectibles:[],score:0,hi,frame:0,nextPipe:80,speed:PIPE_SPEED};
     }
     let s=fresh();
@@ -1819,15 +1867,15 @@
       if(!s.started||s.over){
         const hi=s.hi; if(s.over)s=fresh(hi);
         s.started=true;
-        s.dog.vy=-6; // immediate upward push on start
+        s.dog.vy=PUSH; // immediate upward push on start
         return;
       }
-      s.dog.vy=-6.8; // flap goes UP
+      s.dog.vy=FLAP; // flap goes UP
     }
 
     // Reinicio desde el botón "Volver a jugar"
     window.reiniciarJuego=function(){
-      const hi=s.hi; s=fresh(hi); s.started=true; s.dog.vy=-6;
+      const hi=s.hi; s=fresh(hi); s.started=true; s.dog.vy=PUSH;
     };
 
     function drawBg(){
@@ -1838,8 +1886,8 @@
         ctx.beginPath();ctx.arc(i,j,2,0,Math.PI*2);ctx.fill();
       }
       // Ground - yellow to match page bg, no black bar
-      ctx.fillStyle='rgba(0,0,0,0.12)'; ctx.fillRect(0,H-22,W,22);
-      ctx.fillStyle='rgba(0,0,0,0.25)'; ctx.fillRect(0,H-22,W,3);
+      ctx.fillStyle='rgba(0,0,0,0.12)'; ctx.fillRect(0,H-GROUND,W,GROUND);
+      ctx.fillStyle='rgba(0,0,0,0.25)'; ctx.fillRect(0,H-GROUND,W,Math.max(2,Math.round(3*SC)));
     }
 
     function drawPipe(p){
@@ -1849,19 +1897,19 @@
       ctx.beginPath(); ctx.roundRect(p.x,0,PIPE_W,p.top,[0,0,rx,rx]); ctx.fill();
       ctx.fillStyle='rgba(0,0,0,0.15)'; ctx.fillRect(p.x+PIPE_W-8,0,8,p.top);
       ctx.fillStyle=C.d; ctx.lineWidth=2; ctx.strokeStyle=C.d;
-      ctx.beginPath(); ctx.roundRect(p.x-5,p.top-18,PIPE_W+10,18,[rx,rx,0,0]); ctx.fill();
+      ctx.beginPath(); ctx.roundRect(p.x-5,p.top-CAP,PIPE_W+10,CAP,[rx,rx,0,0]); ctx.fill();
 
       // Bottom pipe
       const bTop=p.top+GAP;
       ctx.fillStyle=C.t;
-      ctx.beginPath(); ctx.roundRect(p.x,bTop,PIPE_W,H-bTop-22,[rx,rx,0,0]); ctx.fill();
-      ctx.fillStyle='rgba(0,0,0,0.15)'; ctx.fillRect(p.x+PIPE_W-8,bTop,8,H-bTop-22);
+      ctx.beginPath(); ctx.roundRect(p.x,bTop,PIPE_W,H-bTop-GROUND,[rx,rx,0,0]); ctx.fill();
+      ctx.fillStyle='rgba(0,0,0,0.15)'; ctx.fillRect(p.x+PIPE_W-8,bTop,8,H-bTop-GROUND);
       ctx.fillStyle=C.d;
-      ctx.beginPath(); ctx.roundRect(p.x-5,bTop,PIPE_W+10,18,[0,0,rx,rx]); ctx.fill();
+      ctx.beginPath(); ctx.roundRect(p.x-5,bTop,PIPE_W+10,CAP,[0,0,rx,rx]); ctx.fill();
     }
 
     function drawCollectible(c){
-      ctx.save(); ctx.translate(c.x, c.y);
+      ctx.save(); ctx.translate(c.x, c.y); ctx.scale(SC, SC);
       if(c.type==='lemon'){
         ctx.fillStyle='#FFE040'; ctx.strokeStyle=C.d; ctx.lineWidth=2;
         ctx.beginPath(); ctx.ellipse(0,0,14,10,0.3,0,Math.PI*2); ctx.fill(); ctx.stroke();
@@ -1912,23 +1960,23 @@
     }
 
     function drawHUD(){
-      ctx.fillStyle=C.d; ctx.font="bold 26px 'Bebas Neue'";
-      ctx.textAlign='center'; ctx.fillText(s.score,W/2,36); ctx.textAlign='left';
+      ctx.fillStyle=C.d; ctx.font="bold "+Math.round(28*SC)+"px 'Bebas Neue'";
+      ctx.textAlign='center'; ctx.fillText(s.score,W/2,Math.round(40*SC)); ctx.textAlign='left';
       if(s.hi>0){
-        ctx.fillStyle='rgba(0,0,0,0.3)'; ctx.font="13px 'Bebas Neue'";
-        ctx.fillText('RÉCORD: '+s.hi,14,28);
+        ctx.fillStyle='rgba(0,0,0,0.3)'; ctx.font=Math.round(14*SC)+"px 'Bebas Neue'";
+        ctx.fillText('RÉCORD: '+s.hi,14,Math.round(30*SC));
       }
-      ctx.fillStyle='rgba(0,0,0,0.25)'; ctx.font="12px 'Bebas Neue'";
-      ctx.fillText('🍋+5  🧂+10  🥭+8  🍍+6  🌶+15',14,H-8);
+      ctx.fillStyle='rgba(0,0,0,0.25)'; ctx.font=Math.round(13*SC)+"px 'Bebas Neue'";
+      ctx.fillText('🍋+5  🧂+10  🥭+8  🍍+6  🌶+15',14,H-Math.round(9*SC));
     }
 
     function drawStart(){
       ctx.fillStyle='rgba(0,0,0,0.48)'; ctx.fillRect(0,0,W,H);
       ctx.textAlign='center';
-      ctx.fillStyle=C.y; ctx.font="bold 52px 'Bebas Neue'"; ctx.fillText('FIRULAIS',W/2,H/2-18);
-      ctx.fillStyle=C.cr; ctx.font="20px 'Bebas Neue'"; ctx.fillText('TAP · ESPACIO PARA VOLAR',W/2,H/2+16);
-      ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font="14px 'Bebas Neue'";
-      ctx.fillText('🍋+5  🧂+10  🥭+8  🍍+6  🌶+15',W/2,H/2+42);
+      ctx.fillStyle=C.y; ctx.font="bold "+Math.round(54*SC)+"px 'Bebas Neue'"; ctx.fillText('FIRULAIS',W/2,H/2-Math.round(18*SC));
+      ctx.fillStyle=C.cr; ctx.font=Math.round(21*SC)+"px 'Bebas Neue'"; ctx.fillText('TAP · ESPACIO PARA VOLAR',W/2,H/2+Math.round(16*SC));
+      ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font=Math.round(15*SC)+"px 'Bebas Neue'";
+      ctx.fillText('🍋+5  🧂+10  🥭+8  🍍+6  🌶+15',W/2,H/2+Math.round(44*SC));
       ctx.textAlign='left';
     }
 
@@ -1949,7 +1997,7 @@
       const hw = DW * 0.96;
       const hh = DH * 0.96;
       // Ground
-      if(d.y + DH*0.48 > H-22) return true;
+      if(d.y + DH*0.48 > H-GROUND) return true;
       // Ceiling
       if(d.y - DH*0.48 < 0) return true;
       // Pipe collision (including cap overhang)
@@ -1962,17 +2010,17 @@
     function loop(){
       if(s.started&&!s.over){
         s.frame++;
-        s.speed=Math.min(PIPE_SPEED+s.frame*0.001,8);
+        s.speed=Math.min(PIPE_SPEED+s.frame*0.001, PIPE_SPEED*2.5);
 
         // Physics
-        s.dog.vy+=0.38; // lighter gravity = more floaty
+        s.dog.vy+=GRAV;
         s.dog.y+=s.dog.vy;
-        s.dog.angle=Math.max(-0.45,Math.min(0.9, s.dog.vy*0.055));
+        s.dog.angle=Math.max(-0.45,Math.min(0.9, s.dog.vy*ANGK));
 
         // Spawn pipes
         s.nextPipe--;
         if(s.nextPipe<=0){
-          const top=35+Math.random()*(H-GAP-57-22);
+          const top=MINTOP+Math.random()*Math.max(20,(H-GAP-MINTOP-GROUND));
           const midY=top+GAP/2;
           s.pipes.push({x:W,top,passed:false});
           // Add collectible in the middle of the gap
@@ -1997,15 +2045,15 @@
 
         // Collectible collection
         s.collectibles=s.collectibles.filter(c=>{
-          if(!c.collected && Math.abs(c.x-s.dog.x)<30 && Math.abs(c.y-s.dog.y)<30){
+          if(!c.collected && Math.abs(c.x-s.dog.x)<COLL_R && Math.abs(c.y-s.dog.y)<COLL_R){
             s.score+=(c.pts||5); return false;
           }
           return true;
         });
 
         // Ground/ceiling kill
-        if(s.dog.y+28>H-22||s.dog.y-28<0){
-          s.dog.y=Math.max(28,Math.min(H-22-28,s.dog.y));
+        if(s.dog.y+DH*0.48>H-GROUND||s.dog.y-DH*0.48<0){
+          s.dog.y=Math.max(DH*0.48,Math.min(H-GROUND-DH*0.48,s.dog.y));
           s.over=true; if(s.score>s.hi) s.hi=s.score;
         }
       }
@@ -2020,7 +2068,7 @@
       drawDog(s.dog);
       if(s.started&&!s.over) drawHUD();
       if(!s.started) drawStart();
-      if(s.over) drawOver();
+      // El game over ahora lo muestra el overlay HTML (botones en esquinas)
 
       _raf2=requestAnimationFrame(loop);
     }

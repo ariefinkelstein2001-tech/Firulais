@@ -33,6 +33,37 @@ function guardarScores(arr) {
   catch (e) { console.error('No se pudo guardar scores:', e.message); return false; }
 }
 
+/* Siembra 200 jugadores ficticios (poquísimos puntos) si el ranking está vacío */
+function seedScoresIfEmpty() {
+  const existing = leerScores();
+  if (existing && existing.length) return;
+  const nombres = [
+    'Benjamín','Martín','Vicente','Agustín','Matías','Tomás','Cristóbal','Joaquín','Sebastián','Maximiliano',
+    'Diego','Felipe','Ignacio','Lucas','Gabriel','Nicolás','Alonso','Bruno','Emilio','Gaspar',
+    'Pablo','Andrés','Javier','Camilo','Franco','Dante','Renato','Damián','Simón','Bastián',
+    'Nacho','Pancho','Maxi','Beni','Joaco','Tomi','Mati','Seba','Cris','Guille',
+    'Sofía','Isidora','Florencia','Emilia','Antonella','Catalina','Josefa','Maite','Trinidad','Amanda',
+    'Fernanda','Valentina','Javiera','Antonia','Constanza','Martina','Agustina','Magdalena','Rafaela','Pía',
+    'Colomba','Anaís','Daniela','Paula','Carolina','Francisca','Bárbara','Macarena','Rocío','Belén',
+    'Montserrat','Ignacia','Manuela','Elena','Laura','Paz','Coté','Cata','Feña','Vale',
+    'Javi','Dani','Flo','Isi','Mane','Nico','Pipe','Cami','Fran','Tato'
+  ];
+  const inis = 'ABCDEFGHIJLMNOPRSTUVZ'.split('');
+  const seed = [];
+  for (let i = 0; i < 200; i++) {
+    const fn = nombres[i % nombres.length];
+    const ini = inis[Math.floor(i / nombres.length) % inis.length];
+    // Cola natural: la mayoría con poquísimos puntos (1-8), unos pocos destacan (hasta ~17)
+    const base = 1 + ((i * 7 + 3) % 8);
+    const boost = (i % 11 === 0) ? 4 + ((i * 5) % 6) : ((i % 5 === 0) ? 2 : 0);
+    const score = base + boost;
+    seed.push({ email: `seed${i}@firulais.seed`, nombre: `${fn} ${ini}.`, score, seed: true });
+  }
+  guardarScores(seed);
+  console.log('Ranking sembrado con 200 jugadores ficticios');
+}
+seedScoresIfEmpty();
+
 /* ── Helper: suscribe/actualiza un perfil en Klaviyo (best-effort) ── */
 async function klaviyoSubscribe({ first, last, email, phone, score }) {
   const PRIV = process.env.KLAVIYO_PRIVATE_KEY;
@@ -164,12 +195,13 @@ app.post('/api/subscribe', async (req, res) => {
 
 // Top N del ranking (para la tabla)
 app.get('/api/leaderboard', (req, res) => {
-  const scores = leerScores()
+  const all = leerScores();
+  const scores = all
     .slice()
     .sort((a, b) => b.score - a.score)
     .slice(0, 25)
     .map(s => ({ nombre: s.nombre, score: s.score }));
-  res.json({ leaderboard: scores });
+  res.json({ leaderboard: scores, total: all.length });
 });
 
 // Guarda/actualiza el puntaje de un jugador + (best-effort) lo suma a Klaviyo

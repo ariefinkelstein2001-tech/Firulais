@@ -239,7 +239,7 @@
     #gameBanner { display: none !important; }
     .banner-inner, .banner-chip { display: none; }
     .hero-dog-row {
-      width: 100%; height: 72vh; min-height: 460px; max-height: 780px;
+      width: 100%; height: 320px;
       overflow: visible; position: relative;
       margin-top: 0; background: var(--yellow);
       opacity: 0; animation: fadeIn .5s ease forwards .9s;
@@ -838,7 +838,7 @@
       .scard-hand.left  { left: -26px; top: 20%; }
       .scard-hand.right { right: -26px; top: 72%; }
       .scard-dog-bg { width: 140px; height: 140px; }
-      .hero-dog-row { height: 70vh; min-height: 420px; max-height: none; background: var(--yellow); }
+      .hero-dog-row { height: 240px; background: var(--yellow); }
       .walking-dog { height: 160px; }
       .hero-btns { padding: 24px 16px 0; }
     }
@@ -915,26 +915,56 @@
     }
     .te-codenote { font-size: 12px; opacity: .7; }
 
-    /* Overlay de game over DENTRO del juego, botones en las esquinas */
-    .go-ui { position: absolute; inset: 0; z-index: 6; background: rgba(0,0,0,.55); }
-    .go-score {
-      position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
-      font-family: 'BobbyJones', 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 1px;
-      color: var(--yellow); text-shadow: 2px 2px 0 rgba(0,0,0,.5); white-space: nowrap;
+    /* ── Modo juego pantalla completa ── */
+    .game-stage { position: relative; width: 100%; height: 100%; }
+    .play-top { display: none; }
+    #game-zone.playing {
+      position: fixed; inset: 0; z-index: 5000;
+      height: 100vh !important; max-height: none !important; min-height: 0 !important;
+      display: flex; flex-direction: column; background: var(--yellow); animation: none;
     }
+    #game-zone.playing .play-top {
+      display: flex; align-items: center; justify-content: center; position: relative;
+      flex: 0 0 auto; height: 54px; background: var(--red); border-bottom: 3px solid var(--dark);
+    }
+    .play-top-txt {
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif; letter-spacing: 1px;
+      color: var(--cream); font-size: clamp(13px, 3.6vw, 18px); text-align: center; padding: 0 44px;
+    }
+    .play-close {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: var(--cream); font-size: 24px; cursor: pointer; line-height: 1;
+    }
+    #game-zone.playing .game-stage { flex: 1 1 auto; height: auto; min-height: 0; }
+
+    /* ── Game over: panel central con mini-ranking ── */
+    .go-ui {
+      position: absolute; inset: 0; z-index: 6; background: rgba(0,0,0,.62); cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 16px;
+    }
+    .go-score {
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif; font-size: clamp(26px, 5vw, 40px); letter-spacing: 1px;
+      color: var(--yellow); text-shadow: 2px 2px 0 rgba(0,0,0,.5);
+    }
+    .go-rank { color: var(--cream); font-weight: 700; font-size: 15px; }
+    .go-top { list-style: none; margin: 6px 0; padding: 0; width: min(340px, 88%); }
+    .go-top li {
+      display: flex; justify-content: space-between; gap: 10px; padding: 4px 12px;
+      color: var(--cream); font-size: 14px; border-bottom: 1px solid rgba(255,255,255,.12);
+    }
+    .go-top li.me { background: rgba(254,224,74,.18); border-radius: 6px; }
+    .go-top .gt-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .go-top .gt-score { color: var(--yellow); font-weight: 800; }
+    .go-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 6px; }
     .go-btn {
-      position: absolute; bottom: 16px; cursor: pointer;
-      font-family: 'BobbyJones', 'Bebas Neue', sans-serif; font-size: 15px; letter-spacing: 1px;
+      cursor: pointer; font-family: 'BobbyJones', 'Bebas Neue', sans-serif; font-size: 15px; letter-spacing: 1px;
       padding: 11px 18px; border: 3px solid var(--dark); border-radius: 50px;
       box-shadow: 3px 3px 0 var(--dark); transition: transform .12s, box-shadow .12s;
     }
     .go-btn:hover { transform: translate(-2px,-2px); box-shadow: 5px 5px 0 var(--dark); }
-    .go-redeem { left: 16px; background: var(--yellow); color: var(--dark); }
-    .go-replay { right: 16px; background: var(--red); color: var(--white); }
-    @media (max-width: 480px) {
-      .go-btn { font-size: 13px; padding: 9px 14px; }
-      .go-redeem { left: 10px; } .go-replay { right: 10px; }
-    }
+    .go-redeem { background: var(--yellow); color: var(--dark); }
+    .go-replay { background: var(--red); color: var(--white); }
+    .go-tap { color: rgba(255,255,255,.6); font-size: 12px; margin-top: 4px; }
     .rank-wrap { max-width: 640px; margin: 0 auto; overflow-x: auto; }
     .rank-table {
       width: 100%; border-collapse: collapse;
@@ -962,7 +992,7 @@
     ══════════════════════════════ */
     .g-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,.6);
-      opacity: 0; visibility: hidden; transition: opacity .25s; z-index: 1500;
+      opacity: 0; visibility: hidden; transition: opacity .25s; z-index: 6000;
     }
     .g-overlay.open { opacity: 1; visibility: visible; }
     .g-modal {
@@ -970,7 +1000,7 @@
       transform: translate(-50%, -46%) scale(.96);
       width: 440px; max-width: 92vw; background: var(--cream); color: var(--dark);
       border: 4px solid var(--dark); border-radius: 22px; box-shadow: 10px 10px 0 var(--dark);
-      padding: 38px 30px 26px; text-align: center; z-index: 1600;
+      padding: 38px 30px 26px; text-align: center; z-index: 6100;
       opacity: 0; visibility: hidden; transition: opacity .25s, transform .25s;
       max-height: 92vh; overflow-y: auto;
     }
@@ -1092,19 +1122,29 @@
   </div>
 
   <!-- Perro idle + Juego -->
-  <div class="hero-dog-row">
-    <div id="idleMode">
-      <video id="dogGif" autoplay loop muted playsinline aria-label="Firulais">
-        <source src="perroca.mp4" type="video/mp4">
-      </video>
+  <div class="hero-dog-row" id="game-zone">
+    <!-- Barra superior (solo en modo juego pantalla completa) -->
+    <div class="play-top">
+      <span class="play-top-txt">LA PRIMERA CRAFT MIX DE CHILE</span>
+      <button type="button" class="play-close" onclick="cerrarJuego()" aria-label="Salir">✕</button>
     </div>
-    <canvas id="gameCanvas" style="display:none;width:100%;height:100%;"></canvas>
-    <div id="gameHint">ESPACIO · TAP PARA SALTAR</div>
-    <div id="game-over-ui" class="go-ui" style="display:none">
-      <p class="go-score">GAME OVER · <span id="go-score-val">0</span> pts</p>
-      <div class="go-btns">
-        <button type="button" class="go-btn go-redeem" id="go-redeem" onclick="goCanjear()">🎟️ Canjear código</button>
-        <button type="button" class="go-btn go-replay" onclick="goReplay()">🔄 Volver a jugar</button>
+    <div class="game-stage" id="game-stage">
+      <div id="idleMode">
+        <video id="dogGif" autoplay loop muted playsinline aria-label="Firulais">
+          <source src="perroca.mp4" type="video/mp4">
+        </video>
+      </div>
+      <canvas id="gameCanvas" style="display:none;width:100%;height:100%;"></canvas>
+      <div id="gameHint">ESPACIO · TAP PARA SALTAR</div>
+      <div id="game-over-ui" class="go-ui" style="display:none" onclick="goReplay()">
+        <p class="go-score">GAME OVER · <span id="go-score-val">0</span> pts</p>
+        <p class="go-rank" id="go-rank"></p>
+        <ol class="go-top" id="go-top"></ol>
+        <div class="go-actions">
+          <button type="button" class="go-btn go-redeem" id="go-redeem" onclick="event.stopPropagation(); goCanjear()">🎟️ Canjear</button>
+          <button type="button" class="go-btn go-replay" onclick="event.stopPropagation(); goReplay()">🔄 Jugar de nuevo</button>
+        </div>
+        <p class="go-tap">tap para jugar de nuevo</p>
       </div>
     </div>
   </div>
@@ -1687,15 +1727,35 @@
     const ui = document.getElementById('game-over-ui'); if (!ui) return;
     const v = document.getElementById('go-score-val'); if (v) v.textContent = score;
     const rd = document.getElementById('go-redeem'); if (rd) rd.style.display = registered ? '' : 'none';
-    ui.style.display = 'block';
+    ui.style.display = 'flex';
+    const player = getPlayer();
+    // Mini-ranking (top 5) dentro del game over
+    fetch('/api/leaderboard').then(r => r.json()).then(d => {
+      const ol = document.getElementById('go-top');
+      if (ol && d.leaderboard) {
+        ol.innerHTML = d.leaderboard.slice(0, 5).map((s, i) =>
+          `<li><span class="gt-name">${i + 1}. ${escapeHtml(s.nombre)}</span><span class="gt-score">${s.score}</span></li>`).join('');
+      }
+    }).catch(() => {});
+    // Tu puesto
+    const rk = document.getElementById('go-rank');
+    if (rk) rk.textContent = '';
+    if (registered && player && player.email) {
+      fetch('/api/status?email=' + encodeURIComponent(player.email)).then(r => r.json()).then(st => {
+        if (rk && st.registered) rk.textContent = 'Vas #' + st.pos + ' de ' + st.total + ' · tu descuento: ' + st.percent + '%';
+      }).catch(() => {});
+    }
   }
   function ocultarGameOver(){ const ui = document.getElementById('game-over-ui'); if (ui) ui.style.display = 'none'; }
   function goReplay(){ ocultarGameOver(); if (typeof window.reiniciarJuego === 'function') window.reiniciarJuego(); }
   window.goReplay = goReplay;
   function goCanjear(){
+    cerrarJuego();                 // sale de pantalla completa
     const est = document.getElementById('tu-estado');
-    if (est) est.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    setTimeout(function(){ if (typeof canjear === 'function') canjear(); }, 500);
+    setTimeout(function(){
+      if (est) est.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (typeof canjear === 'function') canjear();
+    }, 200);
   }
   window.goCanjear = goCanjear;
 
@@ -1751,13 +1811,35 @@
   }
   window.suscribirJuego = suscribirJuego;
 
-  /* Botón del hero: se desliza al juego y arranca */
-  function jugarScroll(){
-    const target = document.getElementById('idleMode') || document.querySelector('.hero-dog-row');
-    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    setTimeout(function(){ if (typeof startGame === 'function') startGame(); }, 450);
+  /* Entrar al juego en PANTALLA COMPLETA */
+  function entrarJuego(){
+    const zone = document.getElementById('game-zone');
+    if (zone) zone.classList.add('playing');
+    document.body.style.overflow = 'hidden';
+    if (typeof startGame === 'function') startGame();
   }
-  window.jugarScroll = jugarScroll;
+  window.entrarJuego = entrarJuego;
+  window.jugarScroll = entrarJuego; // compat
+
+  /* Salir del modo juego (X) — vuelve a la página normal */
+  function cerrarJuego(){
+    const zone = document.getElementById('game-zone');
+    if (zone) zone.classList.remove('playing');
+    document.body.style.overflow = '';
+    try { if (typeof _raf2 !== 'undefined' && _raf2) cancelAnimationFrame(_raf2); } catch (_) {}
+    try { _gameActive = false; } catch (_) {}
+    const cv = document.getElementById('gameCanvas');
+    const idle = document.getElementById('idleMode');
+    const hint = document.getElementById('gameHint');
+    const go = document.getElementById('game-over-ui');
+    const bj = document.getElementById('btnJugar');
+    if (cv) cv.style.display = 'none';
+    if (idle) { idle.style.visibility = 'visible'; idle.style.pointerEvents = ''; }
+    if (hint) hint.style.display = '';
+    if (go) go.style.display = 'none';
+    if (bj) bj.style.opacity = '';
+  }
+  window.cerrarJuego = cerrarJuego;
 
   document.addEventListener('DOMContentLoaded', function(){ cargarRanking(); cargarEstado(); });
 

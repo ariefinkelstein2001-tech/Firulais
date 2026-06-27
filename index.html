@@ -239,7 +239,7 @@
     #gameBanner { display: none !important; }
     .banner-inner, .banner-chip { display: none; }
     .hero-dog-row {
-      width: 100%; height: 320px;
+      width: 100%; height: 58vh; min-height: 360px; max-height: 680px;
       overflow: visible; position: relative;
       margin-top: 0; background: var(--yellow);
       opacity: 0; animation: fadeIn .5s ease forwards .9s;
@@ -838,7 +838,7 @@
       .scard-hand.left  { left: -26px; top: 20%; }
       .scard-hand.right { right: -26px; top: 72%; }
       .scard-dog-bg { width: 140px; height: 140px; }
-      .hero-dog-row { height: 240px; background: var(--yellow); }
+      .hero-dog-row { height: 60vh; min-height: 360px; background: var(--yellow); }
       .walking-dog { height: 160px; }
       .hero-btns { padding: 24px 16px 0; }
     }
@@ -1750,12 +1750,9 @@
   function goReplay(){ ocultarGameOver(); if (typeof window.reiniciarJuego === 'function') window.reiniciarJuego(); }
   window.goReplay = goReplay;
   function goCanjear(){
-    cerrarJuego();                 // sale de pantalla completa
     const est = document.getElementById('tu-estado');
-    setTimeout(function(){
-      if (est) est.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      if (typeof canjear === 'function') canjear();
-    }, 200);
+    if (est) est.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(function(){ if (typeof canjear === 'function') canjear(); }, 450);
   }
   window.goCanjear = goCanjear;
 
@@ -1811,12 +1808,16 @@
   }
   window.suscribirJuego = suscribirJuego;
 
-  /* Entrar al juego en PANTALLA COMPLETA */
+  /* Entrar al juego: scrollear dejando visibles tagline + botones, juego grande abajo */
   function entrarJuego(){
-    const zone = document.getElementById('game-zone');
-    if (zone) zone.classList.add('playing');
-    document.body.style.overflow = 'hidden';
-    if (typeof startGame === 'function') startGame();
+    const tag = document.querySelector('.hero-tag');
+    const nav = document.getElementById('nav');
+    const navH = nav ? nav.offsetHeight : 64;
+    if (tag){
+      const y = tag.getBoundingClientRect().top + window.pageYOffset - navH - 10;
+      window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+    }
+    setTimeout(function(){ if (typeof startGame === 'function') startGame(); }, 450);
   }
   window.entrarJuego = entrarJuego;
   window.jugarScroll = entrarJuego; // compat
@@ -1927,9 +1928,9 @@
     // Constantes escaladas proporcionalmente (tuning base: alto 300 / ancho 800)
     const SC=H/300;
     const GROUND=Math.round(22*SC);
-    const DW=Math.round(60*SC), DH=DW;
-    const PIPE_W=Math.max(26, Math.round(W*0.065));
-    const GAP=Math.round(H*0.52);
+    const DW=Math.round(48*SC), DH=DW;               // perro más chico
+    const PIPE_W=Math.round(60*SC);                   // tubo proporcional al alto (más ancho)
+    const GAP=Math.round(H*0.54);
     const GRAV=0.38*SC;
     const FLAP=-6.8*SC, PUSH=-6*SC;
     const PIPE_SPEED=Math.max(2.4, W*0.0042);

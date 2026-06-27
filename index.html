@@ -1772,7 +1772,8 @@
         }
       } catch (_) {}
       document.getElementById('g-form').style.display = 'none';
-      const skip = document.querySelector('.g-skip'); if (skip) skip.style.display = 'none';
+      ['.g-skip', '.g-sub', '.g-score', '.g-title'].forEach(sel => { const el = document.querySelector(sel); if (el) el.style.display = 'none'; });
+      const tit = document.querySelector('.g-title'); if (tit) { tit.textContent = 'TU CUPÓN'; tit.style.display = ''; }
       msg.innerHTML = codeHtml || ('Listo ' + first + '. Ya estás en el ranking. 🐾');
       msg.classList.add('ok');
     } catch (err) {

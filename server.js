@@ -197,6 +197,20 @@ app.post('/api/subscribe', async (req, res) => {
   return res.status(r.status === 0 ? 500 : 502).json({ error: 'Klaviyo: ' + r.detail, status: r.status });
 });
 
+/* DIAGNÓSTICO: prueba la suscripción y muestra la respuesta de Klaviyo.
+   Abrir en el navegador: /api/klaviyo-test  (o ?email=tu@correo.cl) */
+app.get('/api/klaviyo-test', async (req, res) => {
+  const email = (req.query.email || ('test_' + Date.now() + '@firulais-test.cl')).trim();
+  const r = await klaviyoSubscribe({ first: 'Test', last: 'Firulais', email });
+  res.json({
+    enviado_a_email: email,
+    lista: process.env.KLAVIYO_LIST_ID || 'S2grGC',
+    tiene_key: !!process.env.KLAVIYO_PRIVATE_KEY,
+    key_prefijo: (process.env.KLAVIYO_PRIVATE_KEY || '').slice(0, 3),
+    resultado: r
+  });
+});
+
 /* ── Ranking del juego ── */
 
 // Top N del ranking (para la tabla)

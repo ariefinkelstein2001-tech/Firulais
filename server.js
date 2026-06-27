@@ -309,11 +309,11 @@ app.get('/api/status', (req, res) => {
   res.json({ registered: true, pos, mejor, percent, nextPercent, nextThreshold, faltan, total: sorted.length });
 });
 
-/* Crea un código de descuento único en Shopify (% off, 1 uso, vence en 48h) */
+/* Crea un código de descuento único en Shopify (% off, 1 uso, vence en 24h) */
 async function crearDescuentoShopify(percent, email) {
   if (!STORE || !TOKEN) return { ok: false, status: 0, error: 'Shopify no configurado' };
   const now = new Date();
-  const ends = new Date(now.getTime() + 48 * 3600 * 1000);
+  const ends = new Date(now.getTime() + 24 * 3600 * 1000);
   const code = 'FIRU' + percent + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
   try {
     const pr = await fetch(`https://${STORE}/admin/api/${API_VERSION}/price_rules.json`, {

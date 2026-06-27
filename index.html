@@ -953,8 +953,8 @@
     .go-card {
       background: var(--cream); color: var(--dark); cursor: default;
       border: 4px solid var(--dark); border-radius: 20px; box-shadow: 8px 8px 0 rgba(0,0,0,.45);
-      padding: 18px; width: min(420px, 94%); max-height: 84%;
-      display: flex; flex-direction: column;
+      padding: 16px; width: min(420px, 94%); max-height: 88%;
+      display: flex; flex-direction: column; overflow: hidden;
     }
     .go-score {
       font-family: 'BobbyJones', 'Bebas Neue', sans-serif; font-size: clamp(24px, 5vw, 34px); letter-spacing: 1px;
@@ -966,7 +966,7 @@
       font-family: 'BobbyJones', 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 1px; color: var(--dark); opacity: .55;
     }
     .go-top {
-      list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1; min-height: 130px;
+      list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1 1 auto; min-height: 60px;
       border: 2px solid var(--dark); border-radius: 12px; background: var(--white);
     }
     .go-top li {
@@ -980,10 +980,11 @@
     .gt-disc { font-weight: 800; color: var(--red); font-size: 13px; }
     .gt-disc.none { color: rgba(0,0,0,.3); }
     .gt-score { font-family: 'BobbyJones', 'Bebas Neue', sans-serif; color: var(--teal); text-align: right; }
-    .go-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+    .go-actions { display: flex; gap: 8px; flex-wrap: nowrap; justify-content: center; margin-top: 14px; }
     .go-btn {
-      cursor: pointer; font-family: 'BobbyJones', 'Bebas Neue', sans-serif; font-size: 15px; letter-spacing: 1px;
-      padding: 11px 18px; border: 3px solid var(--dark); border-radius: 50px;
+      flex: 1 1 0; min-width: 0; text-align: center; white-space: nowrap;
+      cursor: pointer; font-family: 'BobbyJones', 'Bebas Neue', sans-serif; font-size: clamp(12px, 3.4vw, 15px); letter-spacing: .5px;
+      padding: 11px 10px; border: 3px solid var(--dark); border-radius: 50px;
       box-shadow: 3px 3px 0 var(--dark); transition: transform .12s, box-shadow .12s;
     }
     .go-btn:hover { transform: translate(-2px,-2px); box-shadow: 5px 5px 0 var(--dark); }
@@ -1713,7 +1714,7 @@
         window._firuCode = d.code; window._firuPct = d.percent;
         try { localStorage.setItem('firu_code', d.code); localStorage.setItem('firu_pct', d.percent); } catch (_) {}
         if (typeof renderCarrito === 'function') renderCarrito();
-        if (out){ out.style.display = 'block'; out.innerHTML = 'Tu cupón <b>' + d.percent + '%</b> · <b>' + escapeHtml(d.code) + '</b> <button type="button" class="go-copy" onclick="copiarCodigo()">Copiar</button><span class="go-codenote">Se aplica solo al ir al carrito.</span>'; }
+        if (out){ out.style.display = 'block'; out.innerHTML = 'Tu cupón <b>' + d.percent + '%</b> · <b>' + escapeHtml(d.code) + '</b> <button type="button" class="go-copy" onclick="copiarCodigo()">Copiar</button><span class="go-codenote">Se aplica solo al ir al carrito · válido 24 h.</span>'; }
         if (btn){ btn.textContent = 'Cupón listo ✓'; }
       } else { throw new Error(d.error || d.detail || 'error'); }
     } catch (e){
@@ -1772,7 +1773,7 @@
           window._firuCode = rd.code; window._firuPct = rd.percent;
           try { localStorage.setItem('firu_code', rd.code); localStorage.setItem('firu_pct', rd.percent); } catch (_) {}
           if (typeof renderCarrito === 'function') renderCarrito();
-          codeHtml = 'Tu cupón <b>' + rd.percent + '%</b> · <b>' + escapeHtml(rd.code) + '</b> <button type="button" class="g-copy" onclick="copiarCodigo()">Copiar</button><br><span style="font-size:12px;opacity:.7">Se aplica solo al ir al carrito.</span>';
+          codeHtml = 'Tu cupón <b>' + rd.percent + '%</b> · <b>' + escapeHtml(rd.code) + '</b> <button type="button" class="g-copy" onclick="copiarCodigo()">Copiar</button><br><span style="font-size:12px;opacity:.7">Se aplica solo al ir al carrito · válido 24 h.</span>';
         }
       } catch (_) {}
       document.getElementById('g-form').style.display = 'none';
@@ -2019,46 +2020,12 @@
       ctx.beginPath(); ctx.roundRect(p.x-5,bTop,PIPE_W+10,CAP,[0,0,rx,rx]); ctx.fill();
     }
 
+    const EMOJI = { lemon:'🍋', salt:'🧂', mango:'🥭', pina:'🍍', aji:'🌶️' };
     function drawCollectible(c){
-      ctx.save(); ctx.translate(c.x, c.y); ctx.scale(SC, SC);
-      if(c.type==='lemon'){
-        ctx.fillStyle='#FFE040'; ctx.strokeStyle=C.d; ctx.lineWidth=2;
-        ctx.beginPath(); ctx.ellipse(0,0,14,10,0.3,0,Math.PI*2); ctx.fill(); ctx.stroke();
-        ctx.fillStyle='#4CAF50'; ctx.beginPath(); ctx.ellipse(1,-10,4,3,-0.4,0,Math.PI*2); ctx.fill();
-      } else if(c.type==='salt'){
-        ctx.fillStyle='#fff'; ctx.strokeStyle=C.d; ctx.lineWidth=2;
-        ctx.beginPath(); ctx.roundRect(-7,-16,14,20,[4,4,3,3]); ctx.fill(); ctx.stroke();
-        ctx.fillStyle='#ddd'; ctx.strokeStyle=C.d; ctx.lineWidth=1.5;
-        ctx.beginPath(); ctx.roundRect(-5,-22,10,7,[3,3,0,0]); ctx.fill(); ctx.stroke();
-        ctx.fillStyle=C.t;
-        for(let i=0;i<3;i++){ctx.beginPath();ctx.arc(-2+i*2,-8,1.5,0,Math.PI*2);ctx.fill();}
-      } else if(c.type==='mango'){
-        ctx.fillStyle='#FF9800'; ctx.strokeStyle=C.d; ctx.lineWidth=2;
-        ctx.beginPath(); ctx.ellipse(0,2,11,14,0.1,0,Math.PI*2); ctx.fill(); ctx.stroke();
-        ctx.fillStyle='#FFE040';
-        ctx.beginPath(); ctx.ellipse(-3,0,5,8,0.2,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle='#4CAF50';
-        ctx.beginPath(); ctx.moveTo(0,-13); ctx.quadraticCurveTo(8,-20,10,-10); ctx.stroke();
-      } else if(c.type==='pina'){
-        ctx.fillStyle='#FFD600'; ctx.strokeStyle=C.d; ctx.lineWidth=2;
-        ctx.beginPath(); ctx.ellipse(0,3,10,13,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
-        ctx.strokeStyle='rgba(0,0,0,0.2)'; ctx.lineWidth=1;
-        for(let r=-1;r<=1;r++) for(let cc=-1;cc<=1;cc++)
-          {ctx.beginPath();ctx.arc(r*6,cc*6+3,3,0,Math.PI*2);ctx.stroke();}
-        ctx.fillStyle='#4CAF50'; ctx.strokeStyle='none';
-        ctx.beginPath(); ctx.moveTo(-4,-11); ctx.lineTo(0,-20); ctx.lineTo(4,-11); ctx.fill();
-        ctx.beginPath(); ctx.moveTo(-2,-13); ctx.lineTo(5,-19); ctx.lineTo(5,-12); ctx.fill();
-        ctx.beginPath(); ctx.moveTo(2,-13); ctx.lineTo(-5,-19); ctx.lineTo(-5,-12); ctx.fill();
-      } else if(c.type==='aji'){
-        ctx.fillStyle='#E53935'; ctx.strokeStyle=C.d; ctx.lineWidth=2;
-        ctx.beginPath(); ctx.moveTo(0,-14); ctx.bezierCurveTo(10,-14,14,4,8,14);
-        ctx.bezierCurveTo(4,18,-4,18,-8,14); ctx.bezierCurveTo(-14,4,-10,-14,0,-14);
-        ctx.fill(); ctx.stroke();
-        ctx.fillStyle='rgba(255,255,255,0.25)';
-        ctx.beginPath(); ctx.ellipse(-3,-4,3,7,0.3,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle='#4CAF50';
-        ctx.beginPath(); ctx.moveTo(0,-14); ctx.quadraticCurveTo(3,-20,5,-18); ctx.lineTo(2,-14); ctx.fill();
-      }
+      ctx.save();
+      ctx.font = Math.round(36*SC) + "px 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif";
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(EMOJI[c.type] || '🍋', c.x, c.y);
       ctx.restore();
     }
 

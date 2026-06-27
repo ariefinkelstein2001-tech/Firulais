@@ -1674,6 +1674,8 @@
     const v = document.getElementById('go-score-val'); if (v) v.textContent = score;
     const code = document.getElementById('go-code'); if (code){ code.style.display = 'none'; code.innerHTML = ''; }
     const rd = document.getElementById('go-redeem'); if (rd){ rd.disabled = false; rd.textContent = 'Canjear cupón'; }
+    const ol0 = document.getElementById('go-top'); if (ol0) ol0.style.display = '';
+    const tr0 = document.querySelector('.go-toprow'); if (tr0) tr0.style.display = '';
     ui.style.display = 'flex';
     const player = getPlayer();
     fetch('/api/leaderboard').then(r => r.json()).then(d => {
@@ -1714,6 +1716,8 @@
         window._firuCode = d.code; window._firuPct = d.percent;
         try { localStorage.setItem('firu_code', d.code); localStorage.setItem('firu_pct', d.percent); } catch (_) {}
         if (typeof renderCarrito === 'function') renderCarrito();
+        const ol = document.getElementById('go-top'); if (ol) ol.style.display = 'none';
+        const tr = document.querySelector('.go-toprow'); if (tr) tr.style.display = 'none';
         if (out){ out.style.display = 'block'; out.innerHTML = 'Tu cupón <b>' + d.percent + '%</b> · <b>' + escapeHtml(d.code) + '</b> <button type="button" class="go-copy" onclick="copiarCodigo()">Copiar</button><span class="go-codenote">Se aplica solo al ir al carrito · válido 24 h.</span>'; }
         if (btn){ btn.textContent = 'Cupón listo ✓'; }
       } else { throw new Error(d.error || d.detail || 'error'); }

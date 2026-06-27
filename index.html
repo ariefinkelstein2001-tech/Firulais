@@ -1140,7 +1140,7 @@
   <div class="hero-btns">
     <a href="javascript:void(0)" class="btn btn-red" onclick="agregarCarrito()">Comprar Ahora</a>
     <a href="#sabores" class="btn btn-ghost">Ver Sabor</a>
-    <button class="btn btn-ghost" id="btnJugar" onclick="jugarScroll()" style="border-color:var(--teal);color:var(--teal);cursor:pointer;background:none;font-family:'BobbyJones','Bebas Neue',sans-serif;">🐾 Jugá y ganá hasta 20%</button>
+    <button class="btn btn-ghost" id="btnJugar" onclick="jugarScroll()" style="border-color:var(--teal);color:var(--teal);cursor:pointer;background:none;font-family:'BobbyJones','Bebas Neue',sans-serif;">Jugá y ganá hasta 20%</button>
   </div>
 
   <!-- Banner que aparece ARRIBA del juego al hacer clic en Jugar -->
@@ -1192,8 +1192,8 @@
           <div class="go-toprow"><span>RANKING</span><span>DCTO</span></div>
           <ol class="go-top" id="go-top"></ol>
           <div class="go-actions">
-            <button type="button" class="go-btn go-replay" onclick="goReplay()">🔄 Seguir jugando</button>
-            <button type="button" class="go-btn go-redeem" id="go-redeem" onclick="goCanjear()">🎟️ Canjear cupón</button>
+            <button type="button" class="go-btn go-replay" onclick="goReplay()">Seguir jugando</button>
+            <button type="button" class="go-btn go-redeem" id="go-redeem" onclick="goCanjear()">Canjear cupón</button>
           </div>
           <p class="go-code" id="go-code" style="display:none"></p>
         </div>
@@ -1269,7 +1269,7 @@
             <input id="qty-cachupin" class="qty-input" type="number" min="1" value="1" inputmode="numeric">
             <button type="button" class="qty-btn" onclick="cambiarQty(1)" aria-label="Sumar">+</button>
           </div>
-          <button type="button" class="btn-add" onclick="agregarCarrito()">🛒 Agregar al carrito</button>
+          <button type="button" class="btn-add" onclick="agregarCarrito()">Agregar al carrito</button>
         </div>
       </div>
     </div>
@@ -1658,11 +1658,12 @@
   /* Lo llama el juego cuando el jugador pierde */
   function onGameOver(score){
     _pendingScore = score | 0;
+    mostrarGameOver(_pendingScore);
     const player = getPlayer();
     if (player && player.email){
-      enviarScore({ first: player.first, last: player.last, email: player.email, phone: player.phone || '', score: _pendingScore });
+      enviarScore({ first: player.first, last: player.last, email: player.email, phone: player.phone || '', score: _pendingScore })
+        .then(function(){ mostrarGameOver(_pendingScore); }); // refresca el ranking con el nuevo puntaje
     }
-    mostrarGameOver(_pendingScore);
   }
   window.onGameOver = onGameOver;
 
@@ -1671,7 +1672,7 @@
     const ui = document.getElementById('game-over-ui'); if (!ui) return;
     const v = document.getElementById('go-score-val'); if (v) v.textContent = score;
     const code = document.getElementById('go-code'); if (code){ code.style.display = 'none'; code.innerHTML = ''; }
-    const rd = document.getElementById('go-redeem'); if (rd){ rd.disabled = false; rd.textContent = '🎟️ Canjear cupón'; }
+    const rd = document.getElementById('go-redeem'); if (rd){ rd.disabled = false; rd.textContent = 'Canjear cupón'; }
     ui.style.display = 'flex';
     const player = getPlayer();
     fetch('/api/leaderboard').then(r => r.json()).then(d => {
@@ -1733,6 +1734,9 @@
   /* Popup (formulario) — solo se abre al apretar "Canjear cupón" sin estar registrado */
   function abrirGameModal(score){
     const v = document.getElementById('g-score-val'); if (v) v.textContent = score;
+    const pct = dctoEstimado(score);
+    const btn = document.getElementById('g-btn');
+    if (btn) btn.textContent = pct ? ('Quiero mi ' + pct + '% y entrar al ranking') : 'Entrar al ranking';
     document.getElementById('game-overlay').classList.add('open');
     document.getElementById('game-modal').classList.add('open');
   }
@@ -1790,8 +1794,21 @@
   function cargarTiers(){
     fetch('/api/leaderboard').then(r => r.json()).then(d => {
       const lb = d.leaderboard || [];
-      window._tiers = { t5: (lb[4] && lb[4].score) || 0, t10: (lb[9] && lb[9].score) || 0, t20: (lb[19] && lb[19].score) || 0 };
+      window._tiers = {
+        t5: (lb[4] && lb[4].score) || 0, t10: (lb[9] && lb[9].score) || 0,
+        t20: (lb[19] && lb[19].score) || 0, t100: (lb[99] && lb[99].score) || 0
+      };
     }).catch(() => {});
+  }
+  /* Descuento estimado según el puntaje (antes de registrarse, usa los umbrales) */
+  function dctoEstimado(score){
+    const t = window._tiers;
+    if (!t) return 10;
+    if (score >= t.t5) return 20;
+    if (score >= t.t10) return 15;
+    if (score >= t.t20) return 12;
+    if (t.t100 > 0 && score < t.t100) return 0; // fuera del top 100
+    return 10;
   }
   function actualizarBarra(score){
     const t = window._tiers; const bar = document.getElementById('disc-bar');

@@ -33,10 +33,13 @@ function guardarScores(arr) {
   catch (e) { console.error('No se pudo guardar scores:', e.message); return false; }
 }
 
-/* Siembra 200 jugadores ficticios (poquísimos puntos) si el ranking está vacío */
-function seedScoresIfEmpty() {
+/* Siembra 200 jugadores ficticios (poquísimos puntos), conservando a los reales.
+   Solo agrega los que falten; no duplica ni borra. */
+function seedScores() {
   const existing = leerScores();
-  if (existing && existing.length) return;
+  const seedCount = existing.filter(s => s && s.seed).length;
+  if (seedCount >= 200) return; // ya están sembrados
+  const existingEmails = new Set(existing.map(s => s.email));
   const nombres = [
     'Benjamín','Martín','Vicente','Agustín','Matías','Tomás','Cristóbal','Joaquín','Sebastián','Maximiliano',
     'Diego','Felipe','Ignacio','Lucas','Gabriel','Nicolás','Alonso','Bruno','Emilio','Gaspar',
@@ -49,20 +52,23 @@ function seedScoresIfEmpty() {
     'Javi','Dani','Flo','Isi','Mane','Nico','Pipe','Cami','Fran','Tato'
   ];
   const inis = 'ABCDEFGHIJLMNOPRSTUVZ'.split('');
-  const seed = [];
+  const nuevos = [];
   for (let i = 0; i < 200; i++) {
+    const email = `seed${i}@firulais.seed`;
+    if (existingEmails.has(email)) continue; // no duplicar
     const fn = nombres[i % nombres.length];
     const ini = inis[Math.floor(i / nombres.length) % inis.length];
     // Cola natural: la mayoría con poquísimos puntos (1-8), unos pocos destacan (hasta ~17)
     const base = 1 + ((i * 7 + 3) % 8);
     const boost = (i % 11 === 0) ? 4 + ((i * 5) % 6) : ((i % 5 === 0) ? 2 : 0);
-    const score = base + boost;
-    seed.push({ email: `seed${i}@firulais.seed`, nombre: `${fn} ${ini}.`, score, seed: true });
+    nuevos.push({ email, nombre: `${fn} ${ini}.`, score: base + boost, seed: true });
   }
-  guardarScores(seed);
-  console.log('Ranking sembrado con 200 jugadores ficticios');
+  if (nuevos.length) {
+    guardarScores(existing.concat(nuevos));
+    console.log('Sembrados', nuevos.length, 'jugadores ficticios (conservando reales)');
+  }
 }
-seedScoresIfEmpty();
+seedScores();
 
 /* ── Helper: suscribe/actualiza un perfil en Klaviyo (best-effort) ── */
 async function klaviyoSubscribe({ first, last, email, phone, score }) {

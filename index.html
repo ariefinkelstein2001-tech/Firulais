@@ -688,6 +688,61 @@
     }
 
     /* ══════════════════════════════
+       AMBIENTE
+    ══════════════════════════════ */
+    #ambiente { background: var(--yellow); padding: 100px 60px; overflow: hidden; }
+    #ambiente .section-tag { color: var(--teal); }
+    #ambiente .section-h2  { color: var(--dark); }
+
+    .ambiente-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 30px;
+      max-width: 1300px;
+      margin: 0 auto;
+      perspective: 1400px;
+    }
+    .amb-card {
+      position: relative;
+      border-radius: 14px;
+      border: 4px solid var(--dark);
+      box-shadow: 8px 8px 0 var(--dark);
+      overflow: hidden;
+      cursor: pointer;
+      background: var(--dark);
+      opacity: 0;
+      transform: translateY(30px) rotate(var(--r, 0deg));
+      transition: opacity .6s ease, transform .35s cubic-bezier(.2,.8,.3,1.2), box-shadow .35s ease;
+      will-change: transform;
+    }
+    .amb-card.visible { opacity: 1; }
+    .amb-card:nth-child(1) { --r: -4deg; margin-top: 46px; }
+    .amb-card:nth-child(2) { --r: 3deg; }
+    .amb-card:nth-child(3) { --r: -3deg; margin-top: 64px; }
+    .amb-card:nth-child(4) { --r: 4deg; margin-top: 14px; }
+    .amb-card.visible { transform: translateY(0) rotate(var(--r, 0deg)); }
+    .amb-card:hover {
+      box-shadow: 14px 14px 0 var(--dark);
+      z-index: 5;
+    }
+    .amb-card img {
+      width: 100%; aspect-ratio: 4 / 5; object-fit: cover; display: block;
+      transition: transform .5s ease;
+      pointer-events: none;
+    }
+    .amb-card:hover img { transform: scale(1.08); }
+
+    @media (max-width: 960px) {
+      .ambiente-grid { grid-template-columns: repeat(2, 1fr); gap: 22px; }
+      .amb-card:nth-child(1), .amb-card:nth-child(2),
+      .amb-card:nth-child(3), .amb-card:nth-child(4) { margin-top: 0; }
+    }
+    @media (max-width: 520px) {
+      .ambiente-grid { grid-template-columns: 1fr; }
+      .amb-card { --r: 0deg !important; }
+    }
+
+    /* ══════════════════════════════
        CTA
     ══════════════════════════════ */
     #comprar {
@@ -832,7 +887,7 @@
       .sabores-grid { grid-template-columns: 1fr; }
       nav { padding: 0 20px; }
       .nav-links li:not(:last-child) { display: none; }
-      #sabores, #nosotros, #comprar, footer { padding-left: 24px; padding-right: 24px; }
+      #sabores, #nosotros, #ambiente, #comprar, footer { padding-left: 24px; padding-right: 24px; }
     }
     /* Móvil — arreglo de lata y manos en cards */
     @media (max-width: 700px) {
@@ -1119,6 +1174,7 @@
   <ul class="nav-links">
     <li><a href="#sabores">Sabor</a></li>
     <li><a href="#nosotros">Nosotros</a></li>
+    <li><a href="#ambiente">Ambiente</a></li>
     <li><a href="javascript:void(0)" class="nav-cta" onclick="abrirCarrito()">Carrito</a></li>
   </ul>
 </nav>
@@ -1339,6 +1395,19 @@
     <p class="nosotros-text">
       Desde ahí no hemos parado, de las primeras latas a las terrazas, bares y eventos de todo Santiago, siempre con la misma regla: <strong>nada de impostura, puro Firulais.</strong>
     </p>
+  </div>
+</section>
+
+<!-- ══════════ AMBIENTE ══════════ -->
+<section id="ambiente">
+  <p class="section-tag">Firulais en la Calle</p>
+  <h2 class="section-h2">EL AMBIENTE</h2>
+
+  <div class="ambiente-grid">
+    <div class="amb-card"><img src="ambiente1.webp" alt="Firulais Cachupín en la calle" loading="lazy" decoding="async"></div>
+    <div class="amb-card"><img src="ambiente2.webp" alt="Latas de Firulais Cachupín en el refrigerador" loading="lazy" decoding="async"></div>
+    <div class="amb-card"><img src="ambiente3.webp" alt="Michelada preparada con Firulais Cachupín" loading="lazy" decoding="async"></div>
+    <div class="amb-card"><img src="ambiente4.webp" alt="Sirviendo Firulais Cachupín en un vaso preparado" loading="lazy" decoding="async"></div>
   </div>
 </section>
 
@@ -1935,11 +2004,30 @@
         }, i * 100);
       }
 
+      if (el.classList.contains('amb-card')) {
+        setTimeout(() => el.classList.add('visible'), i * 90);
+      }
+
       io.unobserve(el);
     });
   }, { threshold: 0.15 });
 
-  document.querySelectorAll('.scard').forEach(el => io.observe(el));
+  document.querySelectorAll('.scard, .amb-card').forEach(el => io.observe(el));
+
+  /* ══ AMBIENTE — tilt 3D interactivo ══ */
+  document.querySelectorAll('.amb-card').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const px = (e.clientX - rect.left) / rect.width - 0.5;
+      const py = (e.clientY - rect.top) / rect.height - 0.5;
+      const rotX = (py * -14).toFixed(2);
+      const rotY = (px * 14).toFixed(2);
+      card.style.transform = `translateY(-10px) scale(1.05) rotate(0deg) perspective(800px) rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
+  });
 
   /* ══ FLAPPY FIRULAIS ══ */
   const _cv=document.getElementById('gameCanvas');

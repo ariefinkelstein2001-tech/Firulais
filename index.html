@@ -648,6 +648,46 @@
     .pop-no:hover { color: var(--dark); }
 
     /* ══════════════════════════════
+       NOSOTROS
+    ══════════════════════════════ */
+    #nosotros { background: var(--dark); padding: 100px 60px; }
+    #nosotros .section-tag { color: var(--yellow); }
+    #nosotros .section-h2  { color: var(--cream); margin-bottom: 32px; }
+
+    .nosotros-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 900px);
+      justify-content: center;
+    }
+    .nosotros-lead {
+      font-size: 20px; line-height: 1.5; color: var(--cream);
+      margin-bottom: 20px;
+    }
+    .nosotros-lead strong { color: var(--yellow); }
+    .nosotros-text {
+      font-size: 16px; line-height: 1.7; color: rgba(244,230,226,.85);
+      margin-bottom: 18px;
+    }
+    .nosotros-text strong { color: var(--cream); }
+    .nosotros-sub {
+      font-family: 'BobbyJones', 'Bebas Neue', sans-serif;
+      font-size: clamp(30px, 4vw, 44px);
+      letter-spacing: 1px; color: var(--teal);
+      margin: 48px 0 20px;
+    }
+    .nosotros-tag-line {
+      font-weight: 700; font-size: 12px; letter-spacing: 4px;
+      text-transform: uppercase; color: var(--teal); margin-bottom: 4px;
+    }
+    .nosotros-close {
+      font-size: 18px; font-weight: 700; color: var(--yellow); margin-top: 8px;
+    }
+    .nosotros-divider {
+      border: none; border-top: 2px solid rgba(244,230,226,.15);
+      margin: 44px 0;
+    }
+
+    /* ══════════════════════════════
        CTA
     ══════════════════════════════ */
     #comprar {
@@ -792,7 +832,7 @@
       .sabores-grid { grid-template-columns: 1fr; }
       nav { padding: 0 20px; }
       .nav-links li:not(:last-child) { display: none; }
-      #sabores, #comprar, footer { padding-left: 24px; padding-right: 24px; }
+      #sabores, #nosotros, #comprar, footer { padding-left: 24px; padding-right: 24px; }
     }
     /* Móvil — arreglo de lata y manos en cards */
     @media (max-width: 700px) {
@@ -1078,6 +1118,7 @@
   </a>
   <ul class="nav-links">
     <li><a href="#sabores">Sabor</a></li>
+    <li><a href="#nosotros">Nosotros</a></li>
     <li><a href="javascript:void(0)" class="nav-cta" onclick="abrirCarrito()">Carrito</a></li>
   </ul>
 </nav>
@@ -1249,6 +1290,57 @@
     <span class="marquee-chip">🐾 <span class="sep">·</span></span>
   </div>
 </div>
+
+<!-- ══════════ NOSOTROS ══════════ -->
+<section id="nosotros">
+  <p class="section-tag">Nuestra Historia</p>
+  <h2 class="section-h2">LIBRES DESDE EL PRIMER LADRIDO</h2>
+
+  <div class="nosotros-grid">
+    <p class="nosotros-lead">
+      Firulais nace de una expresión que cruzó fronteras: <strong>"free of lice"</strong> — libre de pulgas — la frase que usaban los perros callejeros para poder cruzar limpios de un lado a otro. Con el tiempo se transformó en "firulais", el nombre que le ponemos a esos quiltros mestizos que se ganan el cariño de todo el barrio sin siquiera proponérselo.
+    </p>
+
+    <p class="nosotros-text">
+      Esa es la esencia que nos representa: <strong>libres, cercanos, sin pretensiones.</strong>
+    </p>
+
+    <p class="nosotros-text">
+      No somos una marca que busca imponerse. Somos esa presencia que aparece justo cuando hay buena onda — una junta improvisada, una terraza, una playa, un after office que se alargó más de la cuenta. Ahí estamos, como el perro del barrio que nunca falta.
+    </p>
+
+    <p class="nosotros-tag-line">¿Qué tomamos?</p>
+    <p class="nosotros-text">
+      Cervezas artesanales mixeadas, listas para tomar. Sabores naturales, ingredientes de verdad, cero preparación. Se abren y se disfrutan — así de simple.
+    </p>
+
+    <p class="nosotros-close">Más que una bebida, una forma de compartir. 🐾</p>
+
+    <hr class="nosotros-divider">
+
+    <h3 class="nosotros-sub">Cómo nació</h3>
+
+    <p class="nosotros-text">
+      Firulais nació de las ganas de hacer craft mix de verdad: cervezas artesanales mezcladas con sabores naturales, pensadas para los amantes de la chela que quieren algo distinto a lo de siempre.
+    </p>
+
+    <p class="nosotros-text">
+      Queríamos entregarle a esa comunidad nuevas variantes y sabores que no existían en el mercado — combinaciones que se sintieran frescas, auténticas y con personalidad propia, sin perder nunca el carácter de una buena cerveza artesanal de base.
+    </p>
+
+    <p class="nosotros-text">
+      En junio de 2026 lanzamos oficialmente con Cachupín, nuestra primera chela mixeada con limón natural y sal de mar. Lo hicimos documentando el proceso día a día, en primera persona, en una serie que llamamos <strong>"Día X de 50"</strong> — 50 días para llegar a las primeras 1.000 latas vendidas y a una comunidad de 10.000 personas que se sumaran a la manada.
+    </p>
+
+    <p class="nosotros-text">
+      No lanzamos con una gran producción ni un gran presupuesto. Lanzamos con ganas, con una idea clara y con la convicción de que las mejores marcas se construyen igual que las amistades: apareciendo, siendo consistentes y ganándose el cariño de la gente una junta a la vez.
+    </p>
+
+    <p class="nosotros-text">
+      Desde ahí no hemos parado — de las primeras latas a las terrazas, bares y eventos de todo Santiago, siempre con la misma regla: <strong>nada de impostura, puro Firulais.</strong>
+    </p>
+  </div>
+</section>
 
 <!-- ══════════ CTA ══════════ -->
 <section id="comprar">

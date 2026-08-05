@@ -17,6 +17,10 @@ app.use(express.json());
 const STORE = process.env.SHOPIFY_STORE_DOMAIN;   // kairos-brewing.myshopify.com
 const TOKEN = process.env.SHOPIFY_ADMIN_TOKEN;    // shpat_...
 const API_VERSION = '2024-07';
+/* Producto exacto que muestra la web: "Firulais Cachupin - Lata 473cc" (4/8/12 pack).
+   En la tienda hay más de un producto "Cachupin" (ej: mayorista ZORBO), así que
+   apuntamos al ID correcto. Se puede sobrescribir con SHOPIFY_PRODUCT_ID en Railway. */
+const PRODUCT_ID = process.env.SHOPIFY_PRODUCT_ID || '10230364274983';
 
 /* ── Almacenamiento del ranking (archivo JSON) ──
    Para que el ranking PERSISTA entre deploys, montá un Volume en Railway
@@ -153,7 +157,16 @@ app.get('/api/cachupin', async (req, res) => {
       return res.status(502).json({ error: 'Shopify rechazó la consulta de productos', status: prodRes.status, body });
     }
     const { products = [] } = await prodRes.json();
-    const product = products.find(p => /cachup/i.test(p.title || '') || /cachup/i.test(p.handle || ''));
+    // 1) Match exacto por ID (el producto retail correcto).
+    // 2) Si no está, elegir el "Cachupin" que NO sea mayorista (preferir vendor Firulais).
+    const esCachup = p => /cachup/i.test(p.title || '') || /cachup/i.test(p.handle || '');
+    const esMayorista = p => /mayor|wholesale|zorbo/i.test((p.title || '') + ' ' + (p.handle || ''));
+    const cachupines = products.filter(esCachup);
+    const product =
+      products.find(p => String(p.id) === String(PRODUCT_ID)) ||
+      cachupines.find(p => /firulais/i.test(p.vendor || '') && !esMayorista(p)) ||
+      cachupines.find(p => !esMayorista(p)) ||
+      cachupines[0];
     if (!product) {
       return res.status(404).json({ error: 'No se encontró un producto "Cachupin" en la tienda' });
     }

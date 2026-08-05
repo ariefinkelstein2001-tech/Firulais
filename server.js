@@ -374,9 +374,44 @@ app.post('/api/redeem', async (req, res) => {
   res.json({ ok: true, code: r.code, percent, endsAt: r.endsAt });
 });
 
-/* Archivos estáticos de la página */
+/* ── Meta Pixel: se inyecta en el <head> de las páginas HTML servidas ──
+   Se hace del lado del servidor para que aparezca en TODAS las páginas
+   (home, políticas y cualquier ruta) sin duplicar el snippet en cada HTML. */
+const META_PIXEL = `<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1544691450768570');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1544691450768570&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
+`;
+function enviarHtmlConPixel(res, file) {
+  fs.readFile(file, 'utf8', (err, html) => {
+    if (err) return res.status(404).end();
+    const out = html.includes('</head>')
+      ? html.replace('</head>', META_PIXEL + '</head>')
+      : html;
+    res.type('html').send(out);
+  });
+}
+
+/* Páginas HTML (con Meta Pixel inyectado) — antes de los archivos estáticos */
+app.get(['/', '/index.html'], (req, res) => enviarHtmlConPixel(res, path.join(__dirname, 'index.html')));
+app.get('/politicas.html', (req, res) => enviarHtmlConPixel(res, path.join(__dirname, 'politicas.html')));
+
+/* Archivos estáticos de la página (imágenes, css, js, sitemap, etc.) */
 app.use(express.static(path.join(__dirname)));
-app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('*', (req, res) => enviarHtmlConPixel(res, path.join(__dirname, 'index.html')));
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Firulais escuchando en el puerto ${PORT}`));

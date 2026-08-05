@@ -4,12 +4,17 @@
    - Expone /api/cachupin: trae el producto "Cachupin" desde Shopify
      usando la Admin API (token secreto, solo del lado del servidor).
    Variables de entorno (se configuran en Railway):
-     SHOPIFY_STORE_DOMAIN  → kairos-brewing.myshopify.com
-     SHOPIFY_ADMIN_TOKEN   → token de Admin API (shpat_...)
+     SHOPIFY_STORE_DOMAIN       → kairos-brewing.myshopify.com
+     SHOPIFY_ADMIN_TOKEN        → token de Admin API (shpat_...)
+     KLAVIYO_PRIVATE_KEY        → API key privada de Klaviyo
+     META_CAPI_ACCESS_TOKEN     → token de la Meta Conversions API (Events Manager > Configuración > Conversions API)
+     META_PIXEL_ID (opcional)   → por defecto usa el mismo ID que el Pixel del <head>
+     META_CAPI_TEST_EVENT_CODE (opcional) → para ver los eventos en "Prueba de eventos" de Meta
    ════════════════════════════════════════════════════════════ */
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 
 const app = express();
 app.use(express.json());
@@ -129,6 +134,74 @@ async function klaviyoSubscribe({ first, last, email, phone, score }) {
   }
 }
 
+/* ── Meta Conversions API (complementa el Meta Pixel) ──
+   Envía eventos de conversión desde el servidor para mejorar la atribución
+   de las campañas de Meta Ads (sobrevive a ad-blockers y a la prevención de
+   tracking de los navegadores). Variables de entorno:
+     META_PIXEL_ID           → mismo ID que usa el Pixel del <head> (por defecto el de abajo)
+     META_CAPI_ACCESS_TOKEN  → token de acceso generado en Events Manager > Configuración > Conversions API
+     META_CAPI_TEST_EVENT_CODE (opcional) → para probar eventos en el panel de "Prueba de eventos" */
+const META_PIXEL_ID = process.env.META_PIXEL_ID || '1544691450768570';
+const META_CAPI_TOKEN = process.env.META_CAPI_ACCESS_TOKEN;
+
+function sha256Hex(value) {
+  return crypto.createHash('sha256').update(String(value).trim().toLowerCase()).digest('hex');
+}
+
+// Lee las cookies _fbp/_fbc que pone el Pixel en el navegador (viajan con la request al mismo dominio)
+function fbCookies(req) {
+  const raw = req.headers.cookie || '';
+  const get = (name) => {
+    const m = raw.match(new RegExp('(?:^|; )' + name + '=([^;]+)'));
+    return m ? decodeURIComponent(m[1]) : undefined;
+  };
+  return { fbp: get('_fbp'), fbc: get('_fbc') };
+}
+
+function clientIp(req) {
+  return (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress;
+}
+
+/* Envía un evento a la Conversions API (best-effort: nunca rompe el flujo que lo llama) */
+async function metaCapiEvent(eventName, req, { email, phone, customData } = {}) {
+  if (!META_CAPI_TOKEN) return { ok: false, status: 0, detail: 'Falta META_CAPI_ACCESS_TOKEN' };
+  const { fbp, fbc } = fbCookies(req);
+  const userData = {
+    client_ip_address: clientIp(req),
+    client_user_agent: req.headers['user-agent']
+  };
+  if (email) userData.em = [sha256Hex(email)];
+  if (phone) userData.ph = [sha256Hex(phone.replace(/[^0-9]/g, ''))];
+  if (fbp) userData.fbp = fbp;
+  if (fbc) userData.fbc = fbc;
+
+  const event = {
+    event_name: eventName,
+    event_time: Math.floor(Date.now() / 1000),
+    action_source: 'website',
+    event_source_url: req.headers.referer || undefined,
+    user_data: userData
+  };
+  if (customData) event.custom_data = customData;
+
+  const body = { data: [event] };
+  if (process.env.META_CAPI_TEST_EVENT_CODE) body.test_event_code = process.env.META_CAPI_TEST_EVENT_CODE;
+
+  try {
+    const r = await fetch(`https://graph.facebook.com/v21.0/${META_PIXEL_ID}/events?access_token=${META_CAPI_TOKEN}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (r.ok) return { ok: true, status: r.status };
+    const detail = await r.text();
+    console.error('Meta CAPI rechazo:', r.status, detail);
+    return { ok: false, status: r.status, detail };
+  } catch (e) {
+    return { ok: false, status: 0, detail: e.message };
+  }
+}
+
 function shopifyFetch(endpoint) {
   return fetch(`https://${STORE}/admin/api/${API_VERSION}/${endpoint}`, {
     headers: {
@@ -190,7 +263,23 @@ app.get('/api/health', (req, res) => {
     hasShopify: !!(process.env.SHOPIFY_STORE_DOMAIN && process.env.SHOPIFY_ADMIN_TOKEN),
     hasKlaviyoKey: !!process.env.KLAVIYO_PRIVATE_KEY,
     klaviyoKeyPrefix: (process.env.KLAVIYO_PRIVATE_KEY || '').slice(0, 3),
-    klaviyoList: process.env.KLAVIYO_LIST_ID || 'S2grGC'
+    klaviyoList: process.env.KLAVIYO_LIST_ID || 'S2grGC',
+    hasMetaCapiToken: !!META_CAPI_TOKEN,
+    metaPixelId: META_PIXEL_ID
+  });
+});
+
+/* DIAGNÓSTICO: envía un evento de prueba a la Meta Conversions API.
+   Abrir en el navegador: /api/meta-capi-test  (o ?email=tu@correo.cl)
+   Usá META_CAPI_TEST_EVENT_CODE para verlo en Events Manager > Prueba de eventos. */
+app.get('/api/meta-capi-test', async (req, res) => {
+  const email = (req.query.email || ('test_' + Date.now() + '@firulais-test.cl')).trim();
+  const r = await metaCapiEvent('Lead', req, { email, customData: { test: true } });
+  res.json({
+    enviado_a_email: email,
+    pixel: META_PIXEL_ID,
+    tiene_token: !!META_CAPI_TOKEN,
+    resultado: r
   });
 });
 
@@ -203,7 +292,12 @@ app.post('/api/subscribe', async (req, res) => {
     last:  (req.body.last  || '').trim(),
     email
   });
-  if (r.ok) return res.json({ ok: true });
+  if (r.ok) {
+    metaCapiEvent('Lead', req, { email }).then(mr => {
+      if (!mr.ok) console.error('Meta CAPI (subscribe) no envió:', mr.status, mr.detail);
+    });
+    return res.json({ ok: true });
+  }
   return res.status(r.status === 0 ? 500 : 502).json({ error: 'Klaviyo: ' + r.detail, status: r.status });
 });
 
@@ -249,6 +343,7 @@ app.post('/api/score', async (req, res) => {
   // Guardar/actualizar (mejor puntaje por email)
   const scores = leerScores();
   const idx = scores.findIndex(s => s.email === email);
+  const esNuevo = idx < 0;
   if (idx >= 0) {
     if (score > scores[idx].score) scores[idx].score = score;
     scores[idx].nombre = nombre;
@@ -257,6 +352,13 @@ app.post('/api/score', async (req, res) => {
     scores.push({ email, nombre, phone, score });
   }
   guardarScores(scores);
+
+  // Primera vez que juega: cuenta como registro para las campañas de Meta Ads
+  if (esNuevo) {
+    metaCapiEvent('CompleteRegistration', req, { email, phone }).then(mr => {
+      if (!mr.ok) console.error('Meta CAPI (score) no envió:', mr.status, mr.detail);
+    });
+  }
 
   // Suscribir a Klaviyo en segundo plano (no bloquea ni rompe el ranking)
   const mejor = (idx >= 0 ? scores[idx].score : score);
@@ -371,6 +473,9 @@ app.post('/api/redeem', async (req, res) => {
     return res.status(502).json({ error: 'No se pudo generar el código', status: r.status, detail: String(detail).slice(0, 300) });
   }
   if (rec) { rec.issuedCode = r.code; rec.issuedTier = percent; guardarScores(scores); }
+  metaCapiEvent('UnlockDiscount', req, { email, customData: { value: percent, currency: 'CLP' } }).then(mr => {
+    if (!mr.ok) console.error('Meta CAPI (redeem) no envió:', mr.status, mr.detail);
+  });
   res.json({ ok: true, code: r.code, percent, endsAt: r.endsAt });
 });
 

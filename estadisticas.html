@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Firulais — Estadísticas de compra</title>
+<link rel="icon" type="image/png" href="/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,400;1,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red:    #CA1720;
+    --cream:  #F4E6E2;
+    --teal:   #007078;
+    --yellow: #FEE04A;
+    --dark:   #111111;
+    --white:  #ffffff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Barlow Condensed', sans-serif;
+    background: var(--cream); color: var(--dark);
+    line-height: 1.5; font-size: 17px;
+  }
+  h1, h2 { font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 28px; border-bottom: 3px solid var(--dark);
+    position: sticky; top: 0; background: var(--cream); z-index: 5;
+  }
+  .topbar h1 { font-size: 30px; }
+  .topbar select, .topbar button {
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px;
+    border: 2px solid var(--dark); background: var(--white); color: var(--dark);
+    padding: 8px 14px; border-radius: 6px; cursor: pointer;
+  }
+  .topbar button.primary { background: var(--dark); color: var(--yellow); }
+  .topbar .controls { display: flex; gap: 10px; align-items: center; }
+
+  main { max-width: 1080px; margin: 0 auto; padding: 28px; }
+
+  /* ── Gate de acceso ── */
+  #gate {
+    max-width: 420px; margin: 90px auto; padding: 30px;
+    background: var(--white); border: 3px solid var(--dark); border-radius: 10px;
+    text-align: center;
+  }
+  #gate h1 { font-size: 32px; margin-bottom: 14px; }
+  #gate input {
+    width: 100%; padding: 12px 14px; font-size: 16px; margin-top: 16px;
+    border: 2px solid var(--dark); border-radius: 6px; font-family: inherit;
+  }
+  #gate button {
+    margin-top: 14px; width: 100%; padding: 12px; font-size: 17px; font-weight: 700;
+    background: var(--yellow); border: 2px solid var(--dark); border-radius: 6px; cursor: pointer;
+  }
+  #gate .err { color: var(--red); margin-top: 10px; font-weight: 700; display: none; }
+
+  /* ── KPIs ── */
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 26px; }
+  .kpi {
+    background: var(--white); border: 3px solid var(--dark); border-radius: 10px; padding: 18px 20px;
+  }
+  .kpi .label { text-transform: uppercase; font-size: 13px; font-weight: 700; opacity: .65; letter-spacing: .5px; }
+  .kpi .value { font-family: 'Bebas Neue', sans-serif; font-size: 34px; margin-top: 4px; }
+  .kpi.warn { border-color: var(--red); }
+  .kpi.warn .value { color: var(--red); }
+
+  section { margin-bottom: 30px; }
+  section h2 { font-size: 24px; margin-bottom: 12px; border-bottom: 3px solid var(--dark); padding-bottom: 6px; }
+
+  /* ── Barras diarias ── */
+  .chart { display: flex; align-items: flex-end; gap: 4px; height: 140px; background: var(--white);
+    border: 3px solid var(--dark); border-radius: 10px; padding: 14px; overflow-x: auto; }
+  .bar-wrap { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; min-width: 22px; }
+  .bar { width: 16px; background: var(--teal); border-radius: 3px 3px 0 0; }
+  .bar-wrap .day { font-size: 10px; margin-top: 4px; opacity: .6; writing-mode: vertical-rl; }
+
+  table { width: 100%; border-collapse: collapse; background: var(--white); border: 3px solid var(--dark); border-radius: 10px; overflow: hidden; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid #ddd; font-size: 15px; }
+  th { background: var(--dark); color: var(--yellow); text-transform: uppercase; font-size: 12px; letter-spacing: .5px; }
+  tr:last-child td { border-bottom: none; }
+  .empty { padding: 20px; text-align: center; opacity: .6; }
+  .notice { background: #fff3cd; border: 2px solid #e0b400; border-radius: 8px; padding: 10px 14px; font-size: 14px; margin-bottom: 14px; }
+
+  #app { display: none; }
+</style>
+</head>
+<body>
+
+  <div id="gate">
+    <h1>🐾 Estadísticas</h1>
+    <p>Ingresá la clave de administrador para ver las ventas.</p>
+    <input type="password" id="gate-key" placeholder="Clave de admin" autocomplete="off">
+    <button id="gate-btn" type="button">Entrar</button>
+    <p class="err" id="gate-err">Clave incorrecta o falta configurar ADMIN_STATS_KEY.</p>
+  </div>
+
+  <div id="app">
+    <div class="topbar">
+      <h1>🐾 Estadísticas de compra</h1>
+      <div class="controls">
+        <select id="rango">
+          <option value="7">Últimos 7 días</option>
+          <option value="30" selected>Últimos 30 días</option>
+          <option value="90">Últimos 90 días</option>
+        </select>
+        <button id="refrescar" class="primary" type="button">Actualizar</button>
+        <button id="salir" type="button">Salir</button>
+      </div>
+    </div>
+
+    <main>
+      <div id="avisos"></div>
+
+      <div class="kpis" id="kpis"></div>
+
+      <section>
+        <h2>Ventas por día</h2>
+        <div class="chart" id="chart"></div>
+      </section>
+
+      <section>
+        <h2>Pedidos recientes</h2>
+        <table id="tabla-pedidos"><thead>
+          <tr><th>Pedido</th><th>Fecha</th><th>Cliente</th><th>Total</th></tr>
+        </thead><tbody></tbody></table>
+      </section>
+
+      <section>
+        <h2>Carritos abandonados</h2>
+        <table id="tabla-abandonados"><thead>
+          <tr><th>Fecha</th><th>Cliente</th><th>Valor</th></tr>
+        </thead><tbody></tbody></table>
+      </section>
+    </main>
+  </div>
+
+<script>
+(function () {
+  const gate = document.getElementById('gate');
+  const app = document.getElementById('app');
+  const gateKey = document.getElementById('gate-key');
+  const gateErr = document.getElementById('gate-err');
+
+  function formatMoneda(v, moneda) {
+    const n = Number(v) || 0;
+    try { return new Intl.NumberFormat('es-CL', { style: 'currency', currency: moneda || 'CLP', maximumFractionDigits: 0 }).format(n); }
+    catch (_) { return (moneda || '') + ' ' + n.toLocaleString('es-CL'); }
+  }
+  function formatFecha(iso) {
+    try { return new Date(iso).toLocaleString('es-CL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }); }
+    catch (_) { return iso; }
+  }
+
+  async function cargar() {
+    const key = sessionStorage.getItem('firulais_admin_key') || '';
+    const dias = document.getElementById('rango').value;
+    const r = await fetch('/api/admin/stats?days=' + encodeURIComponent(dias), { headers: { 'x-admin-key': key } });
+    if (r.status === 401) { mostrarGate(true); return; }
+    const data = await r.json();
+    if (!data.ok) { alert(data.error || 'Error al cargar estadísticas'); return; }
+    render(data);
+  }
+
+  function render(data) {
+    const avisos = document.getElementById('avisos');
+    avisos.innerHTML = '';
+    if (data.ventas.error) avisos.innerHTML += `<div class="notice">No se pudieron cargar los pedidos: ${data.ventas.error}</div>`;
+    if (data.abandonados.error) avisos.innerHTML += `<div class="notice">No se pudieron cargar los carritos abandonados (¿falta el permiso <code>read_checkouts</code> en el token de Shopify?): ${data.abandonados.error}</div>`;
+
+    const moneda = data.ventas.moneda;
+    document.getElementById('kpis').innerHTML = `
+      <div class="kpi"><div class="label">Ingresos (${data.dias} días)</div><div class="value">${formatMoneda(data.ventas.ingresosTotales, moneda)}</div></div>
+      <div class="kpi"><div class="label">Pedidos pagados</div><div class="value">${data.ventas.totalPedidos}</div></div>
+      <div class="kpi"><div class="label">Ticket promedio</div><div class="value">${formatMoneda(data.ventas.ticketPromedio, moneda)}</div></div>
+      <div class="kpi warn"><div class="label">Carritos abandonados</div><div class="value">${data.abandonados.total}</div></div>
+      <div class="kpi warn"><div class="label">$ perdido en abandono</div><div class="value">${formatMoneda(data.abandonados.valorPotencialPerdido, moneda)}</div></div>
+    `;
+
+    const chart = document.getElementById('chart');
+    const serie = data.serieDiaria || [];
+    const max = Math.max(1, ...serie.map(d => d.ingresos));
+    chart.innerHTML = serie.length ? serie.map(d => `
+      <div class="bar-wrap" title="${d.fecha}: ${formatMoneda(d.ingresos, moneda)} (${d.pedidos} pedidos)">
+        <div class="bar" style="height:${Math.max(4, Math.round(d.ingresos / max * 100))}px"></div>
+        <div class="day">${d.fecha.slice(5)}</div>
+      </div>`).join('') : '<div class="empty">Sin ventas en el período</div>';
+
+    const tp = document.querySelector('#tabla-pedidos tbody');
+    tp.innerHTML = (data.pedidosRecientes || []).length
+      ? data.pedidosRecientes.map(o => `<tr><td>${o.id}</td><td>${formatFecha(o.fecha)}</td><td>${o.email || '—'}</td><td>${formatMoneda(o.total, o.moneda)}</td></tr>`).join('')
+      : '<tr><td colspan="4" class="empty">Sin pedidos en el período</td></tr>';
+
+    const ta = document.querySelector('#tabla-abandonados tbody');
+    ta.innerHTML = (data.abandonadosRecientes || []).length
+      ? data.abandonadosRecientes.map(c => `<tr><td>${formatFecha(c.fecha)}</td><td>${c.email || '—'}</td><td>${formatMoneda(c.total, moneda)}</td></tr>`).join('')
+      : '<tr><td colspan="3" class="empty">Sin carritos abandonados en el período</td></tr>';
+  }
+
+  function mostrarGate(conError) {
+    sessionStorage.removeItem('firulais_admin_key');
+    gate.style.display = 'block';
+    app.style.display = 'none';
+    gateErr.style.display = conError ? 'block' : 'none';
+  }
+
+  document.getElementById('gate-btn').addEventListener('click', async () => {
+    const key = gateKey.value.trim();
+    if (!key) return;
+    const r = await fetch('/api/admin/stats?days=7', { headers: { 'x-admin-key': key } });
+    if (r.status === 401) { gateErr.style.display = 'block'; return; }
+    sessionStorage.setItem('firulais_admin_key', key);
+    gate.style.display = 'none';
+    app.style.display = 'block';
+    cargar();
+  });
+  gateKey.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('gate-btn').click(); });
+
+  document.getElementById('refrescar').addEventListener('click', cargar);
+  document.getElementById('rango').addEventListener('change', cargar);
+  document.getElementById('salir').addEventListener('click', () => mostrarGate(false));
+
+  if (sessionStorage.getItem('firulais_admin_key')) {
+    gate.style.display = 'none';
+    app.style.display = 'block';
+    cargar();
+  }
+})();
+</script>
+</body>
+</html>

@@ -10,9 +10,12 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 
 const app = express();
-app.use(express.json());
+/* verify: guarda el body crudo (rawBody) para poder validar la firma HMAC
+   de los webhooks de Shopify más abajo, sin tener que mover esta ruta. */
+app.use(express.json({ verify: (req, res, buf) => { req.rawBody = buf; } }));
 
 const STORE = process.env.SHOPIFY_STORE_DOMAIN;   // kairos-brewing.myshopify.com
 const TOKEN = process.env.SHOPIFY_ADMIN_TOKEN;    // shpat_...
@@ -140,6 +143,23 @@ function shopifyFetch(endpoint) {
       'Content-Type': 'application/json'
     }
   });
+}
+
+/* Trae todas las páginas de un endpoint de Shopify (sigue el header Link: rel="next"). */
+async function shopifyFetchAll(endpoint, maxPages = 6) {
+  let url = `https://${STORE}/admin/api/${API_VERSION}/${endpoint}`;
+  let out = [];
+  for (let i = 0; url && i < maxPages; i++) {
+    const r = await fetch(url, { headers: { 'X-Shopify-Access-Token': TOKEN, 'Content-Type': 'application/json' } });
+    if (!r.ok) throw new Error(`Shopify ${r.status}: ${(await r.text()).slice(0, 300)}`);
+    const json = await r.json();
+    const key = Object.keys(json)[0]; // 'orders' o 'checkouts'
+    out = out.concat(json[key] || []);
+    const link = r.headers.get('link') || '';
+    const next = link.split(',').find(s => s.includes('rel="next"'));
+    url = next ? next.slice(next.indexOf('<') + 1, next.indexOf('>')) : null;
+  }
+  return out;
 }
 
 /* Datos del producto Cachupin (variante, precio, dominio para el checkout) */
@@ -385,6 +405,173 @@ app.post('/api/redeem', async (req, res) => {
   }
   if (rec) { rec.issuedCode = r.code; rec.issuedTier = percent; guardarScores(scores); }
   res.json({ ok: true, code: r.code, percent, endsAt: r.endsAt });
+});
+
+/* ── Meta Conversions API: manda el evento "Purchase" server-side ──
+   Complementa (no reemplaza) el Meta Pixel del navegador: como el checkout
+   pasa por el dominio de Shopify (fuera de esta web), la compra se reporta
+   acá vía webhook de Shopify → Meta, así aparece siempre en Meta Ads aunque
+   el cliente tenga ad-blocker o bloqueo de cookies de terceros.
+   Variables de entorno necesarias:
+     META_CAPI_TOKEN       → token de acceso de la Conversions API (Events Manager → Configuración → Conversions API)
+     META_PIXEL_ID         → opcional, por defecto usa el mismo ID del pixel de abajo
+     SHOPIFY_WEBHOOK_SECRET→ "Signing secret" del webhook (Shopify admin → Notificaciones → Webhooks) */
+function sha256(v) {
+  return crypto.createHash('sha256').update(String(v).trim().toLowerCase()).digest('hex');
+}
+
+async function enviarCompraAMeta(order) {
+  const PIXEL_ID = process.env.META_PIXEL_ID || '1544691450768570';
+  const CAPI_TOKEN = process.env.META_CAPI_TOKEN;
+  if (!CAPI_TOKEN) { console.error('Meta CAPI: falta META_CAPI_TOKEN, no se pudo reportar la compra'); return; }
+
+  const userData = {};
+  const email = (order.email || order.contact_email || '').trim();
+  if (email) userData.em = [sha256(email)];
+  const phone = order.phone || (order.customer && order.customer.phone) || '';
+  if (phone) userData.ph = [sha256(phone.replace(/\D/g, ''))];
+
+  const payload = {
+    data: [{
+      event_name: 'Purchase',
+      event_time: Math.floor(new Date(order.created_at || Date.now()).getTime() / 1000),
+      event_id: 'order_' + order.id, // evita duplicar si algún día también se dispara desde el navegador
+      action_source: 'website',
+      event_source_url: `https://${STORE}/`,
+      user_data: userData,
+      custom_data: {
+        currency: order.currency || 'CLP',
+        value: parseFloat(order.total_price || 0),
+        order_id: String(order.id),
+        content_type: 'product',
+        contents: (order.line_items || []).map(li => ({ id: String(li.product_id || li.variant_id || ''), quantity: li.quantity || 1 }))
+      }
+    }]
+  };
+  try {
+    const r = await fetch(`https://graph.facebook.com/v20.0/${PIXEL_ID}/events?access_token=${encodeURIComponent(CAPI_TOKEN)}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+    });
+    if (!r.ok) console.error('Meta CAPI rechazó la compra:', r.status, await r.text());
+    else console.log('Meta CAPI: Purchase enviado para la orden', order.id);
+  } catch (e) {
+    console.error('Meta CAPI error:', e.message);
+  }
+}
+
+/* Webhook de Shopify (orders/paid): valida la firma y reporta la compra a Meta. */
+app.post('/webhooks/shopify/orders-paid', (req, res) => {
+  const secret = process.env.SHOPIFY_WEBHOOK_SECRET;
+  if (!secret) { console.error('Webhook orders/paid: falta SHOPIFY_WEBHOOK_SECRET'); return res.status(500).end(); }
+  const hmacHeader = req.get('X-Shopify-Hmac-Sha256') || '';
+  const digest = crypto.createHmac('sha256', secret).update(req.rawBody || Buffer.alloc(0)).digest('base64');
+  const a = Buffer.from(digest), b = Buffer.from(hmacHeader);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
+    return res.status(401).send('Firma inválida');
+  }
+  res.status(200).send('ok'); // responder rápido; Shopify reintenta si tarda
+  enviarCompraAMeta(req.body).catch(e => console.error('enviarCompraAMeta:', e.message));
+});
+
+/* Registra el webhook orders/paid en Shopify si todavía no existe (best-effort, no bloquea el arranque). */
+async function registrarWebhookOrdersPaid() {
+  if (!STORE || !TOKEN) return;
+  const APP_URL = process.env.APP_URL; // ej: https://firulais-production.up.railway.app
+  if (!APP_URL) { console.log('Webhook orders/paid: seteá APP_URL (o registrá el webhook a mano en Shopify) para que las compras lleguen a Meta.'); return; }
+  const address = `${APP_URL.replace(/\/$/, '')}/webhooks/shopify/orders-paid`;
+  try {
+    const existing = await shopifyFetch('webhooks.json?limit=250');
+    if (!existing.ok) return;
+    const { webhooks = [] } = await existing.json();
+    if (webhooks.some(w => w.topic === 'orders/paid' && w.address === address)) return;
+    const r = await fetch(`https://${STORE}/admin/api/${API_VERSION}/webhooks.json`, {
+      method: 'POST',
+      headers: { 'X-Shopify-Access-Token': TOKEN, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ webhook: { topic: 'orders/paid', address, format: 'json' } })
+    });
+    if (r.ok) console.log('Webhook orders/paid registrado:', address);
+    else console.error('No se pudo registrar el webhook orders/paid:', r.status, await r.text());
+  } catch (e) {
+    console.error('registrarWebhookOrdersPaid:', e.message);
+  }
+}
+registrarWebhookOrdersPaid();
+
+/* ── Estadísticas de compra (panel admin) ──
+   Protegido con una clave simple (header x-admin-key) contra ADMIN_STATS_KEY.
+   Trae pedidos y checkouts abandonados directo desde Shopify (sin base de datos propia). */
+function claveAdminValida(req) {
+  const clave = process.env.ADMIN_STATS_KEY;
+  if (!clave) return false;
+  const got = Buffer.from(req.get('x-admin-key') || '');
+  const exp = Buffer.from(clave);
+  return got.length === exp.length && crypto.timingSafeEqual(got, exp);
+}
+
+app.get('/api/admin/stats', async (req, res) => {
+  if (!claveAdminValida(req)) return res.status(401).json({ error: 'No autorizado' });
+  if (!STORE || !TOKEN) return res.status(500).json({ error: 'Shopify no configurado (SHOPIFY_STORE_DOMAIN / SHOPIFY_ADMIN_TOKEN)' });
+
+  const dias = Math.min(90, Math.max(1, parseInt(req.query.days, 10) || 30));
+  const desde = new Date(Date.now() - dias * 86400000).toISOString();
+
+  let pedidos = [], errorPedidos = null;
+  try {
+    pedidos = await shopifyFetchAll(
+      `orders.json?status=any&created_at_min=${encodeURIComponent(desde)}&limit=250&fields=id,name,created_at,total_price,currency,email,financial_status,cancelled_at`
+    );
+  } catch (e) { errorPedidos = e.message; }
+
+  let checkouts = [], errorCheckouts = null;
+  try {
+    checkouts = await shopifyFetchAll(
+      `checkouts.json?created_at_min=${encodeURIComponent(desde)}&limit=250`
+    );
+  } catch (e) { errorCheckouts = e.message; } // ej: falta el scope read_checkouts en el token
+
+  const pagados = pedidos.filter(o => o.financial_status === 'paid' && !o.cancelled_at);
+  const ingresosTotales = pagados.reduce((s, o) => s + parseFloat(o.total_price || 0), 0);
+  const totalPedidos = pagados.length;
+  const moneda = (pagados[0] && pagados[0].currency) || 'CLP';
+
+  const abandonados = checkouts.filter(c => !c.completed_at);
+  const valorPotencialPerdido = abandonados.reduce((s, c) => s + parseFloat(c.total_price || 0), 0);
+
+  const porDia = {};
+  for (const o of pagados) {
+    const f = o.created_at.slice(0, 10);
+    if (!porDia[f]) porDia[f] = { fecha: f, pedidos: 0, ingresos: 0 };
+    porDia[f].pedidos++;
+    porDia[f].ingresos += parseFloat(o.total_price || 0);
+  }
+  const serieDiaria = Object.values(porDia).sort((a, b) => a.fecha.localeCompare(b.fecha));
+
+  const pedidosRecientes = pagados
+    .slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    .slice(0, 20)
+    .map(o => ({ id: o.name, fecha: o.created_at, total: o.total_price, moneda: o.currency, email: o.email || '' }));
+
+  const abandonadosRecientes = abandonados
+    .slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    .slice(0, 20)
+    .map(c => ({ fecha: c.created_at, total: c.total_price || '0', email: c.email || '' }));
+
+  res.json({
+    ok: true,
+    dias,
+    ventas: {
+      totalPedidos, ingresosTotales, moneda,
+      ticketPromedio: totalPedidos ? ingresosTotales / totalPedidos : 0,
+      error: errorPedidos
+    },
+    abandonados: {
+      total: abandonados.length,
+      valorPotencialPerdido,
+      tasaAbandono: (abandonados.length + totalPedidos) ? abandonados.length / (abandonados.length + totalPedidos) : null,
+      error: errorCheckouts
+    },
+    serieDiaria, pedidosRecientes, abandonadosRecientes
+  });
 });
 
 /* ── Meta Pixel: se inyecta en el <head> de las páginas HTML servidas ──

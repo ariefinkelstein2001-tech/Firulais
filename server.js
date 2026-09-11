@@ -40,6 +40,69 @@ function guardarScores(arr) {
   catch (e) { console.error('No se pudo guardar scores:', e.message); return false; }
 }
 
+/* ── Flujo de la página (visitas por sesión, sin base de datos) ──
+   Se guarda en un JSON local (como scores.json). Con Volume + DATA_DIR en
+   Railway, persiste entre deploys; si no, arranca de cero en cada deploy. */
+const VISITS_FILE = path.join(DATA_DIR, 'visitas.json');
+const VISITS_DIAS_RETENCION = 90;
+const VISITS_MAX = 20000;
+const PAGINAS_TRACKEADAS = new Set(['/', '/index.html', '/juego.html', '/politicas.html']);
+
+function leerVisitas() {
+  try { return JSON.parse(fs.readFileSync(VISITS_FILE, 'utf8')); }
+  catch (_) { return []; }
+}
+function guardarVisitas(arr) {
+  try { fs.writeFileSync(VISITS_FILE, JSON.stringify(arr)); return true; }
+  catch (e) { console.error('No se pudo guardar visitas:', e.message); return false; }
+}
+function detectarDispositivo(ua) {
+  ua = ua || '';
+  if (/ipad|tablet/i.test(ua)) return 'tablet';
+  if (/mobile|android|iphone/i.test(ua)) return 'mobile';
+  return 'desktop';
+}
+function obtenerOCrearSesion(req, res) {
+  const cookies = Object.fromEntries((req.headers.cookie || '').split(';').map(p => p.trim()).filter(Boolean).map(p => {
+    const i = p.indexOf('=');
+    return i < 0 ? [p, ''] : [p.slice(0, i), decodeURIComponent(p.slice(i + 1))];
+  }));
+  if (cookies.fir_sid) return { sid: cookies.fir_sid, esNueva: false };
+  const sid = crypto.randomUUID();
+  res.setHeader('Set-Cookie', `fir_sid=${sid}; Path=/; Max-Age=${60 * 60 * 24 * 180}; SameSite=Lax`);
+  return { sid, esNueva: true };
+}
+function registrarVisita(req, sid, esNueva) {
+  try {
+    const ref = req.get('referer') || '';
+    const host = (req.get('host') || '').split(':')[0];
+    let refHost = '';
+    try { refHost = ref ? new URL(ref).hostname.replace(/^www\./, '') : ''; } catch (_) {}
+    const visitas = leerVisitas();
+    visitas.push({
+      ts: new Date().toISOString(),
+      path: req.path === '/' ? '/index.html' : req.path,
+      sid,
+      nueva: esNueva,
+      ref: (refHost && refHost !== host) ? refHost : '',
+      utm_source: String(req.query.utm_source || ''),
+      utm_medium: String(req.query.utm_medium || ''),
+      utm_campaign: String(req.query.utm_campaign || ''),
+      dispositivo: detectarDispositivo(req.get('user-agent'))
+    });
+    const corte = Date.now() - VISITS_DIAS_RETENCION * 86400000;
+    guardarVisitas(visitas.filter(v => new Date(v.ts).getTime() >= corte).slice(-VISITS_MAX));
+  } catch (e) { console.error('No se pudo registrar visita:', e.message); }
+}
+/* Registra la visita ANTES de continuar (para poder setear la cookie de sesión
+   a tiempo) pero guarda el archivo DESPUÉS de responder, para no demorar la carga. */
+app.use((req, res, next) => {
+  if (req.method !== 'GET' || !PAGINAS_TRACKEADAS.has(req.path)) return next();
+  const { sid, esNueva } = obtenerOCrearSesion(req, res);
+  next();
+  setImmediate(() => registrarVisita(req, sid, esNueva));
+});
+
 /* Siembra 200 jugadores ficticios (poquísimos puntos), conservando a los reales.
    Solo agrega los que falten; no duplica ni borra. */
 function seedScores() {
@@ -571,6 +634,61 @@ app.get('/api/admin/stats', async (req, res) => {
       error: errorCheckouts
     },
     serieDiaria, pedidosRecientes, abandonadosRecientes
+  });
+});
+
+/* ── Flujo de la página (visitas, sesiones, páginas, origen, dispositivo) ── */
+app.get('/api/admin/flow', (req, res) => {
+  if (!claveAdminValida(req)) return res.status(401).json({ error: 'No autorizado' });
+
+  const dias = Math.min(90, Math.max(1, parseInt(req.query.days, 10) || 30));
+  const desde = Date.now() - dias * 86400000;
+  const visitas = leerVisitas().filter(v => new Date(v.ts).getTime() >= desde);
+
+  const sesiones = new Set(visitas.map(v => v.sid));
+  const nuevasSesiones = new Set(visitas.filter(v => v.nueva).map(v => v.sid)).size;
+
+  const porDia = {};
+  for (const v of visitas) {
+    const f = v.ts.slice(0, 10);
+    if (!porDia[f]) porDia[f] = { fecha: f, visitas: 0, sesiones: new Set() };
+    porDia[f].visitas++;
+    porDia[f].sesiones.add(v.sid);
+  }
+  const serieDiaria = Object.values(porDia)
+    .map(d => ({ fecha: d.fecha, visitas: d.visitas, visitantes: d.sesiones.size }))
+    .sort((a, b) => a.fecha.localeCompare(b.fecha));
+
+  const porPagina = {};
+  for (const v of visitas) porPagina[v.path] = (porPagina[v.path] || 0) + 1;
+  const paginasTop = Object.entries(porPagina)
+    .map(([pagina, visitas]) => ({ pagina, visitas }))
+    .sort((a, b) => b.visitas - a.visitas);
+
+  const porOrigen = {};
+  for (const v of visitas) {
+    const clave = v.utm_source ? `utm: ${v.utm_source}` : (v.ref || 'Directo');
+    porOrigen[clave] = (porOrigen[clave] || 0) + 1;
+  }
+  const origenesTop = Object.entries(porOrigen)
+    .map(([origen, visitas]) => ({ origen, visitas }))
+    .sort((a, b) => b.visitas - a.visitas)
+    .slice(0, 10);
+
+  const porDispositivo = {};
+  for (const v of visitas) porDispositivo[v.dispositivo] = (porDispositivo[v.dispositivo] || 0) + 1;
+
+  const sesionesConJuego = new Set(visitas.filter(v => v.path === '/juego.html').map(v => v.sid)).size;
+
+  res.json({
+    ok: true,
+    dias,
+    totalVisitas: visitas.length,
+    visitantesUnicos: sesiones.size,
+    nuevasSesiones,
+    sesionesJuego: sesionesConJuego,
+    tasaJuego: sesiones.size ? sesionesConJuego / sesiones.size : 0,
+    serieDiaria, paginasTop, origenesTop, porDispositivo
   });
 });
 

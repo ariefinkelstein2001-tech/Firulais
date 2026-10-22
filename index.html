@@ -233,14 +233,9 @@
       position: absolute; left: -320px;
     }
     #dogGif { bottom: 16px; animation: walkGif 6s linear infinite; }
-    #dogGif2 { top: 14%; transform: scaleX(-1); animation: walkRev 7.5s linear infinite; }
     @keyframes walkGif {
       from { left: -320px; }
       to   { left: 110%; }
-    }
-    @keyframes walkRev {
-      from { left: 110%; }
-      to   { left: -320px; }
     }
     #gameBanner { display: none !important; }
     .banner-inner, .banner-chip { display: none; }
@@ -1225,9 +1220,6 @@
     </div>
     <div class="game-stage" id="game-stage">
       <div id="idleMode">
-        <video id="dogGif2" class="dog-walk dog-rev" autoplay loop muted playsinline aria-label="Firulais">
-          <source src="perroca.mp4" type="video/mp4">
-        </video>
         <video id="dogGif" class="dog-walk" autoplay loop muted playsinline aria-label="Firulais">
           <source src="perroca.mp4" type="video/mp4">
         </video>
